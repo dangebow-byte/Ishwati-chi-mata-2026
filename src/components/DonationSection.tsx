@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { TRANSLATIONS } from '../data';
 import { DonationRecord } from '../types';
 import { CreditCard, Award, Printer, ShieldAlert, Heart, QrCode, FileText, CheckCircle, HelpCircle } from 'lucide-react';
+import { SiteLogo } from './SiteLogo';
 
 interface DonationSectionProps {
   lang: 'EN' | 'MR';
@@ -403,6 +404,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
 
             {/* Receipt Header logo */}
             <div className="text-center space-y-2 relative border-b-2 border-brand-gold/60 pb-5">
+              <SiteLogo variant="transparent" size="sm" className="mx-auto mb-2" />
               <span className="text-brand-red font-serif font-black text-xl sm:text-2xl tracking-wide uppercase block">
                 {lang === 'EN' ? 'Shree Ishwatichi Mata Charitable Devasthan Trust' : 'श्री ईश्वटीची माता चॅरिटेबल देवस्थान ट्रस्ट'}
               </span>

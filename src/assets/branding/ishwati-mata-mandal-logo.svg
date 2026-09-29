@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%" aria-label="श्री ईश्वटीची माता मंडळ अधिकृत बोधचिन्ह">
+  <defs>
+    <!-- Sacred Maroon Radial Gradient for Medallion Background -->
+    <radialGradient id="mandalMaroonBgFull" cx="50%" cy="46%" r="52%">
+      <stop offset="0%" stop-color="#931322" />
+      <stop offset="45%" stop-color="#6d0915" />
+      <stop offset="85%" stop-color="#42040b" />
+      <stop offset="100%" stop-color="#240105" />
+    </radialGradient>
+
+    <!-- Divine Golden Trim Gradient -->
+    <linearGradient id="goldBorderFull" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF0A0" />
+      <stop offset="25%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#D4AF37" />
+      <stop offset="75%" stop-color="#AA771C" />
+      <stop offset="100%" stop-color="#FFDF73" />
+    </linearGradient>
+
+    <!-- Trishul Silver & Gold Gradient -->
+    <linearGradient id="trishulGradFull" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="50%" stop-color="#F2F2F2" />
+      <stop offset="85%" stop-color="#E0D3A8" />
+      <stop offset="100%" stop-color="#C59B27" />
+    </linearGradient>
+
+    <!-- Mata Gold Calligraphy Gradient -->
+    <linearGradient id="mataGoldFull" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF8D0" />
+      <stop offset="35%" stop-color="#FFDF00" />
+      <stop offset="70%" stop-color="#E5A823" />
+      <stop offset="100%" stop-color="#B87310" />
+    </linearGradient>
+
+    <!-- Soft Divine Glow -->
+    <filter id="divineGlowFull" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Drop Shadow for Text Depth -->
+    <filter id="textShadowFull" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-color="#000000" flood-opacity="0.8" />
+    </filter>
+  </defs>
+
+  <!-- Circular Maroon Medallion -->
+  <circle cx="250" cy="250" r="240" fill="url(#mandalMaroonBgFull)" stroke="url(#goldBorderFull)" stroke-width="8" filter="url(#textShadowFull)" />
+  
+  <!-- Inner Golden Ornamental Rings -->
+  <circle cx="250" cy="250" r="226" fill="none" stroke="#FF9933" stroke-width="2.5" stroke-dasharray="8,5" opacity="0.95" />
+  <circle cx="250" cy="250" r="220" fill="none" stroke="url(#goldBorderFull)" stroke-width="2" />
+  <circle cx="250" cy="250" r="214" fill="none" stroke="#680812" stroke-width="1.5" opacity="0.8" />
+
+  <!-- Sacred Radiance Accents Around Border -->
+  <g opacity="0.4" stroke="url(#goldBorderFull)" stroke-width="2">
+    <line x1="250" y1="34" x2="250" y2="16" />
+    <line x1="250" y1="466" x2="250" y2="484" />
+    <line x1="34" y1="250" x2="16" y2="250" />
+    <line x1="466" y1="250" x2="484" y2="250" />
+    <line x1="97" y1="97" x2="84" y2="84" />
+    <line x1="403" y1="97" x2="416" y2="84" />
+    <line x1="97" y1="403" x2="84" y2="416" />
+    <line x1="403" y1="403" x2="416" y2="416" />
+  </g>
+
+  <!-- Sacred Trident (Trishul) at Top Center -->
+  <g transform="translate(250, 114) scale(0.92)" filter="url(#divineGlowFull)">
+    <!-- Central Spear -->
+    <path d="M 0,-64 L 7.5,-30 L 3.5,30 L -3.5,30 L -7.5,-30 Z" fill="url(#trishulGradFull)" stroke="#D4AF37" stroke-width="0.8" />
+    <!-- Left Curved Blade -->
+    <path d="M -5,0 C -26,-16 -37,-46 -29,-58 C -26,-42 -12,-20 0,-10 Z" fill="url(#trishulGradFull)" stroke="#D4AF37" stroke-width="0.8" />
+    <!-- Right Curved Blade -->
+    <path d="M 5,0 C 26,-16 37,-46 29,-58 C 26,-42 12,-20 0,-10 Z" fill="url(#trishulGradFull)" stroke="#D4AF37" stroke-width="0.8" />
+    <!-- Crossbar / Damru Base -->
+    <ellipse cx="0" cy="22" rx="16" ry="4.5" fill="url(#goldBorderFull)" />
+    <!-- Trishul Handle Shaft -->
+    <rect x="-3" y="24" width="6" height="32" fill="url(#goldBorderFull)" rx="2" />
+  </g>
+
+  <!-- Auspicious Dots: Haldi (Turmeric Yellow, Left) & Kumkum (Vermilion Red, Right) -->
+  <!-- Left Yellow Circle (Haldi) -->
+  <circle cx="152" cy="114" r="23" fill="#FFB703" stroke="#FFE066" stroke-width="3" filter="url(#divineGlowFull)" />
+  <circle cx="152" cy="114" r="20" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.6" />
+  
+  <!-- Right Vermilion Red Circle (Kumkum) -->
+  <circle cx="348" cy="114" r="23" fill="#E62E00" stroke="#FF7B59" stroke-width="3" filter="url(#divineGlowFull)" />
+  <circle cx="348" cy="114" r="20" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.6" />
+
+  <!-- Sacred Devanagari Typography -->
+  <g text-anchor="middle" font-family="'Noto Sans Devanagari', 'Mukta', 'Yatra One', 'Arial Unicode MS', sans-serif" filter="url(#textShadowFull)">
+    <!-- Auspicious Prefix: श्री -->
+    <text x="250" y="196" font-size="28" fill="#FFD700" font-weight="800" letter-spacing="4">
+      ॥ श्री ॥
+    </text>
+
+    <!-- Main Title Line 1: ईश्वटीची -->
+    <text x="250" y="258" font-size="58" fill="#FFFFFF" font-weight="900" letter-spacing="2" filter="url(#divineGlowFull)">
+      ईश्वटीची
+    </text>
+
+    <!-- Accent Line 2: माता -->
+    <text x="250" y="328" font-size="68" fill="url(#mataGoldFull)" font-weight="900" letter-spacing="4" filter="url(#divineGlowFull)">
+      माता
+    </text>
+
+    <!-- Subtitle Line 3: मंडळ -->
+    <text x="250" y="382" font-size="34" fill="#FF9E2C" font-weight="800" letter-spacing="6">
+      मंडळ
+    </text>
+  </g>
+
+  <!-- Bottom Arch Inscription: स्थापना १९७६ • डोंबिवली पूर्व -->
+  <path id="archBottomFull" d="M 75,310 A 200,200 0 0,0 425,310" fill="none" stroke="none" />
+  <text font-family="'Noto Sans Devanagari', 'Mukta', sans-serif" font-size="14.5" fill="#FFE074" font-weight="700" letter-spacing="3" text-anchor="middle">
+    <textPath href="#archBottomFull" startOffset="50%">
+      || श्री ईश्वटीची माता प्रसन्न • स्थापना १९७६ ||
+    </textPath>
+  </text>
+</svg>

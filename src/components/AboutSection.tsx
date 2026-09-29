@@ -6,6 +6,8 @@
 import React, { useState } from 'react';
 import { TIMELINE_MILESTONES } from '../data';
 import { BookOpen, MapPin, Milestone, Sparkles, Star, History } from 'lucide-react';
+import { SiteLogo } from './SiteLogo';
+import { DeviImage } from './DeviImage';
 
 interface AboutSectionProps {
   lang: 'EN' | 'MR';
@@ -69,6 +71,32 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
             ? (siteContent?.headerDescEN || 'Deeply rooted in ancient traditional heritage, Shree Ishwatichi Mata reigns as the supreme protectress of the region, blessing millions of devotees who experience physical healing and inner peace upon entering her presence.')
             : (siteContent?.headerDescMR || 'अनादी काळापासून भक्तांचे श्रद्धास्थान असलेल्या श्री ईश्वटीची देवीच्या स्थापनेपासूनचा देदीप्यमान इतिहास, भक्तांना आलेले दैवी अनुभव आणि समाजोपयोगी कार्याची यशोगाथा.')}
         </p>
+      </div>
+
+      {/* Divine Visual Showcase Banner */}
+      <div className="bg-gradient-to-r from-brand-maroon/70 via-black/80 to-brand-maroon/70 border border-brand-gold/30 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row items-center gap-6 flex-1 text-center sm:text-left">
+          <DeviImage
+            aspectRatio="portrait"
+            withFrame
+            withAura
+            className="w-28 sm:w-36 h-auto shrink-0"
+          />
+          <div className="space-y-2">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-brand-gold font-bold">
+              {lang === 'EN' ? 'Official Sanctum Sanctorum' : 'अधिकृत गाभारा व राजमुद्रा'}
+            </span>
+            <h3 className="font-serif text-xl sm:text-2xl font-black text-white">
+              {lang === 'EN' ? 'Shree Ishwatichi Mata & Mandal Insignia' : 'श्री ईश्वटीची माता आणि अधिकृत बोधचिन्ह'}
+            </h3>
+            <p className="text-xs text-gray-300 leading-relaxed">
+              {lang === 'EN'
+                ? 'Original consecrated idol venerated continuously since 1976 under the spiritual guardianship of Shree Ishwatichi Mata Mandal.'
+                : '१९७६ पासून भक्तांच्या अखंड सेवेत असलेली श्री ईश्वटीची मातेची स्वयंभू पाषाण मूर्ती आणि अधिकृत बोधचिन्ह.'}
+            </p>
+          </div>
+        </div>
+        <SiteLogo variant="transparent" size="lg" withBorder withGlow />
       </div>
 
       {/* Grid containing History and Journey */}

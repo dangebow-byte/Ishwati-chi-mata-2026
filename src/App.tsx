@@ -26,10 +26,13 @@ import { AdminPanel } from './components/AdminPanel';
 import { ContactSection } from './components/ContactSection';
 
 import { Sparkles, Play, Flame, Bell, Award, HelpCircle } from 'lucide-react';
+import { SiteLogo } from './components/SiteLogo';
+import { DeviImage } from './components/DeviImage';
+import { HeroAudioPlayer } from './components/HeroAudioPlayer';
 
-// Beautiful premium custom-generated temple assets representing the specific requested PNG/JPEG assets
-import logoImg from './assets/images/temple_logo_new_1781436064671.jpg';
-import heroImg from './assets/images/ishwatichi_mata_new_hero_1781434319694.jpg';
+// Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
+import logoImg from './assets/branding/ishwati-mata-mandal-logo-transparent.png';
+import heroImg from './assets/devotional/devi-mata-main.webp';
 
 export default function App() {
   const [lang, setLang] = useState<'EN' | 'MR'>('MR');
@@ -505,11 +508,12 @@ export default function App() {
         <section className="relative w-full overflow-hidden border-b border-brand-gold/15 bg-black">
           {/* Main Visual Altar background */}
           <div className="absolute inset-0 z-0">
-            <img 
-              src={heroImg} 
-              alt="Goddess Ishwatichi Mata Altar background" 
-              className="w-full h-full object-cover opacity-45 brightness-90 saturate-[1.2] lg:object-center scale-100 transform transform-gpu"
-              referrerPolicy="no-referrer"
+            <DeviImage 
+              aspectRatio="hero"
+              objectFit="cover"
+              priority
+              className="w-full h-full opacity-45 brightness-90 saturate-[1.2] lg:object-center scale-100 transform transform-gpu"
+              imageClassName="w-full h-full object-cover"
             />
             {/* Soft Royal gradients */}
             <div className="absolute inset-0 bg-gradient-to-t from-brand-maroon via-black/30 to-transparent" />
@@ -605,6 +609,9 @@ export default function App() {
                 📝 {t.hero_btn4}
               </button>
             </div>
+
+            {/* Background Devotional Web Audio Player (Aarti vs Silence) */}
+            <HeroAudioPlayer lang={lang} />
 
           </div>
         </section>
@@ -735,8 +742,8 @@ export default function App() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
           
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🕌</span>
+            <div className="flex items-center gap-3">
+              <SiteLogo variant="transparent" size="sm" withGlow />
               <h4 className="font-serif font-black text-brand-gold text-sm tracking-widest">{t.title}</h4>
             </div>
             <p className="text-gray-300 leading-normal">

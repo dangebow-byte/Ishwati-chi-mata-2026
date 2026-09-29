@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { Sunset, Languages, Moon, Sun, ShieldAlert, Award, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sunset, Languages, Moon, Sun, ShieldAlert, Award, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { TRANSLATIONS } from '../data';
+import { SiteLogo } from './SiteLogo';
+import { aartiAudioEngine } from '../utils/aartiAudioEngine';
 
 interface HeaderProps {
   lang: 'EN' | 'MR';
@@ -35,6 +37,16 @@ export const Header: React.FC<HeaderProps> = ({
   logoUrl
 }) => {
   const t = TRANSLATIONS[lang];
+  const [isAudioPlaying, setIsAudioPlaying] = useState(() => aartiAudioEngine.getIsPlaying());
+
+  useEffect(() => {
+    const unsub = aartiAudioEngine.onStateChange(playing => {
+      setIsAudioPlaying(playing);
+    });
+    return () => {
+      unsub();
+    };
+  }, []);
 
   const handleLangToggle = () => {
     setLang(lang === 'EN' ? 'MR' : 'EN');
@@ -70,7 +82,36 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Background Aarti Live Audio Indicator */}
+            {isAudioPlaying ? (
+              <button
+                onClick={() => aartiAudioEngine.silence()}
+                className="flex items-center gap-1.5 text-brand-gold bg-amber-950/80 px-2.5 py-1 rounded-full border border-brand-gold/50 hover:bg-amber-900/80 transition-all cursor-pointer shadow-sm animate-pulse"
+                title={lang === 'EN' ? "Aarti playing • Click to silence" : "आरती सुरू आहे • शांत करण्यासाठी दाबा"}
+              >
+                <Volume2 className="h-3.5 w-3.5 text-brand-saffron animate-bounce" />
+                <span className="font-serif font-bold text-[10px] hidden sm:inline">
+                  {lang === 'EN' ? "Aarti Playing" : "आरती सुरू"}
+                </span>
+                <span className="text-[9px] bg-brand-gold text-brand-maroon px-1 rounded font-bold">
+                  {lang === 'EN' ? "Mute" : "शांत करा"}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  aartiAudioEngine.playAarti();
+                  if (activeTab !== 'home') setActiveTab('home');
+                }}
+                className="hidden lg:flex items-center gap-1 text-[10px] text-gray-300 hover:text-brand-gold bg-black/30 hover:bg-black/50 px-2 py-0.5 rounded-full border border-white/10 hover:border-brand-gold/30 transition-all cursor-pointer"
+                title={lang === 'EN' ? "Play 'Om Jai Ishwati Mata' Aarti" : "आरती सुरू करा"}
+              >
+                <VolumeX className="h-3 w-3 text-gray-400" />
+                <span className="font-serif">{lang === 'EN' ? "Aarti: Silent" : "आरती: शांत"}</span>
+              </button>
+            )}
+
             {/* Devotion Streak Indicator */}
             <button 
               onClick={() => setActiveTab('profile')} 
@@ -138,23 +179,8 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Primary Navbar */}
         <div className="flex flex-col md:flex-row items-center justify-between py-3 gap-3 md:gap-0">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('home')}>
-            <div className="relative rounded-full border-2 border-brand-gold bg-gradient-to-br from-amber-700 via-brand-maroon to-black h-14 w-14 sm:h-16 sm:w-16 shadow-lg flex items-center justify-center overflow-hidden group shrink-0">
-              {logoUrl ? (
-                <img
-                  src={logoUrl}
-                  alt="श्री ईश्वटीची माता मंडळ"
-                  className="h-full w-full object-cover group-hover:scale-105 transition-transform"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <Sunset className="h-8 w-8 text-brand-gold animate-pulse" />
-              )}
-              {/* Sacred overlay insignia */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-0.5 pointer-events-none">
-                <span className="text-[8px] sm:text-[9px] font-serif font-black text-brand-gold tracking-tight leading-none bg-black/80 px-1.5 py-0.5 rounded-sm border border-brand-gold/40 shadow">
-                  श्री ईश्वटीची
-                </span>
-              </div>
+            <div className="relative rounded-full border-2 border-brand-gold bg-gradient-to-br from-amber-700/60 via-brand-maroon to-black h-14 w-14 sm:h-16 sm:w-16 shadow-lg flex items-center justify-center overflow-hidden group shrink-0 p-1">
+              <SiteLogo variant="transparent" size="custom" className="h-full w-full group-hover:scale-105 transition-transform" />
               <div className="absolute -top-0.5 -right-0.5 bg-brand-saffron text-[8px] font-black text-black px-1.5 py-0.2 rounded-full border border-brand-gold shadow">
                 ५०वे
               </div>
