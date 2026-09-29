@@ -1,0 +1,6 @@
+{
+  "name": "Shree Ishwatichi Mata Official Website",
+  "description": "Official website of Shree Ishwatichi Mata Devasthan Mandal featuring daily darshans, online seva bookings, secure donations with instant 80G tax benefit receipt generator, news announcements, devotee experiences and administrative portals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Global Default Deny Gate
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- PRIMITIVE GLOBAL HELPERS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && 
+             request.auth.token.email == 'dangebow@gmail.com' && 
+             request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- SCHEMA VALIDATION BLUEPRINTS ---
+    
+    function isValidAnnouncement(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.title is string && data.title.size() <= 500 &&
+             data.titleMarathi is string && data.titleMarathi.size() <= 500 &&
+             data.category is string && data.category.size() <= 50 &&
+             data.date is string && data.date.size() <= 20 &&
+             data.content is string && data.content.size() <= 10000 &&
+             data.contentMarathi is string && data.contentMarathi.size() <= 10000;
+    }
+
+    function isValidEvent(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.title is string && data.title.size() <= 500 &&
+             data.titleMarathi is string && data.titleMarathi.size() <= 500 &&
+             data.description is string && data.description.size() <= 5000 &&
+             data.descriptionMarathi is string && data.descriptionMarathi.size() <= 5000 &&
+             data.date is string && data.date.size() <= 20 &&
+             data.time is string && data.time.size() <= 100 &&
+             data.category is string && data.category.size() <= 50 &&
+             data.rsvpCount is number &&
+             (!('image' in data) || (data.image is string && data.image.size() <= 2000));
+    }
+
+    function isValidTestimonial(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.location is string && data.location.size() <= 200 &&
+             data.story is string && data.story.size() <= 5000 &&
+             data.approved is bool &&
+             data.date is string && data.date.size() <= 20 &&
+             (!('rating' in data) || (data.rating is number)) &&
+             (!('avatarUrl' in data) || (data.avatarUrl is string && data.avatarUrl.size() <= 2000));
+    }
+
+    function isValidBooking(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.type is string && data.type.size() <= 50 &&
+             data.subType is string && data.subType.size() <= 100 &&
+             data.devoteeName is string && data.devoteeName.size() <= 200 &&
+             data.phone is string && data.phone.size() <= 30 &&
+             data.email is string && data.email.size() <= 128 &&
+             data.date is string && data.date.size() <= 20 &&
+             data.status is string && data.status.size() <= 30;
+    }
+
+    function isValidDonation(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.donorName is string && data.donorName.size() <= 200 &&
+             data.amount is number && data.amount > 0 &&
+             data.paymentMethod is string && data.paymentMethod.size() <= 50 &&
+             data.phone is string && data.phone.size() <= 30 &&
+             data.email is string && data.email.size() <= 128 &&
+             data.date is string && data.date.size() <= 20 &&
+             data.category is string && data.category.size() <= 100 &&
+             (!('pan' in data) || (data.pan is string && data.pan.size() <= 30)) &&
+             (!('utr' in data) || (data.utr is string && data.utr.size() <= 100));
+    }
+
+    function isValidSiteContent(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.contentKey is string && data.contentKey.size() <= 128 &&
+             data.data is map;
+    }
+
+    // --- COLLECTION GATES ---
+
+    // 1. ANNOUNCEMENTS
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidAnnouncement(request.resource.data) && isValidId(announcementId);
+      allow update: if isAdmin() && isValidAnnouncement(request.resource.data) && isValidId(announcementId);
+      allow delete: if isAdmin() && isValidId(announcementId);
+    }
+
+    // 2. EVENTS
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidEvent(request.resource.data) && isValidId(eventId);
+      allow update: if (isAdmin() || (isSignedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpCount']))) 
+                    && isValidEvent(request.resource.data) && isValidId(eventId);
+      allow delete: if isAdmin() && isValidId(eventId);
+    }
+
+    // 3. TESTIMONIALS
+    match /testimonials/{testimonialId} {
+      allow read: if resource.data.approved == true || isAdmin();
+      allow create: if isValidTestimonial(request.resource.data) && request.resource.data.approved == false && isValidId(testimonialId);
+      allow update: if isAdmin() && isValidTestimonial(request.resource.data) && isValidId(testimonialId);
+      allow delete: if isAdmin() && isValidId(testimonialId);
+    }
+
+    // 4. BOOKINGS
+    match /bookings/{bookingId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.email == request.auth.token.email);
+      allow create: if isValidBooking(request.resource.data) && isValidId(bookingId);
+      allow update: if isAdmin() && isValidBooking(request.resource.data) && isValidId(bookingId);
+      allow delete: if isAdmin() && isValidId(bookingId);
+    }
+
+    // 5. DONATIONS
+    match /donations/{donationId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.email == request.auth.token.email);
+      allow create: if isValidDonation(request.resource.data) && isValidId(donationId);
+      allow update: if isAdmin() && isValidDonation(request.resource.data) && isValidId(donationId);
+      allow delete: if isAdmin() && isValidId(donationId);
+    }
+
+    // 6. SITE CONTENT (CMS Configs)
+    match /site_content/{contentId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidSiteContent(request.resource.data) && isValidId(contentId);
+      allow update: if isAdmin() && isValidSiteContent(request.resource.data) && isValidId(contentId);
+      allow delete: if isAdmin() && isValidId(contentId);
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "entities": {
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Notice, festival update or press release announcement from Mandal",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "titleMarathi": { "type": "string" },
+        "category": { "type": "string" },
+        "date": { "type": "string" },
+        "content": { "type": "string" },
+        "contentMarathi": { "type": "string" }
+      },
+      "required": ["id", "title", "titleMarathi", "category", "date", "content", "contentMarathi"]
+    },
+    "TempleEvent": {
+      "title": "TempleEvent",
+      "description": "An upcoming event or festival",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "titleMarathi": { "type": "string" },
+        "description": { "type": "string" },
+        "descriptionMarathi": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "category": { "type": "string" },
+        "rsvpCount": { "type": "number" },
+        "image": { "type": "string" }
+      },
+      "required": ["id", "title", "titleMarathi", "description", "descriptionMarathi", "date", "time", "category", "rsvpCount"]
+    },
+    "DevoteeExperience": {
+      "title": "DevoteeExperience",
+      "description": "Devotee experiences and testimonials",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "location": { "type": "string" },
+        "story": { "type": "string" },
+        "approved": { "type": "boolean" },
+        "rating": { "type": "number" },
+        "date": { "type": "string" },
+        "avatarUrl": { "type": "string" }
+      },
+      "required": ["id", "name", "location", "story", "approved", "rating", "date"]
+    },
+    "DigitalSevaBooking": {
+      "title": "DigitalSevaBooking",
+      "description": "Pooja, Aarti or Prasad booking record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "subType": { "type": "string" },
+        "devoteeName": { "type": "string" },
+        "gotra": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "type", "subType", "devoteeName", "phone", "email", "date", "status"]
+    },
+    "DonationRecord": {
+      "title": "DonationRecord",
+      "description": "Sacred contribution receipt",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "donorName": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "pan": { "type": "string" },
+        "utr": { "type": "string" },
+        "date": { "type": "string" },
+        "category": { "type": "string" }
+      },
+      "required": ["id", "donorName", "amount", "paymentMethod", "phone", "email", "date", "category"]
+    },
+    "SiteContent": {
+      "title": "SiteContent",
+      "description": "General homepage parameters, translations, timeline milestones or contact details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "contentKey": { "type": "string" },
+        "data": { "type": "object" }
+      },
+      "required": ["id", "contentKey", "data"]
+    }
+  },
+  "firestore": {
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Announcements collection"
+    },
+    "/events/{eventId}": {
+      "schema": "TempleEvent",
+      "description": "Events collection"
+    },
+    "/testimonials/{testimonialId}": {
+      "schema": "DevoteeExperience",
+      "description": "User shared reviews and stories"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "DigitalSevaBooking",
+      "description": "Aarti and Pooja online bookings"
+    },
+    "/donations/{donationId}": {
+      "schema": "DonationRecord",
+      "description": "Transaction receipts and logs"
+    },
+    "/site_content/{contentId}": {
+      "schema": "SiteContent",
+      "description": "Site content dynamic variables for CMS"
+    }
+  }
+}

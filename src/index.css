@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand-red: #8B0000;
+  --color-brand-saffron: #FF9933;
+  --color-brand-gold: #D4AF37;
+  --color-brand-maroon: #4A0404;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cinzel", serif;
+  --font-display: "Playfair Display", serif;
+}
+
+/* Custom premium animations */
+@keyframes swing {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(8deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-8deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes flicker {
+  0%, 100% { transform: scale(1); opacity: 0.9; filter: drop-shadow(0 0 4px rgba(255,153,51,0.6)); }
+  50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 10px rgba(255,153,51,0.9)); }
+}
+
+@keyframes float-flower {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(350px) rotate(360deg); opacity: 0; }
+}
+
+.animate-bell-swing {
+  animation: swing 3s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.animate-diya-flicker {
+  animation: flicker 2s infinite alternate ease-in-out;
+}
+
+.animate-flower-1 {
+  animation: float-flower 8s linear infinite;
+}
+
+/* Custom Devotional Custom Theme tweaks */
+body {
+  font-family: var(--font-sans);
+  background-color: #4A0404; /* Deep rich maroon from Immersive UI */
+  background-image: radial-gradient(circle at 50% 12%, rgba(255, 153, 51, 0.22) 0%, transparent 65%);
+  background-attachment: fixed;
+  color: #f7eff0;
+  overflow-x: hidden;
+}
+
+/* Rich scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1a0202;
+}
+::-webkit-scrollbar-thumb {
+  background: #D4AF37;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF9933;
+}
+
