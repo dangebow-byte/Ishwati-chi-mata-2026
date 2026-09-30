@@ -179,11 +179,8 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Primary Navbar */}
         <div className="flex flex-col md:flex-row items-center justify-between py-3 gap-3 md:gap-0">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('home')}>
-            <div className="relative rounded-full border-2 border-brand-gold bg-gradient-to-br from-amber-700/60 via-brand-maroon to-black h-14 w-14 sm:h-16 sm:w-16 shadow-lg flex items-center justify-center overflow-hidden group shrink-0 p-1">
-              <SiteLogo variant="transparent" size="custom" className="h-full w-full group-hover:scale-105 transition-transform" />
-              <div className="absolute -top-0.5 -right-0.5 bg-brand-saffron text-[8px] font-black text-black px-1.5 py-0.2 rounded-full border border-brand-gold shadow">
-                ५०वे
-              </div>
+            <div className="relative shrink-0 flex items-center justify-center">
+              <SiteLogo variant="transparent" size="md" className="hover:scale-105 transition-transform drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -192,6 +189,9 @@ export const Header: React.FC<HeaderProps> = ({
                 </h1>
                 <span className="text-[9px] bg-brand-red text-brand-gold border border-brand-gold/40 px-1.5 py-0.5 rounded font-serif font-bold hidden sm:inline-block">
                   देवस्थान
+                </span>
+                <span className="text-[9px] bg-brand-gold text-brand-maroon px-1.5 py-0.5 rounded font-black tracking-wider uppercase hidden sm:inline-block shadow-sm">
+                  ५० वे वर्ष
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs text-brand-saffron tracking-widest font-mono uppercase">

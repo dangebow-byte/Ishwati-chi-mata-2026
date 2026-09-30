@@ -1,121 +1,363 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%" aria-label="श्री ईश्वटीची माता मंडळ अधिकृत बोधचिन्ह - मरून पारदर्शक">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="100%" height="100%" aria-label="श्री ईश्वटीची माता मंडळ अधिकृत बोधचिन्ह - मरून पारदर्शक">
   <defs>
-    <!-- Sacred Maroon Radial Gradient for Medallion Background -->
-    <radialGradient id="mandalMaroonBg" cx="50%" cy="46%" r="52%">
-      <stop offset="0%" stop-color="#931322" />
-      <stop offset="45%" stop-color="#6d0915" />
-      <stop offset="85%" stop-color="#42040b" />
-      <stop offset="100%" stop-color="#240105" />
+    <!-- Outer Gold Ring Metallic Linear Gradient -->
+    <linearGradient id="goldOuterRim" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#FFF5B8" />
+      <stop offset="18%" stop-color="#E5B235" />
+      <stop offset="35%" stop-color="#9C6B12" />
+      <stop offset="55%" stop-color="#FFDE6A" />
+      <stop offset="75%" stop-color="#C28919" />
+      <stop offset="90%" stop-color="#734204" />
+      <stop offset="100%" stop-color="#FCEB9C" />
+    </linearGradient>
+
+    <!-- Inner Gold Ring Bevel Gradient -->
+    <linearGradient id="goldInnerRim" x1="10%" y1="15%" x2="90%" y2="85%">
+      <stop offset="0%" stop-color="#FFE885" />
+      <stop offset="30%" stop-color="#D4991F" />
+      <stop offset="60%" stop-color="#8A5308" />
+      <stop offset="85%" stop-color="#F7D052" />
+      <stop offset="100%" stop-color="#B07510" />
+    </linearGradient>
+
+    <!-- Rich Sacred Maroon Medallion Background -->
+    <radialGradient id="maroonMedallionBg" cx="50%" cy="46%" r="52%">
+      <stop offset="0%" stop-color="#A30E20" />
+      <stop offset="35%" stop-color="#800614" />
+      <stop offset="70%" stop-color="#52010C" />
+      <stop offset="92%" stop-color="#330007" />
+      <stop offset="100%" stop-color="#1F0004" />
     </radialGradient>
 
-    <!-- Divine Golden Trim Gradient -->
-    <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFF0A0" />
-      <stop offset="25%" stop-color="#FFD700" />
-      <stop offset="50%" stop-color="#D4AF37" />
-      <stop offset="75%" stop-color="#AA771C" />
-      <stop offset="100%" stop-color="#FFDF73" />
-    </linearGradient>
+    <!-- Haldi 3D Spherical Radial Gradient (Sun / Yellow) -->
+    <radialGradient id="haldiSphere" cx="38%" cy="34%" r="62%">
+      <stop offset="0%" stop-color="#FFFFF0" />
+      <stop offset="15%" stop-color="#FFF275" />
+      <stop offset="42%" stop-color="#FFBA00" />
+      <stop offset="72%" stop-color="#E85D04" />
+      <stop offset="92%" stop-color="#B71C0C" />
+      <stop offset="100%" stop-color="#660A00" />
+    </radialGradient>
 
-    <!-- Trishul Silver & Gold Gradient -->
-    <linearGradient id="trishulGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <!-- Kumkum 3D Spherical Radial Gradient (Moon / Vermilion) -->
+    <radialGradient id="kumkumSphere" cx="38%" cy="34%" r="62%">
+      <stop offset="0%" stop-color="#FFF0E6" />
+      <stop offset="18%" stop-color="#FFA154" />
+      <stop offset="45%" stop-color="#FF3700" />
+      <stop offset="75%" stop-color="#D00000" />
+      <stop offset="94%" stop-color="#7A0000" />
+      <stop offset="100%" stop-color="#420000" />
+    </radialGradient>
+
+    <!-- Trishul Silver-White Sheen Gradient -->
+    <linearGradient id="trishulSheen" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" />
-      <stop offset="50%" stop-color="#F2F2F2" />
-      <stop offset="85%" stop-color="#E0D3A8" />
-      <stop offset="100%" stop-color="#C59B27" />
+      <stop offset="60%" stop-color="#F4F4F6" />
+      <stop offset="100%" stop-color="#E2E2E8" />
     </linearGradient>
 
-    <!-- Mata Gold Calligraphy Gradient -->
-    <linearGradient id="mataGold" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFF8D0" />
-      <stop offset="35%" stop-color="#FFDF00" />
-      <stop offset="70%" stop-color="#E5A823" />
-      <stop offset="100%" stop-color="#B87310" />
-    </linearGradient>
-
-    <!-- Soft Divine Glow -->
-    <filter id="divineGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="2" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    <!-- 3D Heavy Drop Shadow for Calligraphy & Trishul -->
+    <filter id="heavy3DShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#3B0006" flood-opacity="0.95" />
     </filter>
 
-    <!-- Drop Shadow for Text Depth -->
-    <filter id="textShadow" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-color="#000000" flood-opacity="0.8" />
+    <filter id="subtleGlow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
 
-  <!-- Circular Maroon Medallion (Transparent Outside r=240) -->
-  <circle cx="250" cy="250" r="240" fill="url(#mandalMaroonBg)" stroke="url(#goldBorder)" stroke-width="8" filter="url(#textShadow)" />
+  <!-- ========================================== -->
+  <!-- 1. CIRCULAR MEDALLION FRAME (100% TRANSPARENT OUTSIDE) -->
+  <!-- ========================================== -->
+
+  <!-- Outermost Thin Dark Crimson Rim -->
+  <circle cx="500" cy="500" r="486" fill="#420006" />
+
+  <!-- Outer Beveled Gold Ring (radius 482 to 452) -->
+  <circle cx="500" cy="500" r="482" fill="url(#goldOuterRim)" stroke="#381D02" stroke-width="1.5" />
   
-  <!-- Inner Golden Ornamental Rings -->
-  <circle cx="250" cy="250" r="226" fill="none" stroke="#FF9933" stroke-width="2.5" stroke-dasharray="8,5" opacity="0.95" />
-  <circle cx="250" cy="250" r="220" fill="none" stroke="url(#goldBorder)" stroke-width="2" />
-  <circle cx="250" cy="250" r="214" fill="none" stroke="#680812" stroke-width="1.5" opacity="0.8" />
+  <!-- Recessed Dark Groove -->
+  <circle cx="500" cy="500" r="454" fill="none" stroke="#4A2602" stroke-width="3" />
 
-  <!-- Sacred Radiance Accents Around Border -->
-  <g opacity="0.4" stroke="url(#goldBorder)" stroke-width="2">
-    <line x1="250" y1="34" x2="250" y2="16" />
-    <line x1="250" y1="466" x2="250" y2="484" />
-    <line x1="34" y1="250" x2="16" y2="250" />
-    <line x1="466" y1="250" x2="484" y2="250" />
-    <line x1="97" y1="97" x2="84" y2="84" />
-    <line x1="403" y1="97" x2="416" y2="84" />
-    <line x1="97" y1="403" x2="84" y2="416" />
-    <line x1="403" y1="403" x2="416" y2="416" />
+  <!-- Inner Beveled Gold Ring (radius 451 to 430) -->
+  <circle cx="500" cy="500" r="451" fill="url(#goldInnerRim)" stroke="#FFF294" stroke-width="1" />
+
+  <!-- Inner Dark Bevel Shadow Line -->
+  <circle cx="500" cy="500" r="431" fill="none" stroke="#240004" stroke-width="3" />
+
+  <!-- Deep Sacred Maroon Medallion Background -->
+  <circle cx="500" cy="500" r="428" fill="url(#maroonMedallionBg)" />
+
+  <!-- ========================================== -->
+  <!-- 2. CENTRAL SACRED TRISHUL (TRIDENT) -->
+  <!-- ========================================== -->
+  <g id="trishulGroup" filter="url(#heavy3DShadow)">
+    <!-- Red 3D Extrusion Shadow for Trident Head -->
+    <path d="
+      M 500,56 
+      C 494,80 488,125 480,185 
+      C 475,220 468,236 462,242 
+      L 456,242
+      C 440,230 422,205 412,170 
+      C 404,140 405,105 415,80
+      C 424,96 438,125 448,155 
+      C 455,176 464,208 472,228
+      L 488,228
+      L 488,245 L 478,245 L 478,252 L 492,252
+      L 492,895 L 500,904 L 508,895 L 508,252
+      L 522,252 L 522,245 L 512,245 L 512,228
+      L 528,228
+      C 536,208 545,176 552,155 
+      C 562,125 576,96 585,80
+      C 595,105 596,140 588,170 
+      C 578,205 560,230 544,242 
+      L 538,242
+      C 532,236 525,220 520,185 
+      C 512,125 506,80 500,56 Z
+    " fill="#80000C" transform="translate(0, 6)" />
+
+    <!-- Pure White Trident Head & Central Shaft -->
+    <!-- Red Outer Outline Stroke -->
+    <path d="
+      M 500,56 
+      C 494,80 488,125 480,185 
+      C 475,220 468,236 462,242 
+      L 456,242
+      C 440,230 422,205 412,170 
+      C 404,140 405,105 415,80
+      C 424,96 438,125 448,155 
+      C 455,176 464,208 472,228
+      L 488,228
+      L 488,245 L 478,245 L 478,252 L 492,252
+      L 492,895 L 500,904 L 508,895 L 508,252
+      L 522,252 L 522,245 L 512,245 L 512,228
+      L 528,228
+      C 536,208 545,176 552,155 
+      C 562,125 576,96 585,80
+      C 595,105 596,140 588,170 
+      C 578,205 560,230 544,242 
+      L 538,242
+      C 532,236 525,220 520,185 
+      C 512,125 506,80 500,56 Z
+    " fill="url(#trishulSheen)" stroke="#80000C" stroke-width="6" stroke-linejoin="round" />
+
+    <!-- Central Ridge Highlight on Spear -->
+    <path d="M 500,60 L 500,240" stroke="#E0E0E6" stroke-width="2.5" />
   </g>
 
-  <!-- Sacred Trident (Trishul) at Top Center -->
-  <g transform="translate(250, 114) scale(0.92)" filter="url(#divineGlow)">
-    <!-- Central Spear -->
-    <path d="M 0,-64 L 7.5,-30 L 3.5,30 L -3.5,30 L -7.5,-30 Z" fill="url(#trishulGrad)" stroke="#D4AF37" stroke-width="0.8" />
-    <!-- Left Curved Blade -->
-    <path d="M -5,0 C -26,-16 -37,-46 -29,-58 C -26,-42 -12,-20 0,-10 Z" fill="url(#trishulGrad)" stroke="#D4AF37" stroke-width="0.8" />
-    <!-- Right Curved Blade -->
-    <path d="M 5,0 C 26,-16 37,-46 29,-58 C 26,-42 12,-20 0,-10 Z" fill="url(#trishulGrad)" stroke="#D4AF37" stroke-width="0.8" />
-    <!-- Crossbar / Damru Base -->
-    <ellipse cx="0" cy="22" rx="16" ry="4.5" fill="url(#goldBorder)" />
-    <!-- Trishul Handle Shaft -->
-    <rect x="-3" y="24" width="6" height="32" fill="url(#goldBorder)" rx="2" />
+  <!-- ========================================== -->
+  <!-- 3. THE TWO AUSPICIOUS 3D GLOWING SPHERES -->
+  <!-- ========================================== -->
+  <g id="spheresGroup" filter="url(#heavy3DShadow)">
+    <!-- LEFT SPHERE (HALDI / GOLDEN SUN) -->
+    <!-- Red 3D Extrusion Shadow -->
+    <circle cx="616" cy="316" r="66" fill="#75000A" />
+    <circle cx="614" cy="312" r="64" fill="#FFFFFF" stroke="#80000C" stroke-width="5" />
+    <circle cx="614" cy="312" r="54" fill="url(#haldiSphere)" stroke="#80000C" stroke-width="3" />
+    <!-- Outer Concentric Loop from Calligraphy -->
+    <circle cx="614" cy="312" r="76" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" />
+    <circle cx="614" cy="312" r="82" fill="none" stroke="#80000C" stroke-width="3" />
+
+    <!-- RIGHT SPHERE (KUMKUM / VERMILION SUN) -->
+    <!-- Red 3D Extrusion Shadow -->
+    <circle cx="792" cy="316" r="66" fill="#75000A" />
+    <circle cx="790" cy="312" r="64" fill="#FFFFFF" stroke="#80000C" stroke-width="5" />
+    <circle cx="790" cy="312" r="54" fill="url(#kumkumSphere)" stroke="#80000C" stroke-width="3" />
+    <!-- Outer Concentric Loop from Calligraphy -->
+    <circle cx="790" cy="312" r="76" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" />
+    <circle cx="790" cy="312" r="82" fill="none" stroke="#80000C" stroke-width="3" />
   </g>
 
-  <!-- Auspicious Dots: Haldi (Turmeric Yellow, Left) & Kumkum (Vermilion Red, Right) -->
-  <!-- Left Yellow Circle (Haldi) -->
-  <circle cx="152" cy="114" r="23" fill="#FFB703" stroke="#FFE066" stroke-width="3" filter="url(#divineGlow)" />
-  <circle cx="152" cy="114" r="20" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.6" />
-  
-  <!-- Right Vermilion Red Circle (Kumkum) -->
-  <circle cx="348" cy="114" r="23" fill="#E62E00" stroke="#FF7B59" stroke-width="3" filter="url(#divineGlow)" />
-  <circle cx="348" cy="114" r="20" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.6" />
+  <!-- ========================================== -->
+  <!-- 4. AUTHENTIC DEVANAGARI CALLIGRAPHY: "इश्वटीची माता" -->
+  <!-- ========================================== -->
+  <g id="calligraphyGroup" filter="url(#heavy3DShadow)">
 
-  <!-- Sacred Devanagari Typography: Crisp, High-Contrast, Preserved Identity -->
-  <g text-anchor="middle" font-family="'Noto Sans Devanagari', 'Mukta', 'Yatra One', 'Arial Unicode MS', sans-serif" filter="url(#textShadow)">
-    <!-- Auspicious Prefix: श्री -->
-    <text x="250" y="196" font-size="28" fill="#FFD700" font-weight="800" letter-spacing="4">
-      ॥ श्री ॥
-    </text>
+    <!-- RED 3D EXTRUDED BACKGROUND / SHADOW LAYER -->
+    <g fill="#7A000C" stroke="#7A000C" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" transform="translate(0, 8)">
+      <!-- Top Shirorekha Bar (Top horizontal line) -->
+      <path d="M 215,360 L 870,360 L 870,375 L 215,375 Z" />
 
-    <!-- Main Title Line 1: ईश्वटीची -->
-    <text x="250" y="258" font-size="58" fill="#FFFFFF" font-weight="900" letter-spacing="2" filter="url(#divineGlow)">
-      ईश्वटीची
-    </text>
+      <!-- Sweeping Grand Flourish of initial letter "इ" (under left side) -->
+      <path d="
+        M 345,365 
+        C 330,380 290,410 240,430 
+        C 180,455 160,470 170,510 
+        C 180,545 220,555 280,540 
+        C 320,530 350,510 365,490 
+        C 340,515 300,535 240,545 
+        C 180,555 130,530 120,470 
+        C 112,410 160,375 225,365 Z
+      " />
+      
+      <!-- Lower looping tail of flourish extending down and under "मा" -->
+      <path d="
+        M 170,510
+        C 140,540 120,590 125,650
+        C 132,710 180,750 250,755
+        C 320,760 380,735 410,715
+        C 370,730 310,742 250,738
+        C 195,732 155,700 150,650
+        C 145,605 165,560 190,530 Z
+      " />
 
-    <!-- Accent Line 2: माता -->
-    <text x="250" y="328" font-size="68" fill="url(#mataGold)" font-weight="900" letter-spacing="4" filter="url(#divineGlow)">
-      माता
-    </text>
+      <!-- Center letter "श्व" body -->
+      <path d="
+        M 430,365 
+        C 400,390 375,430 385,475
+        C 395,510 430,535 465,520
+        C 490,510 500,480 488,450
+        C 475,420 445,410 435,425
+        C 425,440 430,465 448,475
+        C 430,475 415,455 418,435
+        C 422,410 445,385 470,375 Z
+      " />
 
-    <!-- Subtitle Line 3: मंडळ -->
-    <text x="250" y="382" font-size="34" fill="#FF9E2C" font-weight="800" letter-spacing="6">
-      मंडळ
-    </text>
+      <!-- Vertical Stem of "श्व" -->
+      <path d="M 470,365 L 490,365 L 490,580 L 470,590 Z" />
+
+      <!-- Vertical Stem of "टी" -->
+      <path d="M 640,365 L 660,365 L 660,580 L 640,590 Z" />
+
+      <!-- Curve of "टी" -->
+      <path d="
+        M 510,400 
+        C 530,395 560,395 580,410
+        C 610,430 625,470 615,515
+        C 605,550 565,570 525,560
+        C 560,555 588,535 595,505
+        C 602,475 588,445 565,430
+        C 545,418 525,420 510,425 Z
+      " />
+
+      <!-- Vertical Stem of "ची" on right -->
+      <path d="M 760,365 L 780,365 L 780,630 L 760,642 Z" />
+      <path d="M 800,365 L 820,365 L 820,630 L 800,642 Z" />
+
+      <!-- Arch/Velanti connecting over top -->
+      <path d="M 670,365 C 685,410 715,445 750,445 C 770,445 780,430 780,410 L 760,410 C 760,420 750,428 740,428 C 720,428 698,400 690,365 Z" />
+
+      <!-- BOTTOM WORD: "माता" -->
+      <!-- Shirorekha of "माता" -->
+      <path d="M 350,595 L 730,595 L 730,610 L 350,610 Z" />
+
+      <!-- Letter "मा" on Left -->
+      <path d="M 435,605 L 452,605 L 452,780 L 435,780 Z" />
+      <path d="M 470,605 L 488,605 L 488,880 L 470,890 Z" />
+      <path d="
+        M 435,665
+        L 395,665
+        C 375,665 365,680 375,700
+        C 385,715 410,720 440,715
+        L 452,710
+        L 435,665 Z
+      " />
+
+      <!-- Letter "ता" on Right -->
+      <path d="M 545,605 L 565,605 L 565,850 L 545,860 Z" />
+      <path d="M 640,605 L 660,605 L 660,780 L 640,780 Z" />
+      <path d="
+        M 565,645
+        C 595,645 625,660 625,695
+        L 625,720
+        L 605,720
+        L 605,695
+        C 605,675 585,665 565,665 Z
+      " />
+    </g>
+
+    <!-- PURE WHITE FACE LAYER WITH SHARP EDGES -->
+    <g fill="#FFFFFF" stroke="#8A000D" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+      <!-- Top Shirorekha Bar (Top horizontal line) -->
+      <path d="M 215,360 L 870,360 L 870,375 L 215,375 Z" />
+
+      <!-- Sweeping Grand Flourish of initial letter "इ" (under left side) -->
+      <path d="
+        M 345,365 
+        C 330,380 290,410 240,430 
+        C 180,455 160,470 170,510 
+        C 180,545 220,555 280,540 
+        C 320,530 350,510 365,490 
+        C 340,515 300,535 240,545 
+        C 180,555 130,530 120,470 
+        C 112,410 160,375 225,365 Z
+      " />
+      
+      <!-- Lower looping tail of flourish extending down and under "मा" -->
+      <path d="
+        M 170,510
+        C 140,540 120,590 125,650
+        C 132,710 180,750 250,755
+        C 320,760 380,735 410,715
+        C 370,730 310,742 250,738
+        C 195,732 155,700 150,650
+        C 145,605 165,560 190,530 Z
+      " />
+
+      <!-- Center letter "श्व" body -->
+      <path d="
+        M 430,365 
+        C 400,390 375,430 385,475
+        C 395,510 430,535 465,520
+        C 490,510 500,480 488,450
+        C 475,420 445,410 435,425
+        C 425,440 430,465 448,475
+        C 430,475 415,455 418,435
+        C 422,410 445,385 470,375 Z
+      " />
+
+      <!-- Vertical Stem of "श्व" -->
+      <path d="M 470,365 L 490,365 L 490,580 L 470,590 Z" />
+
+      <!-- Vertical Stem of "टी" -->
+      <path d="M 640,365 L 660,365 L 660,580 L 640,590 Z" />
+
+      <!-- Curve of "टी" -->
+      <path d="
+        M 510,400 
+        C 530,395 560,395 580,410
+        C 610,430 625,470 615,515
+        C 605,550 565,570 525,560
+        C 560,555 588,535 595,505
+        C 602,475 588,445 565,430
+        C 545,418 525,420 510,425 Z
+      " />
+
+      <!-- Vertical Stem of "ची" on right -->
+      <path d="M 760,365 L 780,365 L 780,630 L 760,642 Z" />
+      <path d="M 800,365 L 820,365 L 820,630 L 800,642 Z" />
+
+      <!-- Arch/Velanti connecting over top -->
+      <path d="M 670,365 C 685,410 715,445 750,445 C 770,445 780,430 780,410 L 760,410 C 760,420 750,428 740,428 C 720,428 698,400 690,365 Z" />
+
+      <!-- BOTTOM WORD: "माता" -->
+      <!-- Shirorekha of "माता" -->
+      <path d="M 350,595 L 730,595 L 730,610 L 350,610 Z" />
+
+      <!-- Letter "मा" on Left -->
+      <path d="M 435,605 L 452,605 L 452,780 L 435,780 Z" />
+      <path d="M 470,605 L 488,605 L 488,880 L 470,890 Z" />
+      <path d="
+        M 435,665
+        L 395,665
+        C 375,665 365,680 375,700
+        C 385,715 410,720 440,715
+        L 452,710
+        L 435,665 Z
+      " />
+
+      <!-- Letter "ता" on Right -->
+      <path d="M 545,605 L 565,605 L 565,850 L 545,860 Z" />
+      <path d="M 640,605 L 660,605 L 660,780 L 640,780 Z" />
+      <path d="
+        M 565,645
+        C 595,645 625,660 625,695
+        L 625,720
+        L 605,720
+        L 605,695
+        C 605,675 585,665 565,665 Z
+      " />
+    </g>
   </g>
-
-  <!-- Bottom Arch Inscription: स्थापना १९७६ • डोंबिवली पूर्व -->
-  <path id="archBottomMaroon" d="M 75,310 A 200,200 0 0,0 425,310" fill="none" stroke="none" />
-  <text font-family="'Noto Sans Devanagari', 'Mukta', sans-serif" font-size="14.5" fill="#FFE074" font-weight="700" letter-spacing="3" text-anchor="middle">
-    <textPath href="#archBottomMaroon" startOffset="50%">
-      || श्री ईश्वटीची माता प्रसन्न • स्थापना १९७६ ||
-    </textPath>
-  </text>
 </svg>
