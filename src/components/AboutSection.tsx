@@ -96,7 +96,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
             </p>
           </div>
         </div>
-        <SiteLogo variant="transparent" size="lg" withBorder withGlow />
+        <SiteLogo variant="transparent" size="lg" withGlow className="drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]" />
       </div>
 
       {/* Grid containing History and Journey */}

@@ -743,7 +743,7 @@ export default function App() {
           
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <SiteLogo variant="transparent" size="sm" withGlow />
+              <SiteLogo variant="transparent" size="md" withGlow className="drop-shadow-md" />
               <h4 className="font-serif font-black text-brand-gold text-sm tracking-widest">{t.title}</h4>
             </div>
             <p className="text-gray-300 leading-normal">

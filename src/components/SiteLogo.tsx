@@ -25,6 +25,7 @@ export interface SiteLogoProps {
   withBorder?: boolean;
   withGlow?: boolean;
   priority?: boolean;
+  srcOverride?: string;
   onClick?: () => void;
 }
 
@@ -41,27 +42,38 @@ export const SiteLogo: React.FC<SiteLogoProps> = ({
   variant = 'transparent',
   size = 'md',
   compact = false,
-  format = 'svg',
+  format = 'png',
   alt = 'श्री ईश्वटीची माता मंडळ अधिकृत बोधचिन्ह',
   className = '',
   withBorder = false,
   withGlow = false,
   priority = false,
+  srcOverride,
   onClick,
 }) => {
-  // Select source image based on variant, compact flag, and preferred format
-  const isSvg = format === 'svg';
+  // Primary source: if srcOverride or public asset 1 is provided, use it directly
+  const [imgSrc, setImgSrc] = React.useState<string>(() => {
+    if (srcOverride) return srcOverride;
+    // Default asset 1 path in public directory
+    return '/Mandal%20logo%20Maroon%20Transparent%20BG.png';
+  });
 
-  let src = isSvg ? logoTransparentSvg : logoTransparentPng;
+  const isSvg = format === 'svg';
+  let defaultBundledSrc = isSvg ? logoTransparentSvg : logoTransparentPng;
   if (compact || variant === 'icon') {
-    src = logoIconPng;
+    defaultBundledSrc = logoIconPng;
   } else if (variant === 'white') {
-    src = isSvg ? logoWhiteSvg : logoWhitePng;
+    defaultBundledSrc = isSvg ? logoWhiteSvg : logoWhitePng;
   } else if (variant === 'full') {
-    src = isSvg ? logoSvg : logoFullPng;
-  } else if (variant === 'vector') {
-    src = logoTransparentSvg;
+    defaultBundledSrc = isSvg ? logoSvg : logoFullPng;
   }
+
+  // Handle fallback if public asset is not found
+  const handleError = () => {
+    if (imgSrc !== defaultBundledSrc) {
+      setImgSrc(defaultBundledSrc);
+    }
+  };
 
   const sizeClasses = SIZE_MAP[size];
   const borderClasses = withBorder
@@ -77,8 +89,9 @@ export const SiteLogo: React.FC<SiteLogoProps> = ({
       } ${className}`}
     >
       <img
-        src={src}
+        src={imgSrc}
         alt={alt}
+        onError={handleError}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         className={`${sizeClasses} aspect-square object-contain ${borderClasses} ${glowClasses} transition-all duration-300`}

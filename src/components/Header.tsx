@@ -180,7 +180,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex flex-col md:flex-row items-center justify-between py-3 gap-3 md:gap-0">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('home')}>
             <div className="relative shrink-0 flex items-center justify-center">
-              <SiteLogo variant="transparent" size="md" className="hover:scale-105 transition-transform drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]" />
+              <SiteLogo variant="transparent" size="lg" className="hover:scale-105 transition-transform drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]" priority />
             </div>
             <div>
               <div className="flex items-center gap-2">

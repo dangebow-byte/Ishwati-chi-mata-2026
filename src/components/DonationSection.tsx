@@ -404,7 +404,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
 
             {/* Receipt Header logo */}
             <div className="text-center space-y-2 relative border-b-2 border-brand-gold/60 pb-5">
-              <SiteLogo variant="transparent" size="sm" className="mx-auto mb-2" />
+              <SiteLogo variant="transparent" size="md" className="mx-auto mb-2 drop-shadow-md" />
               <span className="text-brand-red font-serif font-black text-xl sm:text-2xl tracking-wide uppercase block">
                 {lang === 'EN' ? 'Shree Ishwatichi Mata Charitable Devasthan Trust' : 'श्री ईश्वटीची माता चॅरिटेबल देवस्थान ट्रस्ट'}
               </span>
