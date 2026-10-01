@@ -31,7 +31,7 @@ import { DeviImage } from './components/DeviImage';
 import { HeroAudioPlayer } from './components/HeroAudioPlayer';
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
-import logoImg from './assets/branding/ishwati-mata-mandal-logo-transparent.png';
+import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 import heroImg from './assets/devotional/devi-mata-main.webp';
 
 export default function App() {
@@ -520,8 +520,8 @@ export default function App() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_20%,rgba(13,1,1,0.9)_100%)]" />
           </div>
 
-          {/* Side decorative vertical text/rules - Visible on lg screens */}
-          <div className="hidden lg:flex absolute left-8 top-1/2 -translate-y-1/2 flex-col items-center gap-8 opacity-50 z-20 pointer-events-none">
+          {/* Side decorative vertical text/rules - Visible only on ultra-wide 2xl screens to avoid collision */}
+          <div className="hidden 2xl:flex absolute left-8 top-1/2 -translate-y-1/2 flex-col items-center gap-8 opacity-50 z-20 pointer-events-none">
             <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent"></div>
             <span className="uppercase tracking-[0.4em] text-[10px] text-[#D4AF37] font-semibold font-mono" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
               {lang === 'EN' ? 'Established 1976' : 'स्थापना १९७६'}
@@ -529,8 +529,8 @@ export default function App() {
             <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent"></div>
           </div>
 
-          {/* Side quick status panels - Visible on lg screens */}
-          <div className="hidden lg:flex absolute right-8 top-1/2 -translate-y-1/2 flex-col gap-5 z-20 w-48 text-left">
+          {/* Side quick status panels - Visible only on ultra-wide 2xl screens to avoid collision */}
+          <div className="hidden 2xl:flex absolute right-8 top-1/2 -translate-y-1/2 flex-col gap-5 z-20 w-48 text-left">
             <div className="p-4 bg-[#4A0404]/75 border-l-2 border-[#FF9933] backdrop-blur-md rounded-r shadow-xl relative">
               <span className="absolute -top-1 -right-1 flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -549,33 +549,33 @@ export default function App() {
             </div>
           </div>
 
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:py-24 lg:py-32 relative z-10 text-center space-y-8">
+          <div className="mx-auto max-w-7xl px-4 py-12 sm:py-20 lg:py-28 relative z-10 text-center space-y-6 sm:space-y-8">
             
             {/* Traditional Temple swinging bell animation and glowing Diya */}
-            <div className="flex justify-center items-center gap-12 select-none h-16">
+            <div className="flex justify-center items-center gap-6 sm:gap-12 select-none h-12 sm:h-16">
               {/* Swinging bells left */}
-              <div className="animate-bell-swing text-4xl" title="Holy bells swinging">
+              <div className="animate-bell-swing text-3xl sm:text-4xl" title="Holy bells swinging">
                 🔔
               </div>
               {/* Glowing diya center */}
-              <div className="animate-diya-flicker text-5xl">
+              <div className="animate-diya-flicker text-4xl sm:text-5xl">
                 🔥
               </div>
               {/* Swinging bells right */}
-              <div className="animate-bell-swing text-4xl" style={{ animationDelay: '0.8s' }}>
+              <div className="animate-bell-swing text-3xl sm:text-4xl" style={{ animationDelay: '0.8s' }}>
                 🔔
               </div>
             </div>
 
-            <div className="space-y-4 max-w-3xl mx-auto">
-              <h1 className="font-serif text-4xl sm:text-7xl font-black text-white drop-shadow-[0_0_30px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-tight">
+            <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto px-2">
+              <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white drop-shadow-[0_0_30px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-normal leading-tight">
                 {lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata (श्री ईश्वटीची)') : (siteContent.welcome?.titleMR || 'श्री ईश्वटीची माता')}
               </h1>
-              <p className="font-sans text-lg sm:text-2xl font-extrabold text-[#FF9933] tracking-widest uppercase drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">
+              <p className="font-sans text-base sm:text-xl lg:text-2xl font-extrabold text-[#FF9933] tracking-wide uppercase drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] leading-relaxed">
                 {lang === 'EN' ? (siteContent.welcome?.subtitleEN || 'Faith • Devotion • Tradition • Service') : (siteContent.welcome?.subtitleMR || 'श्रद्धा • भक्ती • परंपरा • सेवा')}
               </p>
               <div className="h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
-              <p className="text-xs sm:text-sm text-gray-200 font-sans max-w-xl mx-auto leading-relaxed drop-shadow">
+              <p className="text-xs sm:text-sm md:text-base text-gray-200 font-sans max-w-2xl mx-auto leading-relaxed drop-shadow">
                 {lang === 'EN'
                   ? (siteContent.welcome?.descEN || 'Welcome to the official digital portal of Shree Ishwatichi Mata Devasthan Mandal. Experience live darshan from home and contribute to our community welfare initiatives.')
                   : (siteContent.welcome?.descMR || 'श्री ईश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल कक्षात भाविकांचे स्वागत. घरबसल्या लाईव्ह पूजेचा आनंद घ्या आणि समाजोपयोगी उपक्रमांत भाग घ्या.')}
@@ -583,30 +583,30 @@ export default function App() {
             </div>
 
             {/* Quick Action Button Portals */}
-            <div className="flex flex-wrap justify-center items-center gap-3 max-w-xl mx-auto pt-4">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center items-center gap-3 sm:gap-4 max-w-sm sm:max-w-2xl lg:max-w-3xl mx-auto pt-3 sm:pt-6">
               <button 
                 onClick={() => setActiveTab('darshan')}
-                className="px-5 py-2.5 rounded-lg font-serif font-bold text-xs bg-brand-red text-white border border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-md cursor-pointer"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-red text-white border-2 border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
               >
-                🎥 {t.hero_btn1}
+                <span className="text-base sm:text-lg">🎥</span> <span className="font-sans leading-normal">{t.hero_btn1}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('seva')}
-                className="px-5 py-2.5 rounded-lg font-serif font-bold text-xs bg-brand-maroon text-brand-gold border border-brand-gold hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-md cursor-pointer"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-maroon text-brand-gold border-2 border-brand-gold hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
               >
-                🕯️ {t.hero_btn2}
+                <span className="text-base sm:text-lg">🕯️</span> <span className="font-sans leading-normal">{t.hero_btn2}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('donation')}
-                className="px-5 py-2.5 rounded-lg font-serif font-bold text-xs bg-brand-gold text-brand-maroon hover:opacity-95 transition-all shadow-md cursor-pointer"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-gold text-brand-maroon hover:opacity-95 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
               >
-                💝 {t.hero_btn3}
+                <span className="text-base sm:text-lg">💝</span> <span className="font-sans leading-normal">{t.hero_btn3}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('testimonials')}
-                className="px-5 py-2.5 rounded-lg font-serif font-bold text-xs bg-white/10 text-white hover:bg-white/15 transition-all shadow-md cursor-pointer"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-black/60 text-white border border-white/20 hover:bg-white/20 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
               >
-                📝 {t.hero_btn4}
+                <span className="text-base sm:text-lg">📝</span> <span className="font-sans leading-normal">{t.hero_btn4}</span>
               </button>
             </div>
 
@@ -630,14 +630,20 @@ export default function App() {
             <AboutSection lang={lang} />
 
             {/* Fast Quick Buttons to contact & locations */}
-            <div className="text-center py-6 bg-black/35 rounded-xl border border-brand-gold/15 p-6 max-w-md mx-auto space-y-3">
-              <span className="text-[10px] text-brand-saffron uppercase tracking-widest font-mono">24/7 Digital Helpline</span>
-              <h4 className="text-sm font-serif font-bold text-white">Have questions regarding Abhishek or Prasad boxes?</h4>
+            <div className="text-center py-6 sm:py-8 bg-black/45 rounded-2xl border border-brand-gold/25 p-6 sm:p-8 max-w-lg mx-auto space-y-3 shadow-xl">
+              <span className="text-xs text-brand-saffron uppercase tracking-wider font-mono font-bold">
+                {lang === 'EN' ? '24/7 Digital Helpline' : '२४/७ डिजिटल साहाय्यता कक्ष'}
+              </span>
+              <h4 className="text-base sm:text-lg font-serif font-bold text-white leading-relaxed">
+                {lang === 'EN' 
+                  ? 'Have questions regarding Abhishek Pooja or Prasad deliveries?' 
+                  : 'अभिषेक पूजा, आरती किंवा प्रसाद घरपोच सेवेविषयी काही प्रश्न आहेत का?'}
+              </h4>
               <button 
                 onClick={() => setActiveTab('contact')}
-                className="px-4 py-1.5 bg-brand-gold text-brand-maroon font-bold font-serif text-[11px] rounded hover:opacity-90 cursor-pointer"
+                className="px-5 py-2.5 bg-brand-gold text-brand-maroon font-black font-serif text-xs sm:text-sm rounded-xl hover:scale-105 transition-all shadow-md cursor-pointer inline-flex items-center gap-1.5"
               >
-                Contact Devasthan Center
+                <span>📞</span> <span>{lang === 'EN' ? 'Contact Devasthan Center' : 'देवस्थान कार्यालयाशी संपर्क साधा'}</span>
               </button>
             </div>
           </>
@@ -738,12 +744,12 @@ export default function App() {
       </main>
 
       {/* MAIN FOOTER */}
-      <footer className="bg-brand-maroon border-t border-brand-gold/25 text-white/95 py-12 select-none relative z-10 font-sans text-xs">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="bg-brand-maroon border-t border-brand-gold/25 text-white/95 py-10 pb-28 md:pb-12 select-none relative z-10 font-sans text-xs">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <SiteLogo variant="transparent" size="md" withGlow className="drop-shadow-md" />
+              <SiteLogo size="md" withGlow className="drop-shadow-md" />
               <h4 className="font-serif font-black text-brand-gold text-sm tracking-widest">{t.title}</h4>
             </div>
             <p className="text-gray-300 leading-normal">
@@ -794,6 +800,80 @@ export default function App() {
           <p className="tracking-widest">{lang === 'EN' ? '|| Shree Ishwatichi Mata Devasthan ||' : '|| श्री ईश्वटीची माता देवस्थान ||'}</p>
         </div>
       </footer>
+
+      {/* Persistent Mobile Bottom Navigation Bar (visible only on mobile/tablet < md) */}
+      <nav 
+        aria-label="Mobile Bottom Navigation" 
+        className="fixed bottom-0 inset-x-0 z-40 bg-[#280101]/95 backdrop-blur-md border-t border-brand-gold/30 md:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.7)] py-1.5 px-2 select-none"
+      >
+        <div className="grid grid-cols-5 gap-1 max-w-md mx-auto items-center text-center">
+          <button
+            onClick={() => {
+              setActiveTab('home');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
+              activeTab === 'home' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <span className="text-lg">🏠</span>
+            <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Home' : 'मुख्य'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('darshan');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
+              activeTab === 'darshan' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <span className="text-lg">🎥</span>
+            <span className="absolute top-1 right-3 h-2 w-2 rounded-full bg-green-400 animate-ping" />
+            <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Darshan' : 'दर्शन'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('seva');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
+              activeTab === 'seva' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <span className="text-lg">🕯️</span>
+            <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Seva' : 'सेवा'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('donation');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
+              activeTab === 'donation' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <span className="text-lg">💝</span>
+            <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Donate' : 'देणगी'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('profile');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
+              activeTab === 'profile' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <span className="text-lg">🕉️</span>
+            <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Streak' : 'भक्ती'}</span>
+          </button>
+        </div>
+      </nav>
 
     </div>
   );

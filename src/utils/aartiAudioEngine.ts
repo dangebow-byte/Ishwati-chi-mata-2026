@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Musical notes frequencies in Hz
+// Musical notes frequencies in Hz (Raga Bhupali / Bilawal traditional devotional scale)
 const NOTES: Record<string, number> = {
   C3: 130.81,
   D3: 146.83,
@@ -24,60 +24,121 @@ const NOTES: Record<string, number> = {
   E5: 659.25,
 };
 
-// Aarti Melody structure for "Om Jai Ishwati Mata"
-// Note name, duration in beats (1 beat = 0.6 seconds at 100 BPM)
-interface MelodyNote {
-  note: string;
-  duration: number; // in beats
-  lyricMR: string;
-  lyricEN: string;
+export interface AartiVerse {
+  lineMR: string;
+  lineEN: string;
+  leadNotes: { note: string; duration: number }[];
 }
 
-const AARTI_SCORE: MelodyNote[] = [
-  // Line 1: ॐ जय ईश्वटी माता (Om Jai Ishwati Mata)
-  { note: 'G4', duration: 1.0, lyricMR: 'ॐ', lyricEN: 'Om' },
-  { note: 'G4', duration: 1.0, lyricMR: 'जय', lyricEN: 'Jai' },
-  { note: 'G4', duration: 1.5, lyricMR: 'ईश्वटी', lyricEN: 'Ishwati' },
-  { note: 'A4', duration: 0.5, lyricMR: '—', lyricEN: '—' },
-  { note: 'G4', duration: 1.0, lyricMR: 'मा', lyricEN: 'Ma' },
-  { note: 'E4', duration: 1.5, lyricMR: 'ता', lyricEN: 'ta' },
-  { note: 'F4', duration: 0.5, lyricMR: '—', lyricEN: '—' },
-  { note: 'G4', duration: 2.0, lyricMR: '॥', lyricEN: '॥' },
-
-  // Line 2: मैया जय ईश्वटी माता (Maiya Jai Ishwati Mata)
-  { note: 'C5', duration: 1.0, lyricMR: 'मैया', lyricEN: 'Maiya' },
-  { note: 'C5', duration: 1.0, lyricMR: 'जय', lyricEN: 'Jai' },
-  { note: 'B4', duration: 1.0, lyricMR: 'ईश्व', lyricEN: 'Ishwa' },
-  { note: 'A4', duration: 1.0, lyricMR: 'टी', lyricEN: 'ti' },
-  { note: 'G4', duration: 1.5, lyricMR: 'मा', lyricEN: 'Ma' },
-  { note: 'A4', duration: 0.5, lyricMR: '—', lyricEN: '—' },
-  { note: 'G4', duration: 2.0, lyricMR: 'ता', lyricEN: 'ta ॥' },
-
-  // Line 3: जो ध्यावे फल पावे (Jo Dhyave Phal Pave)
-  { note: 'D5', duration: 1.0, lyricMR: 'जो', lyricEN: 'Jo' },
-  { note: 'D5', duration: 1.0, lyricMR: 'ध्यावे', lyricEN: 'dhyave' },
-  { note: 'C5', duration: 1.0, lyricMR: 'फल', lyricEN: 'phal' },
-  { note: 'B4', duration: 1.0, lyricMR: 'पावे', lyricEN: 'pave' },
-  { note: 'A4', duration: 1.0, lyricMR: 'दुःख', lyricEN: 'dukh' },
-  { note: 'G4', duration: 1.0, lyricMR: 'बिनसे', lyricEN: 'binase' },
-  { note: 'F4', duration: 1.0, lyricMR: 'मन', lyricEN: 'man' },
-  { note: 'E4', duration: 1.0, lyricMR: 'का', lyricEN: 'ka' },
-
-  // Line 4: सुख संपत्ती घर आवे (Sukh Sampatti Ghar Aave)
-  { note: 'F4', duration: 1.0, lyricMR: 'सुख', lyricEN: 'Sukh' },
-  { note: 'G4', duration: 1.0, lyricMR: 'संप', lyricEN: 'sampat-' },
-  { note: 'A4', duration: 1.0, lyricMR: 'त्ती', lyricEN: 'ti' },
-  { note: 'B4', duration: 1.0, lyricMR: 'घर', lyricEN: 'ghar' },
-  { note: 'C5', duration: 2.0, lyricMR: 'आवे', lyricEN: 'aave' },
-  { note: 'G4', duration: 2.0, lyricMR: '॥', lyricEN: '॥' },
-
-  // Refrain: ॐ जय ईश्वटी माता (Om Jai Ishwati Mata)
-  { note: 'G4', duration: 1.0, lyricMR: 'ॐ', lyricEN: 'Om' },
-  { note: 'G4', duration: 1.0, lyricMR: 'जय', lyricEN: 'Jai' },
-  { note: 'A4', duration: 1.0, lyricMR: 'ईश्वटी', lyricEN: 'Ishwati' },
-  { note: 'G4', duration: 1.0, lyricMR: 'मा', lyricEN: 'Ma' },
-  { note: 'F4', duration: 1.0, lyricMR: '—', lyricEN: '—' },
-  { note: 'E4', duration: 2.0, lyricMR: 'ता', lyricEN: 'ta ॥' },
+// Authentic Traditional Marathi Aarti for Shree Ishwatichi Mata
+export const MARATHI_AARTI_VERSES: AartiVerse[] = [
+  // Dhrupad (Refrain)
+  {
+    lineMR: 'जय देवी जय देवी जय ईश्वटी माते',
+    lineEN: 'Jai Devi Jai Devi Jai Ishwati Mate',
+    leadNotes: [
+      { note: 'G4', duration: 1.0 },
+      { note: 'G4', duration: 1.0 },
+      { note: 'A4', duration: 1.0 },
+      { note: 'G4', duration: 1.0 },
+      { note: 'E4', duration: 1.5 },
+      { note: 'F4', duration: 0.5 },
+      { note: 'G4', duration: 2.0 },
+    ]
+  },
+  {
+    lineMR: 'प्रसन्न होऊनि पावे भक्तांच्या हाके',
+    lineEN: 'Prasanna Houni Pave Bhaktanchya Hake',
+    leadNotes: [
+      { note: 'C5', duration: 1.0 },
+      { note: 'C5', duration: 1.0 },
+      { note: 'B4', duration: 1.0 },
+      { note: 'A4', duration: 1.0 },
+      { note: 'G4', duration: 1.5 },
+      { note: 'A4', duration: 0.5 },
+      { note: 'G4', duration: 2.0 },
+    ]
+  },
+  // Kadve 1
+  {
+    lineMR: 'स्वयंभू पाषाणी प्रगटली पावन मूर्ती',
+    lineEN: 'Swayambhu Pashani Pragatali Pavan Murti',
+    leadNotes: [
+      { note: 'D5', duration: 1.0 },
+      { note: 'D5', duration: 1.0 },
+      { note: 'C5', duration: 1.0 },
+      { note: 'B4', duration: 1.0 },
+      { note: 'A4', duration: 1.0 },
+      { note: 'G4', duration: 1.0 },
+      { note: 'F4', duration: 1.0 },
+      { note: 'E4', duration: 1.0 },
+    ]
+  },
+  {
+    lineMR: 'भक्तजन धावती कराया तव आरती',
+    lineEN: 'Bhaktajan Dhavati Karaya Tava Aarti',
+    leadNotes: [
+      { note: 'F4', duration: 1.0 },
+      { note: 'G4', duration: 1.0 },
+      { note: 'A4', duration: 1.0 },
+      { note: 'B4', duration: 1.0 },
+      { note: 'C5', duration: 2.0 },
+      { note: 'G4', duration: 2.0 },
+    ]
+  },
+  // Kadve 2
+  {
+    lineMR: 'कष्ट निवारुनी देई सुख समृद्धी',
+    lineEN: 'Kashta Nivaruni Deee Sukha Samruddhi',
+    leadNotes: [
+      { note: 'D5', duration: 1.0 },
+      { note: 'D5', duration: 1.0 },
+      { note: 'C5', duration: 1.0 },
+      { note: 'B4', duration: 1.0 },
+      { note: 'A4', duration: 1.0 },
+      { note: 'G4', duration: 1.0 },
+      { note: 'F4', duration: 1.0 },
+      { note: 'E4', duration: 1.0 },
+    ]
+  },
+  {
+    lineMR: 'हात जोडुनी चरणी नमितो आदिशक्ती',
+    lineEN: 'Haat Joduni Charani Namito Aadishakti',
+    leadNotes: [
+      { note: 'F4', duration: 1.0 },
+      { note: 'G4', duration: 1.0 },
+      { note: 'A4', duration: 1.0 },
+      { note: 'B4', duration: 1.0 },
+      { note: 'C5', duration: 2.0 },
+      { note: 'G4', duration: 2.0 },
+    ]
+  },
+  // Concluding Refrain
+  {
+    lineMR: 'जय देवी जय देवी जय ईश्वटी माते',
+    lineEN: 'Jai Devi Jai Devi Jai Ishwati Mate',
+    leadNotes: [
+      { note: 'G4', duration: 1.0 },
+      { note: 'G4', duration: 1.0 },
+      { note: 'A4', duration: 1.0 },
+      { note: 'G4', duration: 1.0 },
+      { note: 'F4', duration: 1.0 },
+      { note: 'E4', duration: 2.0 },
+    ]
+  },
+  {
+    lineMR: 'प्रसन्न होऊनि पावे भक्तांच्या हाके',
+    lineEN: 'Prasanna Houni Pave Bhaktanchya Hake',
+    leadNotes: [
+      { note: 'C5', duration: 1.0 },
+      { note: 'C5', duration: 1.0 },
+      { note: 'B4', duration: 1.0 },
+      { note: 'A4', duration: 1.0 },
+      { note: 'G4', duration: 1.5 },
+      { note: 'A4', duration: 0.5 },
+      { note: 'G4', duration: 2.0 },
+    ]
+  }
 ];
 
 export class AartiAudioEngine {
@@ -91,10 +152,11 @@ export class AartiAudioEngine {
   private droneGain: GainNode | null = null;
   private droneFilter: BiquadFilterNode | null = null;
 
-  // Melody state
+  // Playback state
   private isPlaying: boolean = false;
+  private currentVolume: number = 0.8;
   private loopTimer: number | null = null;
-  private tempoSecondsPerBeat: number = 0.55; // ~109 BPM devotional pace
+  private tempoSecondsPerBeat: number = 0.58; // Traditional devotional pacing (~103 BPM)
   private lyricListeners: Set<(mr: string, en: string) => void> = new Set();
   private stateListeners: Set<(playing: boolean) => void> = new Set();
   private activeNoteNodes: { stop: () => void }[] = [];
@@ -105,12 +167,11 @@ export class AartiAudioEngine {
 
   private initContext(): AudioContext {
     if (!this.ctx) {
-      // Support standard and webkit prefixes
       // @ts-ignore
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AudioCtx();
 
-      // Master Compressor for warm acoustic glue
+      // Master Compressor for acoustic warmth and dynamics
       this.compressor = this.ctx.createDynamicsCompressor();
       this.compressor.threshold.setValueAtTime(-20, this.ctx.currentTime);
       this.compressor.knee.setValueAtTime(30, this.ctx.currentTime);
@@ -120,7 +181,7 @@ export class AartiAudioEngine {
 
       // Master Gain
       this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.setValueAtTime(0.7, this.ctx.currentTime);
+      this.masterGain.gain.setValueAtTime(this.currentVolume, this.ctx.currentTime);
 
       // Realtime Analyser for UI visualizers
       this.analyser = this.ctx.createAnalyser();
@@ -145,9 +206,9 @@ export class AartiAudioEngine {
   }
 
   public setVolume(vol: number) {
+    this.currentVolume = Math.max(0, Math.min(1, vol));
     if (this.masterGain && this.ctx) {
-      const clamped = Math.max(0, Math.min(1, vol));
-      this.masterGain.gain.linearRampToValueAtTime(clamped, this.ctx.currentTime + 0.05);
+      this.masterGain.gain.linearRampToValueAtTime(this.currentVolume, this.ctx.currentTime + 0.05);
     }
   }
 
@@ -187,6 +248,48 @@ export class AartiAudioEngine {
   }
 
   /**
+   * Recite Marathi Aarti Verse exclusively with soothing devotional female vocal timbre
+   */
+  private speakMarathiVerse(verseMR: string) {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    if (!this.isPlaying) return;
+
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(verseMR);
+      const voices = window.speechSynthesis.getVoices();
+
+      // Find authentic Marathi or Hindi female voice
+      const femaleVoice = 
+        voices.find(v => (v.lang.startsWith('mr') || v.lang.startsWith('hi')) && (
+          v.name.toLowerCase().includes('female') || 
+          v.name.toLowerCase().includes('swara') || 
+          v.name.toLowerCase().includes('kalpana') || 
+          v.name.toLowerCase().includes('priya') ||
+          v.name.toLowerCase().includes('zira')
+        )) ||
+        voices.find(v => v.lang.startsWith('mr')) ||
+        voices.find(v => v.lang.startsWith('hi')) ||
+        voices.find(v => v.name.toLowerCase().includes('female')) ||
+        null;
+
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+        utterance.lang = femaleVoice.lang || 'mr-IN';
+      } else {
+        utterance.lang = 'mr-IN';
+      }
+      utterance.pitch = 1.25; // Gentle sweet female pitch
+      utterance.rate = 0.84;  // Sacred rhythmic Aarti cadence
+      utterance.volume = Math.min(1, this.currentVolume * 1.1);
+
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('Speech synthesis voice notice:', e);
+    }
+  }
+
+  /**
    * Start Tanpura Drone (Sa - Pa - Sa sacred harmonics)
    */
   private startTanpuraDrone(ctx: AudioContext) {
@@ -212,7 +315,6 @@ export class AartiAudioEngine {
 
     droneFrequencies.forEach((freq, idx) => {
       const osc = ctx.createOscillator();
-      // Alternating waveforms for organic acoustic thickness
       osc.type = idx % 2 === 0 ? 'triangle' : 'sine';
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
@@ -241,15 +343,13 @@ export class AartiAudioEngine {
       try {
         osc.stop();
         osc.disconnect();
-      } catch (e) {
-        // Ignore already stopped
-      }
+      } catch (e) {}
     });
     this.droneOscs = [];
   }
 
   /**
-   * Synthesize a sacred temple bell / manjira chime
+   * Synthesize temple bell / ghanta / manjira
    */
   private playTempleBell(ctx: AudioContext, time: number, highPitch: boolean = false) {
     if (!this.compressor) return;
@@ -257,7 +357,7 @@ export class AartiAudioEngine {
     const bellGain = ctx.createGain();
     bellGain.connect(this.compressor);
 
-    const baseFreq = highPitch ? 1760 : 880; // A6 or A5
+    const baseFreq = highPitch ? 1760 : 880;
     bellGain.gain.setValueAtTime(0.001, time);
     bellGain.gain.linearRampToValueAtTime(highPitch ? 0.08 : 0.16, time + 0.01);
     bellGain.gain.exponentialRampToValueAtTime(0.0001, time + (highPitch ? 0.8 : 2.5));
@@ -274,7 +374,7 @@ export class AartiAudioEngine {
   }
 
   /**
-   * Synthesize a melodic Aarti voice note (warm flute / harmonium lead)
+   * Synthesize a melodic harmonium / vocal flute lead note
    */
   private playMelodicNote(
     ctx: AudioContext,
@@ -287,7 +387,6 @@ export class AartiAudioEngine {
     const noteGain = ctx.createGain();
     noteGain.connect(this.compressor);
 
-    // ADSR Envelope
     const attack = 0.06;
     const decay = 0.08;
     const sustain = 0.75;
@@ -299,28 +398,28 @@ export class AartiAudioEngine {
     noteGain.gain.setValueAtTime(0.24 * sustain, startTime + durationSec - release);
     noteGain.gain.exponentialRampToValueAtTime(0.0001, startTime + durationSec);
 
-    // Warm Low-pass filter for natural acoustic body
+    // Formant vocal filter for warm singing timbre
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(1200, startTime);
-    filter.frequency.linearRampToValueAtTime(800, startTime + durationSec);
+    filter.frequency.setValueAtTime(1100, startTime);
+    filter.frequency.linearRampToValueAtTime(750, startTime + durationSec);
 
-    // Dual oscillator: Triangle (body) + Sine (smooth overtone)
+    // Dual oscillator: Triangle + Sine
     const osc1 = ctx.createOscillator();
     osc1.type = 'triangle';
     osc1.frequency.setValueAtTime(freq, startTime);
 
     const osc2 = ctx.createOscillator();
     osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(freq * 2, startTime); // 1 octave overtone
+    osc2.frequency.setValueAtTime(freq * 2, startTime);
     const osc2Gain = ctx.createGain();
-    osc2Gain.gain.setValueAtTime(0.25, startTime);
+    osc2Gain.gain.setValueAtTime(0.22, startTime);
 
-    // Gentle devotional vibrato
+    // Devotional singing vibrato (5.2 Hz)
     const vibrato = ctx.createOscillator();
-    vibrato.frequency.setValueAtTime(5.2, startTime); // 5.2 Hz human vocal vibrato
+    vibrato.frequency.setValueAtTime(5.2, startTime);
     const vibratoGain = ctx.createGain();
-    vibratoGain.gain.setValueAtTime(3.5, startTime);
+    vibratoGain.gain.setValueAtTime(3.2, startTime);
     vibrato.connect(vibratoGain);
     vibratoGain.connect(osc1.frequency);
 
@@ -350,7 +449,7 @@ export class AartiAudioEngine {
   }
 
   /**
-   * Schedule one complete cycle of the Aarti and loop continuously
+   * Schedule one complete cycle of the Marathi Aarti and loop continuously
    */
   private scheduleAartiCycle() {
     if (!this.isPlaying || !this.ctx) return;
@@ -358,43 +457,56 @@ export class AartiAudioEngine {
     const ctx = this.ctx;
     let currentTimeOffset = ctx.currentTime + 0.1;
 
-    // Ring starting temple bell
+    // Ring starting holy temple bell
     this.playTempleBell(ctx, currentTimeOffset, false);
 
     let totalCycleDuration = 0;
-    AARTI_SCORE.forEach(item => {
-      totalCycleDuration += item.duration * this.tempoSecondsPerBeat;
+    MARATHI_AARTI_VERSES.forEach(verse => {
+      let verseDuration = 0;
+      verse.leadNotes.forEach(n => {
+        verseDuration += n.duration * this.tempoSecondsPerBeat;
+      });
+      totalCycleDuration += verseDuration;
     });
 
     let accumulatedBeats = 0;
-    AARTI_SCORE.forEach((scoreItem, index) => {
-      const noteDuration = scoreItem.duration * this.tempoSecondsPerBeat;
-      const noteStartTime = currentTimeOffset + accumulatedBeats * this.tempoSecondsPerBeat;
-      const freq = NOTES[scoreItem.note];
 
-      // Play note
-      if (freq) {
-        this.playMelodicNote(ctx, freq, noteStartTime, noteDuration);
-      }
+    MARATHI_AARTI_VERSES.forEach((verse, verseIdx) => {
+      const verseStartTime = currentTimeOffset + accumulatedBeats * this.tempoSecondsPerBeat;
+      const delayMs = Math.max(0, (verseStartTime - ctx.currentTime) * 1000);
 
-      // Add gentle temple manjira cymbals on rhythm beats
-      if (index % 2 === 0) {
-        this.playTempleBell(ctx, noteStartTime, true);
-      }
-
-      // Schedule real-time lyric update
-      const delayMs = Math.max(0, (noteStartTime - ctx.currentTime) * 1000);
+      // Trigger lyric display and vocal female speech synthesis at start of verse
       window.setTimeout(() => {
-        if (this.isPlaying && scoreItem.lyricMR !== '—') {
-          this.notifyLyric(scoreItem.lyricMR, scoreItem.lyricEN);
+        if (this.isPlaying) {
+          this.notifyLyric(verse.lineMR, verse.lineEN);
+          this.speakMarathiVerse(verse.lineMR);
         }
       }, delayMs);
 
-      accumulatedBeats += scoreItem.duration;
+      // Schedule notes for this verse
+      let verseBeatOffset = 0;
+      verse.leadNotes.forEach((n, noteIdx) => {
+        const noteDuration = n.duration * this.tempoSecondsPerBeat;
+        const noteStartTime = verseStartTime + verseBeatOffset * this.tempoSecondsPerBeat;
+        const freq = NOTES[n.note];
+
+        if (freq) {
+          this.playMelodicNote(ctx, freq, noteStartTime, noteDuration);
+        }
+
+        // Add manjira cymbals on rhythm beats
+        if (noteIdx % 2 === 0) {
+          this.playTempleBell(ctx, noteStartTime, true);
+        }
+
+        verseBeatOffset += n.duration;
+      });
+
+      accumulatedBeats += verseBeatOffset;
     });
 
     // Schedule next loop cycle seamlessly
-    const loopCycleMs = (totalCycleDuration - 0.2) * 1000;
+    const loopCycleMs = (totalCycleDuration + 0.5) * 1000;
     this.loopTimer = window.setTimeout(() => {
       if (this.isPlaying) {
         this.scheduleAartiCycle();
@@ -403,23 +515,22 @@ export class AartiAudioEngine {
   }
 
   /**
-   * Start 'Om Jai Ishwati Mata' Aarti
+   * Start Marathi Aarti
    */
   public playAarti() {
     const ctx = this.initContext();
     this.isPlaying = true;
     this.notifyStateChange();
 
-    // Reset master gain to smooth fade-in
     if (this.masterGain) {
       this.masterGain.gain.setValueAtTime(0.001, ctx.currentTime);
-      this.masterGain.gain.linearRampToValueAtTime(0.85, ctx.currentTime + 0.6);
+      this.masterGain.gain.linearRampToValueAtTime(this.currentVolume, ctx.currentTime + 0.6);
     }
 
     // Start background Tanpura drone
     this.startTanpuraDrone(ctx);
 
-    // Schedule melody
+    // Schedule Marathi Aarti with Female Voice and Harmonium
     this.scheduleAartiCycle();
   }
 
@@ -430,13 +541,16 @@ export class AartiAudioEngine {
     this.isPlaying = false;
     this.notifyStateChange();
 
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+
     if (this.loopTimer) {
       window.clearTimeout(this.loopTimer);
       this.loopTimer = null;
     }
 
     if (this.ctx && this.masterGain) {
-      // Smooth fade out over 400ms to avoid audio pops
       this.masterGain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.4);
       setTimeout(() => {
         this.stopTanpuraDrone();

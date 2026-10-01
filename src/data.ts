@@ -5,7 +5,7 @@
 
 import { DevoteeExperience, TempleEvent, Announcement } from './types';
 import heroImg from './assets/devotional/devi-mata-main.webp';
-import logoImg from './assets/branding/ishwati-mata-mandal-logo-transparent.png';
+import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 
 export const INITIAL_EVENTS: TempleEvent[] = [
   {

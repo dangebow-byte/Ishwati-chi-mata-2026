@@ -293,8 +293,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <span>Database Table logs</span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-gray-300 divide-y divide-white/10">
+          <div className="overflow-x-auto pb-2">
+            <table className="w-full min-w-[640px] text-left text-xs text-gray-300 divide-y divide-white/10">
               <thead className="text-[10px] uppercase font-mono tracking-wider text-brand-gold">
                 <tr>
                   <th className="py-2.5 px-2">ID</th>
@@ -422,7 +422,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <span>Produce Fresh Notice Circular</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1 text-left">
               <label className="text-gray-300 block font-bold">Notice Title (EN) *</label>
               <input

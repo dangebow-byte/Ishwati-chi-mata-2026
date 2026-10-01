@@ -135,9 +135,10 @@ export const DigitalSevaSection: React.FC<DigitalSevaSectionProps> = ({ lang, on
       </div>
 
       {/* Booking Types Selector Rails */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 border-b border-white/5 pb-4">
-        {Object.entries(sevaDetails).map(([key, details]) => {
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 border-b border-white/5 pb-4">
+        {Object.entries(sevaDetails).map(([key, details], idx) => {
           const isSelected = sevaType === key;
+          const isLastOnMobile = idx === 4;
           return (
             <button
               key={key}
@@ -145,9 +146,11 @@ export const DigitalSevaSection: React.FC<DigitalSevaSectionProps> = ({ lang, on
                 handleTypeSelect(key as any);
                 setConfirmedBooking(null);
               }}
-              className={`py-3 px-2 rounded-xl text-xs font-bold font-serif transition-all flex flex-col items-center gap-1.5 cursor-pointer border ${
+              className={`py-2.5 sm:py-3 px-2 rounded-xl text-xs font-bold font-serif transition-all flex flex-col items-center gap-1.5 cursor-pointer border ${
+                isLastOnMobile ? 'col-span-2 sm:col-span-1' : ''
+              } ${
                 isSelected
-                  ? 'bg-brand-red text-white border-brand-gold scale-105 shadow-md shadow-brand-red/30'
+                  ? 'bg-brand-red text-white border-brand-gold scale-102 sm:scale-105 shadow-md shadow-brand-red/30'
                   : 'bg-black/40 text-gray-400 border-white/5 hover:border-brand-saffron/40 hover:text-white'
               }`}
             >

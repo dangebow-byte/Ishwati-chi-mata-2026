@@ -37,17 +37,17 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
   const preSets = [501, 1001, 2501, 5001, 11000];
 
   const funds = [
-    'Maha Prasad Bhandara Food Fund',
-    'Golden Crown Jubilee Gold Fund',
-    'Charitable Clinic Mobile Health Fund',
-    'Mandal Evening School Children Fund',
-    'Temple General Corpus & Maintenance'
+    { en: 'Maha Prasad Bhandara Food Fund', mr: 'अन्नछत्र महाप्रसाद भोजन निधी' },
+    { en: 'Holy Golden Kalash Fund', mr: 'पवित्र सुवर्ण कळस निधी' },
+    { en: 'Charitable Clinic Mobile Health Fund', mr: 'मोफत फिरता दवाखाना व आरोग्य निधी' },
+    { en: 'Mandal Evening School Children Fund', mr: 'गरजू विद्यार्थी शिक्षण व संस्कार वर्ग निधी' },
+    { en: 'Temple General Corpus & Maintenance', mr: 'मंदिर व्यवस्थापन व जीर्णोद्धार निधी' }
   ];
 
   const handleStartCheckout = (e: React.FormEvent) => {
     e.preventDefault();
     if (!donorName || !phone || !email || amount <= 0) {
-      alert(lang === 'EN' ? 'Please complete all required fields.' : 'कृपया सर्व आवश्यक गोळ्या भरा.');
+      alert(lang === 'EN' ? 'Please complete all required fields.' : 'कृपया सर्व आवश्यक रकाने भरा.');
       return;
     }
     setCheckoutStep('checkout');
@@ -94,7 +94,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
           </p>
         </div>
         <div className="bg-brand-gold/15 border-2 border-brand-gold py-1.5 px-4 rounded-full text-brand-gold font-serif font-black text-xs animate-pulse">
-          🏆 80G Tax Exemption Certified
+          🏆 {lang === 'EN' ? '80G Tax Exemption Certified' : '८०जी आयकर करसवलत प्रमाणपत्र'}
         </div>
       </div>
 
@@ -108,26 +108,26 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
               <span>{lang === 'EN' ? 'Configure Devout Gift' : 'देणगी पर्याय निवडा'}</span>
             </div>
 
-            {/* Amount Presets */}
-            <div className="space-y-2">
-              <label className="text-xs text-gray-300 font-bold block">{lang === 'EN' ? 'Select Sacred Amount' : 'कृपाहून देणगी रक्कम निवडा'}:</label>
-              <div className="grid grid-cols-5 gap-2">
-                {preSets.map((amt) => (
-                  <button
-                    key={amt}
-                    type="button"
-                    onClick={() => setAmount(amt)}
-                    className={`py-2 rounded-lg text-xs font-bold transition-all border ${
-                      amount === amt
-                        ? 'bg-brand-saffron text-brand-maroon font-black border-brand-gold scale-105 shadow'
-                        : 'bg-black/30 text-white/80 border-white/5 hover:border-brand-saffron/40'
-                    }`}
-                  >
-                    ₹{amt.toLocaleString()}
-                  </button>
-                ))}
+              {/* Amount Presets */}
+              <div className="space-y-2">
+                <label className="text-xs text-gray-300 font-bold block">{lang === 'EN' ? 'Select Sacred Amount' : 'कृपाहून देणगी रक्कम निवडा'}:</label>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                  {preSets.map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setAmount(amt)}
+                      className={`py-2 px-1 rounded-lg text-xs font-bold transition-all border text-center ${
+                        amount === amt
+                          ? 'bg-brand-saffron text-brand-maroon font-black border-brand-gold scale-105 shadow'
+                          : 'bg-black/30 text-white/80 border-white/5 hover:border-brand-saffron/40'
+                      }`}
+                    >
+                      ₹{amt.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
             {/* Custom Amount Entry */}
             <div className="space-y-1 text-xs">
@@ -154,7 +154,9 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
                 className="w-full bg-brand-maroon/40 border border-brand-gold/30 rounded-lg py-2.5 px-3 text-white focus:outline-none focus:border-brand-saffron font-bold text-xs"
               >
                 {funds.map((f, idx) => (
-                  <option key={idx} value={f} className="bg-brand-maroon text-white">{f}</option>
+                  <option key={idx} value={lang === 'EN' ? f.en : f.mr} className="bg-brand-maroon text-white">
+                    {lang === 'EN' ? f.en : f.mr}
+                  </option>
                 ))}
               </select>
             </div>
@@ -396,7 +398,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
         <div className="max-w-2xl mx-auto space-y-6 font-sans">
           
           {/* Main Visual Altar Receipt */}
-          <div id="printable-receipt-card" className="bg-white text-gray-900 border-8 border-double border-brand-gold rounded-2xl p-5 sm:p-10 shadow-2xl relative select-none">
+          <div id="printable-receipt-card" className="bg-white text-gray-900 border-4 sm:border-8 border-double border-brand-gold rounded-xl sm:rounded-2xl p-4 sm:p-8 md:p-10 shadow-2xl relative select-none overflow-hidden">
             
             {/* Background design accents */}
             <div className="absolute inset-0 bg-[radial-gradient(#eed299_1px,transparent_1px)] [background-size:16px_16px] opacity-10 pointer-events-none" />
@@ -404,14 +406,14 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
 
             {/* Receipt Header logo */}
             <div className="text-center space-y-2 relative border-b-2 border-brand-gold/60 pb-5">
-              <SiteLogo variant="transparent" size="md" className="mx-auto mb-2 drop-shadow-md" />
-              <span className="text-brand-red font-serif font-black text-xl sm:text-2xl tracking-wide uppercase block">
+              <SiteLogo size="md" className="mx-auto mb-2 drop-shadow-md" />
+              <span className="text-brand-red font-serif font-black text-lg sm:text-2xl tracking-wide uppercase block">
                 {lang === 'EN' ? 'Shree Ishwatichi Mata Charitable Devasthan Trust' : 'श्री ईश्वटीची माता चॅरिटेबल देवस्थान ट्रस्ट'}
               </span>
-              <span className="text-[10px] text-gray-600 font-mono tracking-widest uppercase block">
+              <span className="text-[9px] sm:text-[10px] text-gray-600 font-mono tracking-wider sm:tracking-widest uppercase block">
                 Govt Regd No: E-50125/MUMBAI • Section 80G Approval No: SEC80G/5482/2026
               </span>
-              <span className="bg-brand-red text-white text-[10px] font-bold font-serif uppercase tracking-widest py-0.5 px-4 rounded-full inline-block border border-brand-gold">
+              <span className="bg-brand-red text-white text-[9px] sm:text-[10px] font-bold font-serif uppercase tracking-widest py-0.5 px-3 sm:px-4 rounded-full inline-block border border-brand-gold">
                 OFFICIAL SACRED GIFT RECEIPT
               </span>
             </div>
@@ -456,7 +458,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
                 <div className="text-right space-y-1">
                   <span className="text-[9px] text-gray-400 uppercase block">Authorized Signatory</span>
                   <span className="font-serif text-[11px] font-bold italic text-brand-maroon block">S. D. Deshmukh (Trustee Head)</span>
-                  <span className="text-[8px] text-gray-500 font-mono block">50th Gold Jubilee Executive Court</span>
+                  <span className="text-[8px] text-gray-500 font-mono block">Executive Court of Trustees</span>
                 </div>
               </div>
             </div>

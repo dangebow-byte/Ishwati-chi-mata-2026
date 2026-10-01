@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-import logoTransparentPng from '../assets/branding/ishwati-mata-mandal-logo-transparent.png';
-import logoFullPng from '../assets/branding/ishwati-mata-mandal-logo.png';
-import logoWhitePng from '../assets/branding/ishwati-mata-mandal-logo-white.png';
-import logoIconPng from '../assets/branding/ishwati-mata-mandal-icon.png';
-import logoSvg from '../assets/branding/ishwati-mata-mandal-logo.svg';
-import logoTransparentSvg from '../assets/branding/ishwati-mata-mandal-logo-transparent.svg';
-import logoWhiteSvg from '../assets/branding/ishwati-mata-mandal-logo-white.svg';
+import mandalLogo from '../assets/branding/Mandal logo Maroon Transparent BG.png';
 
 export type LogoVariant = 'transparent' | 'full' | 'white' | 'icon' | 'vector';
 export type LogoSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'custom';
@@ -32,18 +26,15 @@ export interface SiteLogoProps {
 const SIZE_MAP: Record<LogoSize, string> = {
   xs: 'h-8 w-8',
   sm: 'h-10 w-10 sm:h-12 sm:w-12',
-  md: 'h-14 w-14 sm:h-16 sm:w-16',
-  lg: 'h-20 w-20 sm:h-24 sm:w-24',
-  xl: 'h-28 w-28 sm:h-32 sm:w-32',
+  md: 'h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 lg:h-18 lg:w-18',
+  lg: 'h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28',
+  xl: 'h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 lg:h-36 lg:w-36',
   custom: '',
 };
 
 export const SiteLogo: React.FC<SiteLogoProps> = ({
-  variant = 'transparent',
   size = 'md',
-  compact = false,
-  format = 'png',
-  alt = 'श्री ईश्वटीची माता मंडळ अधिकृत बोधचिन्ह',
+  alt = 'श्री ईश्वटीची माता मंडळ - अधिकृत बोधचिन्ह (Mandal logo Maroon Transparent BG)',
   className = '',
   withBorder = false,
   withGlow = false,
@@ -51,29 +42,8 @@ export const SiteLogo: React.FC<SiteLogoProps> = ({
   srcOverride,
   onClick,
 }) => {
-  // Primary source: if srcOverride or public asset 1 is provided, use it directly
-  const [imgSrc, setImgSrc] = React.useState<string>(() => {
-    if (srcOverride) return srcOverride;
-    // Default asset 1 path in public directory
-    return '/Mandal%20logo%20Maroon%20Transparent%20BG.png';
-  });
-
-  const isSvg = format === 'svg';
-  let defaultBundledSrc = isSvg ? logoTransparentSvg : logoTransparentPng;
-  if (compact || variant === 'icon') {
-    defaultBundledSrc = logoIconPng;
-  } else if (variant === 'white') {
-    defaultBundledSrc = isSvg ? logoWhiteSvg : logoWhitePng;
-  } else if (variant === 'full') {
-    defaultBundledSrc = isSvg ? logoSvg : logoFullPng;
-  }
-
-  // Handle fallback if public asset is not found
-  const handleError = () => {
-    if (imgSrc !== defaultBundledSrc) {
-      setImgSrc(defaultBundledSrc);
-    }
-  };
+  // Use exact image Mandal logo Maroon Transparent BG.png as requested with no modification
+  const imageSource = srcOverride || mandalLogo;
 
   const sizeClasses = SIZE_MAP[size];
   const borderClasses = withBorder
@@ -89,9 +59,8 @@ export const SiteLogo: React.FC<SiteLogoProps> = ({
       } ${className}`}
     >
       <img
-        src={imgSrc}
+        src={imageSource}
         alt={alt}
-        onError={handleError}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         className={`${sizeClasses} aspect-square object-contain ${borderClasses} ${glowClasses} transition-all duration-300`}
