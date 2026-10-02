@@ -29,6 +29,7 @@ import { Sparkles, Play, Flame, Bell, Award, HelpCircle } from 'lucide-react';
 import { SiteLogo } from './components/SiteLogo';
 import { DeviImage } from './components/DeviImage';
 import { HeroAudioPlayer } from './components/HeroAudioPlayer';
+import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdown';
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
@@ -356,6 +357,33 @@ export default function App() {
     }
   };
 
+  const handleRsvpEvent = async (eventId: string, devoteeName: string) => {
+    const targetEvt = events.find(x => x.id === eventId) || INITIAL_EVENTS.find(x => x.id === eventId);
+    
+    // Increment RSVP count in Firestore if possible
+    try {
+      if (targetEvt) {
+        const evtRef = doc(db, 'events', eventId);
+        await updateDoc(evtRef, {
+          rsvpCount: (targetEvt.rsvpCount || 0) + 1
+        });
+      }
+    } catch {
+      // Non-blocking if offline/unseeded
+    }
+
+    handleNewBooking({
+      id: 'RSVP-' + Math.floor(1000 + Math.random() * 9000),
+      type: 'volunteer',
+      subType: `RSVP Presence: ${targetEvt?.titleMarathi || targetEvt?.title || 'Temple Festival'}`,
+      devoteeName: devoteeName,
+      phone: userProfile.phone,
+      email: userProfile.email,
+      date: targetEvt?.date || new Date().toISOString().split('T')[0],
+      status: 'confirmed'
+    });
+  };
+
   const handleDeleteBooking = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'bookings', id));
@@ -505,19 +533,19 @@ export default function App() {
 
       {/* HERO SECTION / BANNER CANVAS */}
       {activeTab === 'home' && (
-        <section className="relative w-full overflow-hidden border-b border-brand-gold/15 bg-black">
+        <section className="relative w-full min-h-[580px] sm:min-h-[660px] lg:min-h-[720px] overflow-hidden border-b border-brand-gold/15 bg-black flex items-center">
           {/* Main Visual Altar background */}
-          <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 z-0 overflow-hidden">
             <DeviImage 
-              aspectRatio="hero"
+              aspectRatio="auto"
               objectFit="cover"
               priority
-              className="w-full h-full opacity-45 brightness-90 saturate-[1.2] lg:object-center scale-100 transform transform-gpu"
-              imageClassName="w-full h-full object-cover"
+              className="w-full h-full opacity-60 brightness-95 saturate-[1.1] scale-100 transform transform-gpu overflow-hidden"
+              imageClassName="w-full h-full object-cover object-center sm:object-[center_18%]"
             />
             {/* Soft Royal gradients */}
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-maroon via-black/30 to-transparent" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_20%,rgba(13,1,1,0.9)_100%)]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-maroon via-black/30 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_20%,rgba(13,1,1,0.9)_100%)] pointer-events-none" />
           </div>
 
           {/* Side decorative vertical text/rules - Visible only on ultra-wide 2xl screens to avoid collision */}
@@ -623,6 +651,15 @@ export default function App() {
         {/* Render Tab specific portals */}
         {activeTab === 'home' && (
           <>
+            {/* Live Upcoming Major Festival Countdown Widget */}
+            <UpcomingFestivalCountdown
+              lang={lang}
+              events={events.length > 0 ? events : INITIAL_EVENTS}
+              onNavigateToEvents={() => setActiveTab('events')}
+              onNavigateToSeva={() => setActiveTab('seva')}
+              onRsvp={handleRsvpEvent}
+            />
+
             {/* Live streaming & quick timing schedule dashboards */}
             <LiveDarshanSection lang={lang} heroImagePath={heroImg} />
 

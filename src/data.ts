@@ -5,6 +5,7 @@
 
 import { DevoteeExperience, TempleEvent, Announcement } from './types';
 import heroImg from './assets/devotional/devi-mata-main.webp';
+import sanctumHeroImg from './assets/images/ishwati_mata_darshan_widescreen_1790944258044.jpg';
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 
 export const INITIAL_EVENTS: TempleEvent[] = [
@@ -176,6 +177,13 @@ export const GALLERY_ITEMS = [
     title: 'श्री ईश्वटीची माता अधिकृत दिव्य दर्शन मूर्ती',
     titleMarathi: 'श्री ईश्वटीची माता अधिकृत दिव्य दर्शन मूर्ती',
     url: heroImg
+  },
+  {
+    id: 'gal-sanctum-altar',
+    category: 'Mata Darshan',
+    title: 'श्री ईश्वटीची माता गर्भगृह व राजसिंहासन दर्शन',
+    titleMarathi: 'श्री ईश्वटीची माता गर्भगृह व राजसिंहासन दर्शन',
+    url: sanctumHeroImg
   },
   {
     id: 'gal-official-logo',

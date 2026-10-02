@@ -107,7 +107,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             <img 
               src={item.url} 
               alt={item.title} 
-              className="w-full h-auto object-cover max-h-96" 
+              className="w-full h-auto object-contain bg-black/40 block" 
               referrerPolicy="no-referrer"
             />
             {/* Absolute Hover details */}

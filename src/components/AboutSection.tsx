@@ -76,12 +76,16 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
       {/* Divine Visual Showcase Banner */}
       <div className="bg-gradient-to-r from-brand-maroon/70 via-black/80 to-brand-maroon/70 border border-brand-gold/30 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-center gap-6 flex-1 text-center sm:text-left">
-          <DeviImage
-            aspectRatio="portrait"
-            withFrame
-            withAura
-            className="w-28 sm:w-36 h-auto shrink-0"
-          />
+          <div className="overflow-hidden rounded-2xl shrink-0 p-0.5 h-48 sm:h-56 md:h-64 w-auto flex items-center justify-center">
+            <DeviImage
+              aspectRatio="portrait"
+              withFrame
+              withAura
+              objectFit="cover"
+              className="h-full w-auto aspect-[854/1280] overflow-hidden"
+              imageClassName="w-full h-full object-cover object-center"
+            />
+          </div>
           <div className="space-y-2">
             <span className="text-[11px] font-mono uppercase tracking-widest text-brand-gold font-bold">
               {lang === 'EN' ? 'Official Sanctum Sanctorum' : 'अधिकृत गाभारा व राजमुद्रा'}

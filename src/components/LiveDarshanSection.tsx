@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { TRANSLATIONS } from '../data';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
+import { DeviImage } from './DeviImage';
 
 interface LiveDarshanSectionProps {
   lang: 'EN' | 'MR';
@@ -538,7 +539,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
         
         {/* Cam Screen (Left) */}
         <div className="col-span-1 lg:col-span-8 space-y-4">
-          <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-brand-gold/30 bg-black group shadow-2xl">
+          <div className="relative min-h-[480px] sm:min-h-[580px] lg:h-[640px] w-full rounded-2xl overflow-hidden border-2 border-brand-gold/30 bg-black group shadow-2xl">
             {/* Overlay indicators */}
             <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-red-700 text-white font-mono font-bold text-[10px] uppercase px-2.5 py-1 rounded-md shadow-md">
               <span className="h-1.5 w-1.5 bg-white rounded-full animate-ping" />
@@ -552,10 +553,21 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
 
             {/* Video or Image source */}
             {videoFeeds[activeCam].isLive ? (
-              <div className="h-full w-full relative">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)] pointer-events-none" />
-                <div className="absolute top-0 left-0 w-full h-[1px] bg-brand-gold/30 animate-pulse pointer-events-none" />
+              <div className="h-full w-full relative flex items-center justify-center bg-black overflow-hidden">
+                {/* DeviImage Component with object-fit cover, full height, and parent container overflow clipping */}
+                <DeviImage
+                  src={heroImagePath}
+                  alt="Shree Ishwatichi Mata Darshan Chamber Live"
+                  aspectRatio="auto"
+                  objectFit="cover"
+                  priority
+                  className="w-full h-full overflow-hidden"
+                  imageClassName="w-full h-full object-cover object-[center_18%] transition-transform duration-1000 group-hover:scale-105"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none z-[2]" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.6)_100%)] pointer-events-none z-[2]" />
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-brand-gold/30 animate-pulse pointer-events-none z-[2]" />
                 
                 {/* Sacred watermark badge */}
                 <div className="absolute top-3 left-24 z-10 bg-brand-maroon/90 backdrop-blur-sm border border-brand-gold/60 text-brand-gold text-[10px] font-serif font-black px-2.5 py-1 rounded shadow flex items-center gap-1.5">
@@ -563,15 +575,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                   <span>श्री ईश्वटीची थेट दर्शन</span>
                 </div>
 
-                {/* High fidelity image source */}
-                <img 
-                  src={heroImagePath} 
-                  alt="Shree Ishwatichi Mata Darshan Chamber Live" 
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                  referrerPolicy="no-referrer"
-                />
-
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between">
                   <div className="bg-black/85 px-3 py-1.5 rounded-lg backdrop-blur border border-white/10 text-xs shadow-md">
                     <span className="text-gray-400">{lang === 'EN' ? 'Feed' : 'प्रसारण'}</span>: <strong className="text-brand-gold">{videoFeeds[activeCam].name}</strong>
                   </div>
