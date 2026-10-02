@@ -28,6 +28,7 @@ import { ContactSection } from './components/ContactSection';
 import { Sparkles, Play, Flame, Bell, Award, HelpCircle } from 'lucide-react';
 import { SiteLogo } from './components/SiteLogo';
 import { DeviImage } from './components/DeviImage';
+import { TempleBell } from './components/TempleBell';
 import { HeroAudioPlayer } from './components/HeroAudioPlayer';
 import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdown';
 
@@ -579,20 +580,24 @@ export default function App() {
 
           <div className="mx-auto max-w-7xl px-4 py-12 sm:py-20 lg:py-28 relative z-10 text-center space-y-6 sm:space-y-8">
             
-            {/* Traditional Temple swinging bell animation and glowing Diya */}
-            <div className="flex justify-center items-center gap-6 sm:gap-12 select-none h-12 sm:h-16">
-              {/* Swinging bells left */}
-              <div className="animate-bell-swing text-3xl sm:text-4xl" title="Holy bells swinging">
-                🔔
-              </div>
+            {/* Traditional Authentic Temple swinging brass bells and glowing Diya */}
+            <div className="flex justify-center items-center gap-8 sm:gap-14 select-none h-16 sm:h-20">
+              {/* Authentic hanging temple brass bell left */}
+              <TempleBell 
+                size="md" 
+                variant="deep" 
+                label={lang === 'EN' ? 'Temple Ghanta' : 'घंटानाद'} 
+              />
               {/* Glowing diya center */}
-              <div className="animate-diya-flicker text-4xl sm:text-5xl">
+              <div className="animate-diya-flicker text-4xl sm:text-5xl drop-shadow-[0_0_15px_rgba(255,153,51,0.9)]">
                 🔥
               </div>
-              {/* Swinging bells right */}
-              <div className="animate-bell-swing text-3xl sm:text-4xl" style={{ animationDelay: '0.8s' }}>
-                🔔
-              </div>
+              {/* Authentic hanging temple brass bell right */}
+              <TempleBell 
+                size="md" 
+                variant="high" 
+                label={lang === 'EN' ? 'Sacred Chime' : 'पवित्र नाद'} 
+              />
             </div>
 
             <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto px-2">

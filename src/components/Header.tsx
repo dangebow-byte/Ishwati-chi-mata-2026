@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Sunset, Languages, Moon, Sun, ShieldAlert, Award, Sparkles, Volume2, VolumeX, Menu, X, ChevronRight, Video, Heart, Calendar, BookOpen, Users, Phone, Settings, Sparkle } from 'lucide-react';
 import { TRANSLATIONS } from '../data';
 import { SiteLogo } from './SiteLogo';
+import { TempleBell } from './TempleBell';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
 
 interface HeaderProps {
@@ -282,8 +283,35 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
+          {/* Interactive Sacred Temple Bells in Header with physical & visual feedback */}
+          <div className="hidden lg:flex items-center gap-3.5 px-3.5 py-1.5 bg-black/35 rounded-2xl border border-brand-gold/30 backdrop-blur-sm shadow-inner">
+            <TempleBell 
+              size="md" 
+              variant="deep" 
+              label={lang === 'EN' ? 'Ring Ghanta' : 'घंटानाद'} 
+            />
+            <div className="text-left text-[11px] leading-tight select-none">
+              <span className="font-serif font-bold text-brand-gold block">
+                {lang === 'EN' ? 'Temple Bell' : 'पवित्र घंटी'}
+              </span>
+              <span className="text-gray-300 text-[10px] font-sans">
+                {lang === 'EN' ? 'Click to ring' : 'नाद स्पर्श करा'}
+              </span>
+            </div>
+          </div>
+
           {/* Right Controls: Quick Action & Mobile Hamburger */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Interactive Header Temple Bell for mobile & small screens */}
+            <div className="lg:hidden flex items-center pr-1">
+              <TempleBell 
+                size="sm" 
+                showChain={false} 
+                variant="high"
+                label={lang === 'EN' ? 'Bell' : 'घंटी'} 
+              />
+            </div>
+
             {/* Quick Live Darshan CTA on tablet/desktop */}
             <button
               onClick={() => handleSelectTab('darshan')}

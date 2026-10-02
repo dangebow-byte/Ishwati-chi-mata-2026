@@ -569,6 +569,67 @@ export class AartiAudioEngine {
     return this.isPlaying;
   }
 
+  /**
+   * Ring the sacred temple bell with authentic bronze acoustic harmonics and sustained natural resonance
+   */
+  public ringSacredTempleBell(variant: 'deep' | 'high' = 'deep') {
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      const ctx = this.ctx;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      const now = ctx.currentTime;
+      const bellGain = ctx.createGain();
+      if (this.compressor) {
+        bellGain.connect(this.compressor);
+      } else {
+        bellGain.connect(ctx.destination);
+      }
+
+      // Traditional Indian temple brass ghanta fundamental frequencies (D5: 587.33Hz, A5: 880Hz)
+      const baseFreq = variant === 'high' ? 880 : 587.33;
+      const duration = 3.6;
+
+      // Realistic sharp clapper attack and long bell decay
+      bellGain.gain.setValueAtTime(0.0001, now);
+      bellGain.gain.linearRampToValueAtTime(0.42, now + 0.005); // immediate metallic strike
+      bellGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      // Authentic bronze bell harmonic and enharmonic partials
+      const partials = [
+        { mult: 0.5, gain: 0.16, sustain: 1.0 }, // Sub-octave warm bronze hum tone
+        { mult: 1.0, gain: 0.45, sustain: 0.9 }, // Fundamental strike tone
+        { mult: 1.189, gain: 0.32, sustain: 0.75 }, // Tierce (minor 3rd - distinctive to cast bells)
+        { mult: 1.5, gain: 0.28, sustain: 0.8 }, // Quint (pure fifth)
+        { mult: 2.0, gain: 0.22, sustain: 0.7 }, // Nominal octave
+        { mult: 2.76, gain: 0.14, sustain: 0.55 }, // Super-quint
+        { mult: 3.42, gain: 0.09, sustain: 0.45 }, // High shimmer overtone
+      ];
+
+      partials.forEach(p => {
+        const osc = ctx.createOscillator();
+        const pGain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq * p.mult, now);
+
+        const pDuration = duration * p.sustain;
+        pGain.gain.setValueAtTime(p.gain, now);
+        pGain.gain.exponentialRampToValueAtTime(0.0001, now + pDuration);
+
+        osc.connect(pGain);
+        pGain.connect(bellGain);
+
+        osc.start(now);
+        osc.stop(now + pDuration);
+      });
+    } catch (e) {
+      console.warn('Temple bell audio playback error:', e);
+    }
+  }
+
   public destroy() {
     this.silence();
     if (this.ctx) {
