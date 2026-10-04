@@ -540,19 +540,19 @@ export default function App() {
 
       {/* HERO SECTION / BANNER CANVAS */}
       {activeTab === 'home' && (
-        <section className="relative w-full min-h-[580px] sm:min-h-[660px] lg:min-h-[720px] overflow-hidden border-b border-brand-gold/15 bg-black flex items-center">
+        <section className="relative w-full min-h-[460px] sm:min-h-[540px] lg:min-h-[600px] overflow-hidden border-b border-brand-gold/15 bg-black flex items-center justify-center">
           {/* Main Visual Altar background */}
           <div className="absolute inset-0 z-0 overflow-hidden">
             <DeviImage 
               aspectRatio="auto"
               objectFit="cover"
               priority
-              className="w-full h-full opacity-60 brightness-95 saturate-[1.1] scale-100 transform transform-gpu overflow-hidden"
-              imageClassName="w-full h-full object-cover object-center sm:object-[center_18%]"
+              className="w-full h-full opacity-65 brightness-95 saturate-[1.1] scale-100 transform transform-gpu overflow-hidden"
+              imageClassName="w-full h-full object-cover object-[center_12%] sm:object-[center_18%]"
             />
             {/* Soft Royal gradients */}
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-maroon via-black/30 to-transparent pointer-events-none" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_20%,rgba(13,1,1,0.9)_100%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-maroon via-black/40 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_20%,rgba(13,1,1,0.85)_100%)] pointer-events-none" />
           </div>
 
           {/* Side decorative vertical text/rules - Visible only on ultra-wide 2xl screens to avoid collision */}
@@ -584,57 +584,72 @@ export default function App() {
             </div>
           </div>
 
-          <div className="mx-auto max-w-7xl px-4 py-12 sm:py-20 lg:py-28 relative z-10 text-center space-y-6 sm:space-y-8">
+          <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-10 lg:py-12 relative z-10 text-center space-y-4 sm:space-y-6">
             
-            {/* Traditional Sacred Glowing Akhand Jyot Diya and Divine Chants */}
-            <div className="flex justify-center items-center gap-3 sm:gap-6 select-none h-12 sm:h-16">
-              <span className="text-xl sm:text-2xl text-brand-gold opacity-80 animate-pulse">✨</span>
-              <div className="animate-diya-flicker text-4xl sm:text-5xl drop-shadow-[0_0_18px_rgba(255,153,51,0.95)]">
-                🪔
+            {/* Traditional Sacred Glowing Devi Mata Darshan & Akhand Jyot Diya */}
+            <div className="flex justify-center items-center gap-2.5 sm:gap-4 select-none">
+              <span className="text-base sm:text-2xl text-brand-gold opacity-90 animate-pulse">✨</span>
+              <div className="relative group">
+                <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 rounded-full border-2 sm:border-3 border-brand-gold shadow-[0_0_24px_rgba(255,153,51,0.85)] overflow-hidden bg-black/80 flex items-center justify-center p-0.5 transition-transform duration-300 group-hover:scale-105">
+                  <DeviImage 
+                    aspectRatio="square" 
+                    objectFit="cover"
+                    priority
+                    className="w-full h-full rounded-full" 
+                    imageClassName="w-full h-full object-cover object-top"
+                  />
+                </div>
+                <div className="absolute -bottom-2 -right-1 animate-diya-flicker text-xl sm:text-2xl drop-shadow-[0_0_12px_rgba(255,153,51,0.95)]">
+                  🪔
+                </div>
               </div>
-              <span className="text-xl sm:text-2xl text-brand-gold opacity-80 animate-pulse">✨</span>
+              <span className="text-base sm:text-2xl text-brand-gold opacity-90 animate-pulse">✨</span>
             </div>
 
-            <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto px-2">
-              <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white drop-shadow-[0_0_30px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-normal leading-tight">
+            <div className="space-y-2 sm:space-y-3 w-full max-w-5xl mx-auto px-1 sm:px-2">
+              <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white drop-shadow-[0_0_25px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-normal leading-tight">
                 {lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata (श्री ईश्वटीची)') : (siteContent.welcome?.titleMR || 'श्री ईश्वटीची माता')}
               </h1>
-              <p className="font-sans text-base sm:text-xl lg:text-2xl font-extrabold text-[#FF9933] tracking-wide uppercase drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] leading-relaxed">
+              <p className="font-sans text-xs sm:text-lg lg:text-xl font-extrabold text-[#FF9933] tracking-wide uppercase drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] leading-relaxed">
                 {lang === 'EN' ? (siteContent.welcome?.subtitleEN || 'Faith • Devotion • Tradition • Service') : (siteContent.welcome?.subtitleMR || 'श्रद्धा • भक्ती • परंपरा • सेवा')}
               </p>
-              <div className="h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
-              <p className="text-xs sm:text-sm md:text-base text-gray-200 font-sans max-w-2xl mx-auto leading-relaxed drop-shadow">
+              <div className="h-0.5 sm:h-1 w-20 sm:w-28 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
+              <p className="text-[11px] sm:text-xs md:text-sm text-gray-200 font-sans max-w-3xl mx-auto leading-relaxed drop-shadow line-clamp-3 sm:line-clamp-none">
                 {lang === 'EN'
                   ? (siteContent.welcome?.descEN || 'Welcome to the official digital portal of Shree Ishwatichi Mata Devasthan Mandal. Experience live darshan from home and contribute to our community welfare initiatives.')
                   : (siteContent.welcome?.descMR || 'श्री ईश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल कक्षात भाविकांचे स्वागत. घरबसल्या लाईव्ह पूजेचा आनंद घ्या आणि समाजोपयोगी उपक्रमांत भाग घ्या.')}
               </p>
             </div>
 
-            {/* Quick Action Button Portals */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center items-center gap-3 sm:gap-4 max-w-sm sm:max-w-2xl lg:max-w-3xl mx-auto pt-3 sm:pt-6">
+            {/* Quick Action Button Portals - Full-width responsive 4-column matrix */}
+            <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3">
               <button 
                 onClick={() => setActiveTab('darshan')}
-                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-red text-white border-2 border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
+                className="w-full min-h-[46px] sm:min-h-[52px] px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-red text-white border-2 border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
               >
-                <span className="text-base sm:text-lg">🎥</span> <span className="font-sans leading-normal">{t.hero_btn1}</span>
+                <span className="text-base sm:text-xl shrink-0">🎥</span> 
+                <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn1}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('seva')}
-                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-maroon text-brand-gold border-2 border-brand-gold hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
+                className="w-full min-h-[46px] sm:min-h-[52px] px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-maroon text-brand-gold border-2 border-brand-gold hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
               >
-                <span className="text-base sm:text-lg">🕯️</span> <span className="font-sans leading-normal">{t.hero_btn2}</span>
+                <span className="text-base sm:text-xl shrink-0">🕯️</span> 
+                <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn2}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('donation')}
-                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-gold text-brand-maroon hover:opacity-95 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
+                className="w-full min-h-[46px] sm:min-h-[52px] px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-gold text-brand-maroon hover:opacity-95 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
               >
-                <span className="text-base sm:text-lg">💝</span> <span className="font-sans leading-normal">{t.hero_btn3}</span>
+                <span className="text-base sm:text-xl shrink-0">💝</span> 
+                <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn3}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('testimonials')}
-                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-black/60 text-white border border-white/20 hover:bg-white/20 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
+                className="w-full min-h-[46px] sm:min-h-[52px] px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-black/70 text-white border-2 border-white/20 hover:bg-white/20 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
               >
-                <span className="text-base sm:text-lg">📝</span> <span className="font-sans leading-normal">{t.hero_btn4}</span>
+                <span className="text-base sm:text-xl shrink-0">📝</span> 
+                <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn4}</span>
               </button>
             </div>
 
@@ -646,7 +661,7 @@ export default function App() {
       )}
 
       {/* MAIN VIEWPORT MATRIX CONTROLLER */}
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 relative z-10 space-y-12">
+      <main className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-8 relative z-10 space-y-8 sm:space-y-10">
         
         {/* Render Tab specific portals */}
         {activeTab === 'home' && (
@@ -667,7 +682,7 @@ export default function App() {
             <AboutSection lang={lang} />
 
             {/* Fast Quick Buttons to contact & locations */}
-            <div className="text-center py-6 sm:py-8 bg-black/45 rounded-2xl border border-brand-gold/25 p-6 sm:p-8 max-w-lg mx-auto space-y-3 shadow-xl">
+            <div className="text-center py-6 sm:py-8 bg-black/45 rounded-2xl border border-brand-gold/25 p-5 sm:p-8 w-full max-w-2xl mx-auto space-y-3 shadow-xl">
               <span className="text-xs text-brand-saffron uppercase tracking-wider font-mono font-bold">
                 {lang === 'EN' ? '24/7 Digital Helpline' : '२४/७ डिजिटल साहाय्यता कक्ष'}
               </span>
@@ -782,8 +797,8 @@ export default function App() {
       </main>
 
       {/* MAIN FOOTER */}
-      <footer className="bg-brand-maroon border-t border-brand-gold/25 text-white/95 py-10 pb-28 md:pb-12 select-none relative z-10 font-sans text-xs">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <footer className="w-full bg-brand-maroon border-t border-brand-gold/25 text-white/95 py-10 pb-28 md:pb-12 select-none relative z-10 font-sans text-xs">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -833,7 +848,7 @@ export default function App() {
 
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8 pt-8 border-t border-white/5 text-center text-gray-400 text-[10px] space-y-1">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 mt-8 pt-8 border-t border-white/5 text-center text-gray-400 text-[10px] space-y-1">
           <p>© २०२६ श्री ईश्वटीची माता मंडळ चॅरिटेबल ट्रस्ट. सर्व हक्क सुरक्षित. नोंदणी क्र. E-५०१२५/मुंबई.</p>
           <p className="tracking-widest">{lang === 'EN' ? '|| Shree Ishwatichi Mata Devasthan ||' : '|| श्री ईश्वटीची माता देवस्थान ||'}</p>
         </div>

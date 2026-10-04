@@ -116,9 +116,9 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto my-4 transition-all duration-300">
+    <div className="w-full my-3 sm:my-4 transition-all duration-300">
       {/* Outer audio console container with temple gold trim */}
-      <div className="relative rounded-2xl bg-gradient-to-r from-brand-maroon/95 via-black/90 to-brand-maroon/95 border-2 border-brand-gold/40 shadow-2xl backdrop-blur-md p-4 sm:p-5">
+      <div className="relative rounded-2xl bg-gradient-to-r from-brand-maroon/95 via-black/90 to-brand-maroon/95 border-2 border-brand-gold/40 shadow-2xl backdrop-blur-md p-3 sm:p-4 md:p-5">
         
         {/* Subtle decorative aura glow when playing */}
         {isPlaying && (
@@ -126,29 +126,29 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
         )}
 
         {/* Top Control Bar: Title & Voice Badge */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-brand-gold/20 pb-3 mb-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 border-b border-brand-gold/20 pb-2.5 sm:pb-3 mb-2.5 sm:mb-3">
           
           {/* Aarti Title & Devotional Vocal Indicator */}
-          <div className="flex items-center gap-2.5 w-full sm:w-auto text-left">
-            <span className="text-2xl select-none">🪔</span>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h4 className="font-serif font-black text-sm sm:text-base text-brand-gold tracking-wide">
+          <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto text-left">
+            <span className="text-xl sm:text-2xl select-none shrink-0">🪔</span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <h4 className="font-serif font-black text-xs sm:text-base text-brand-gold tracking-wide truncate">
                   {lang === 'EN' ? 'Shree Ishwatichi Mata Aarti (Marathi)' : 'श्री ईश्वटीची माता आरती (मराठी)'}
                 </h4>
-                <span className="text-[10px] font-serif font-bold bg-brand-gold/15 text-brand-gold px-2.5 py-0.5 rounded-full border border-brand-gold/40 flex items-center gap-1 shadow-sm">
+                <span className="text-[9px] sm:text-[10px] font-serif font-bold bg-brand-gold/15 text-brand-gold px-2 py-0.5 rounded-full border border-brand-gold/40 flex items-center gap-1 shadow-sm shrink-0">
                   <span>👩</span>
-                  <span>{lang === 'EN' ? 'Female Devotional Voice' : 'स्त्री स्वर गायन'}</span>
+                  <span>{lang === 'EN' ? 'Female Voice' : 'स्त्री स्वर गायन'}</span>
                 </span>
               </div>
-              <p className="text-[11px] text-gray-300 font-sans mt-0.5">
+              <p className="text-[10px] sm:text-[11px] text-gray-300 font-sans mt-0.5 line-clamp-1 sm:line-clamp-none">
                 {lang === 'EN' ? 'Authentic devotional rhythm in Raga Bhupali with sacred melodies' : 'पारंपरिक राग भूप, पावन नाद व टाळ-मृदंग ताल'}
               </p>
             </div>
           </div>
 
           {/* Quick status pill */}
-          <div className="hidden sm:flex items-center gap-1.5 text-xs text-brand-saffron font-serif font-medium bg-black/40 px-3 py-1 rounded-full border border-white/10">
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-brand-saffron font-serif font-medium bg-black/40 px-2.5 py-0.5 sm:py-1 rounded-full border border-white/10 shrink-0 self-end sm:self-auto">
             <span className="inline-block h-2 w-2 rounded-full bg-green-400 animate-pulse" />
             <span>{lang === 'EN' ? 'Temple Sanctum Audio' : 'मंदिरातील पवित्र महाआरती'}</span>
           </div>
@@ -156,14 +156,14 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
         </div>
 
         {/* Main Audio Transport Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-3 sm:gap-4">
           
           {/* Left section: Play/Pause Button & Current Line ticker */}
-          <div className="flex items-center gap-3.5 w-full sm:w-auto min-w-0">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 w-full lg:flex-1 min-w-0">
             {/* Master Aarti Toggle Button */}
             <button
               onClick={togglePlayback}
-              className={`relative h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center shrink-0 border-2 transition-all duration-300 cursor-pointer shadow-lg active:scale-95 ${
+              className={`relative h-11 w-11 sm:h-13 sm:w-13 rounded-full flex items-center justify-center shrink-0 border-2 transition-all duration-300 cursor-pointer shadow-lg active:scale-95 ${
                 isPlaying
                   ? 'bg-gradient-to-br from-brand-saffron via-amber-500 to-brand-gold border-white text-brand-maroon shadow-brand-gold/40 scale-105'
                   : 'bg-black/60 hover:bg-brand-red/40 border-brand-gold/60 text-brand-gold hover:text-white'
@@ -173,11 +173,11 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
             >
               {isPlaying ? (
                 <div className="flex items-center justify-center">
-                  <Pause className="h-6 w-6 fill-current animate-pulse" />
+                  <Pause className="h-5 w-5 sm:h-6 sm:w-6 fill-current animate-pulse" />
                 </div>
               ) : (
                 <div className="flex items-center justify-center ml-0.5">
-                  <Play className="h-6 w-6 fill-current" />
+                  <Play className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
                 </div>
               )}
 
@@ -209,14 +209,14 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
               {/* Real-time Singing Lyric Ticker in Marathi */}
               <div className="text-xs sm:text-sm text-brand-saffron font-bold truncate mt-1">
                 {isPlaying ? (
-                  <div className="flex items-center gap-1.5 animate-pulse">
+                  <div className="flex items-center gap-1.5 animate-pulse min-w-0">
                     <Music className="h-3.5 w-3.5 shrink-0 text-brand-gold" />
-                    <span className="font-serif text-white tracking-wide">
+                    <span className="font-serif text-white tracking-wide truncate">
                       {currentLine.mr || 'जय देवी जय देवी जय ईश्वटी माते...'}
                     </span>
                   </div>
                 ) : (
-                  <span className="text-gray-300 text-xs font-normal">
+                  <span className="text-gray-300 text-xs font-normal truncate block">
                     {lang === 'EN' 
                       ? 'Click play to start Marathi Aarti in female voice with sacred melodies' 
                       : 'स्त्री स्वरात पावन मराठी आरती ऐकण्यासाठी प्ले बटण दाबा'}
@@ -227,18 +227,18 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
           </div>
 
           {/* Right section: Visualizer bars + Volume control + Lyrics modal toggle */}
-          <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t sm:border-t-0 border-white/10 pt-2.5 sm:pt-0">
+          <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full lg:w-auto border-t lg:border-t-0 border-white/10 pt-2 sm:pt-0">
             
             {/* Realtime Audio Equalizer Bars */}
             <div 
-              className="flex items-end gap-1 h-8 px-2 py-1 bg-black/60 rounded-lg border border-brand-gold/20"
+              className="flex items-end gap-0.5 sm:gap-1 h-7 sm:h-8 px-1.5 sm:px-2 py-1 bg-black/60 rounded-lg border border-brand-gold/20 shrink-0"
               title={isPlaying ? 'Live Audio Frequency Visualizer' : 'Silence'}
             >
-              {visualizerData.map((h, i) => (
+              {visualizerData.slice(0, 12).map((h, i) => (
                 <div
                   key={i}
-                  style={{ height: `${h}px` }}
-                  className={`w-1 rounded-t-sm transition-all duration-75 ${
+                  style={{ height: `${Math.min(24, Math.max(3, h))}px` }}
+                  className={`w-0.5 sm:w-1 rounded-t-sm transition-all duration-75 ${
                     isPlaying
                       ? i % 3 === 0
                         ? 'bg-brand-gold'
@@ -252,10 +252,10 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
             </div>
 
             {/* Volume & Mute control */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
                 onClick={toggleMute}
-                className="p-1.5 text-gray-300 hover:text-brand-gold rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                className="p-1 sm:p-1.5 text-gray-300 hover:text-brand-gold rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                 title={isMuted ? 'Unmute' : 'Mute'}
                 aria-label={isMuted ? 'Unmute' : 'Mute'}
               >
@@ -273,7 +273,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
                 step="0.05"
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
-                className="w-16 sm:w-20 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-gold"
+                className="w-14 sm:w-20 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-gold"
                 title={`Volume: ${Math.round((isMuted ? 0 : volume) * 100)}%`}
                 aria-label="Volume slider"
               />
@@ -282,7 +282,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
             {/* Full lyrics expander toggle */}
             <button
               onClick={() => setShowLyrics(!showLyrics)}
-              className="px-2.5 py-1.5 rounded-lg bg-black/50 hover:bg-brand-red/30 border border-brand-gold/30 text-brand-gold text-xs font-serif font-bold flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-black/50 hover:bg-brand-red/30 border border-brand-gold/30 text-brand-gold text-[11px] sm:text-xs font-serif font-bold flex items-center gap-1 transition-colors cursor-pointer shrink-0"
               title={showLyrics ? 'Hide Lyrics' : 'View Full Marathi Aarti Lyrics'}
             >
               <span>{lang === 'EN' ? 'Lyrics' : 'संपूर्ण आरती'}</span>
