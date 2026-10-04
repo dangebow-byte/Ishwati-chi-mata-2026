@@ -138,7 +138,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
             <div className="flex items-center gap-2 text-brand-saffron">
               <Sparkles className="h-5 w-5" />
               <h3 className="text-xl font-serif font-bold tracking-wide">
-                {lang === 'EN' ? (siteContent?.missionTitleEN || 'Shree Ishwatichi Mandal Mission & Community Vision') : (siteContent?.missionTitleMR || 'श्री ईश्वटीची मंडळाचा संकल्प आणि उद्दिष्टे')}
+                {lang === 'EN' ? (siteContent?.missionTitleEN || 'Shree Young Ishwati Navratrotsav Mandal Mission & Community Vision') : (siteContent?.missionTitleMR || 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळाचा संकल्प आणि उद्दिष्टे')}
               </h3>
             </div>
             
@@ -198,7 +198,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
               <span>{lang === 'EN' ? 'Historical Journey Map' : 'ऐतिहासिक प्रवास आलेख'}</span>
             </div>
             <h3 className="text-2xl font-serif font-black text-white">
-              {lang === 'EN' ? 'Shree Ishwatichi Mandal Milestones & Establishment' : 'श्री ईश्वटीची मंडळ: स्थापनेपासूनचा दैवी इतिहास'}
+              {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Milestones & Establishment' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ: स्थापनेपासूनचा दैवी इतिहास'}
             </h3>
           </div>
           <span className="text-xs text-gray-400 italic">

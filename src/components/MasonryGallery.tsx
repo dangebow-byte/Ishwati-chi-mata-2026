@@ -194,10 +194,10 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             </div>
             <div>
               <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                {lang === 'EN' ? 'Shree Ishwatichi Mandal Social Welfare Work' : 'श्री ईश्वटीची मंडळ सामाजिक सेवा कार्य'}
+                {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Social Welfare Work' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ सामाजिक सेवा कार्य'}
               </h4>
               <p className="text-[11px] text-gray-400 mt-1">
-                {lang === 'EN' ? 'Footage from health campaigns, free clinics, water distributions, and education programs.' : 'श्री ईश्वटीची मंडळातर्फे आयोजित मोफत आरोग्य तपासणी, औषध व अन्नदान उपक्रम.'}
+                {lang === 'EN' ? 'Footage from health campaigns, free clinics, water distributions, and education programs.' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळातर्फे आयोजित मोफत आरोग्य तपासणी, औषध व अन्नदान उपक्रम.'}
               </p>
             </div>
           </div>

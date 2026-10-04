@@ -47,7 +47,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ lang, announcements })
             {lang === 'EN' ? 'Official News & Holy Notices' : 'अधिकृत घोषणा व ताज्या घडामोडी'}
           </h2>
           <p className="text-xs text-gray-300 mt-1">
-            {lang === 'EN' ? 'Stay connected to official circulars issued by Shree Ishwatichi Mata Mandal Trustees.' : 'श्री ईश्वटीची मंडळाने घेतलेले महत्त्वपूर्ण निर्णय, प्रसिद्धीपत्रके व महत्त्वाच्या धार्मिक नियमांची एकत्रित माहिती.'}
+            {lang === 'EN' ? 'Stay connected to official circulars issued by Shree Young Ishwati Navratrotsav Mandal Trustees.' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळाने घेतलेले महत्त्वपूर्ण निर्णय, प्रसिद्धीपत्रके व महत्त्वाच्या धार्मिक नियमांची एकत्रित माहिती.'}
           </p>
         </div>
 

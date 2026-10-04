@@ -51,7 +51,7 @@ export const SocialWorkSection: React.FC<SocialWorkSectionProps> = ({ lang }) =>
           🤝 Devotion in Action
         </span>
         <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
-          {lang === 'EN' ? 'Shree Ishwatichi Mandal Social Activities' : 'श्री ईश्वटीची मंडळ: सामाजिक सेवा आणि लोककल्याणकारी कार्ये'}
+          {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Social Activities' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ: सामाजिक सेवा आणि लोककल्याणकारी कार्ये'}
         </h2>
         <p className="text-xs text-gray-300">
           {lang === 'EN' 

@@ -49,7 +49,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
           📍 Address & Location
         </span>
         <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
-          {lang === 'EN' ? 'Contact Shree Ishwatichi Mata Mandal' : 'श्री ईश्वटीची माता मंडळाशी संपर्क साधा'}
+          {lang === 'EN' ? 'Contact Shree Young Ishwati Navratrotsav Mandal' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळाशी संपर्क साधा'}
         </h2>
         <p className="text-xs text-gray-300">
           {lang === 'EN' ? 'Reach out for inquiries, donation credentials verification, or volunteer rosters.' : 'पूजा बुकिंग, देणगी पावत्या आणि स्वयंसेवक उपक्रमांविषयी चौकशीसाठी खालील माध्यमांतून संपर्क साधा.'}

@@ -143,11 +143,11 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-brand-gold/20 bg-brand-maroon/95 backdrop-blur-md text-white shadow-xl transition-all">
-      <div className="w-full px-2.5 sm:px-4 md:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full m-0 p-0 px-0 mx-0 border-b border-brand-gold/20 bg-brand-maroon/95 backdrop-blur-md text-white shadow-xl transition-all">
+      <div className="w-full m-0 p-0 px-0 mx-0">
         
         {/* Top utility bar */}
-        <div className="flex h-9 sm:h-10 items-center justify-between border-b border-white/10 text-xs text-brand-saffron gap-1.5 sm:gap-2 overflow-hidden">
+        <div className="flex h-9 sm:h-10 items-center justify-between border-b border-white/10 text-xs text-brand-saffron gap-1.5 sm:gap-2 overflow-hidden w-full m-0 p-0 px-0">
           {/* Sacred chant greeting */}
           <div className="flex items-center gap-1 sm:gap-1.5 font-medium min-w-0 truncate">
             <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 animate-pulse text-brand-gold" />
@@ -252,7 +252,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Primary Navbar Brand Row */}
-        <div className="flex items-center justify-between py-2 sm:py-3.5 lg:py-4 gap-2 sm:gap-4">
+        <div className="flex items-center justify-between py-2 sm:py-3.5 lg:py-4 gap-2 sm:gap-4 w-full m-0 p-0 px-0">
           
           {/* Logo & Temple Title */}
           <div 
@@ -270,7 +270,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap">
                 <h1 className="font-serif text-base xs:text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-normal text-brand-gold drop-shadow-md leading-tight">
-                  श्री ईश्वटीची माता मंडळ
+                  श्री यंग ईश्वटी नवरात्रौत्सव मंडळ
                 </h1>
                 <span className="text-[8px] xs:text-[9px] sm:text-xs bg-brand-red text-brand-gold border border-brand-gold/40 px-1.5 sm:px-2 py-0.5 rounded font-serif font-bold shrink-0 shadow-sm">
                   देवस्थान
@@ -305,8 +305,8 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Desktop / Tablet Horizontal Navigation Tabs */}
-        <div className="hidden md:block border-t border-brand-gold/15 pt-2 pb-2">
-          <nav className="flex items-center justify-center flex-wrap gap-1 lg:gap-2 py-1">
+        <div className="hidden md:block border-t border-brand-gold/15 pt-2 pb-2 w-full m-0 p-0 px-0">
+          <nav className="flex items-center justify-center flex-wrap gap-1 lg:gap-2 py-1 w-full m-0 p-0 px-0">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -337,8 +337,8 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Mobile Horizontal Fast Swipe Tabs (visible on < md) */}
-        <div className="md:hidden relative overflow-x-auto pb-2 pt-1 scrollbar-none" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <div className="flex items-center gap-1.5 w-max">
+        <div className="md:hidden relative overflow-x-auto pb-2 pt-1 scrollbar-none w-full m-0 p-0 px-0" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex items-center gap-1.5 w-max m-0 p-0 px-0">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (

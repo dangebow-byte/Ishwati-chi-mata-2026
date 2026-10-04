@@ -34,7 +34,7 @@ const SIZE_MAP: Record<LogoSize, string> = {
 
 export const SiteLogo: React.FC<SiteLogoProps> = ({
   size = 'md',
-  alt = 'श्री ईश्वटीची माता मंडळ - अधिकृत बोधचिन्ह (Mandal logo Maroon Transparent BG)',
+  alt = 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ - अधिकृत बोधचिन्ह (Mandal logo Maroon Transparent BG)',
   className = '',
   withBorder = false,
   withGlow = false,

@@ -30,6 +30,7 @@ import { SiteLogo } from './components/SiteLogo';
 import { DeviImage } from './components/DeviImage';
 import { HeroAudioPlayer } from './components/HeroAudioPlayer';
 import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdown';
+import { NavratriPatrikaSection } from './components/NavratriPatrikaSection';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
@@ -513,7 +514,7 @@ export default function App() {
   const t = TRANSLATIONS[lang];
 
   return (
-    <div className={`min-h-screen transition-all duration-300 ${darkMode ? 'bg-black/25 text-white' : 'bg-[#fffdf6] text-stone-900'}`}>
+    <div className={`w-full m-0 p-0 min-h-screen transition-all duration-300 ${darkMode ? 'bg-black/25 text-white' : 'bg-[#fffdf6] text-stone-900'}`}>
       
       {/* Dynamic Animated floral blossom floating elements in background */}
       <div className="fixed inset-x-0 top-0 overflow-hidden h-[500px] pointer-events-none z-0">
@@ -540,7 +541,7 @@ export default function App() {
 
       {/* HERO SECTION / BANNER CANVAS */}
       {activeTab === 'home' && (
-        <section className="relative w-full min-h-[460px] sm:min-h-[540px] lg:min-h-[600px] overflow-hidden border-b border-brand-gold/15 bg-black flex items-center justify-center">
+        <section className="relative w-full m-0 p-0 min-h-[460px] sm:min-h-[540px] lg:min-h-[600px] overflow-hidden border-b border-brand-gold/15 bg-black flex flex-col items-center justify-center">
           {/* Main Visual Altar background */}
           <div className="absolute inset-0 z-0 overflow-hidden">
             <DeviImage 
@@ -584,7 +585,8 @@ export default function App() {
             </div>
           </div>
 
-          <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-10 lg:py-12 relative z-10 text-center space-y-4 sm:space-y-6">
+          {/* MAIN CONTENT WRAPPER: Zero horizontal whitespace (margins/padding) across all breakpoints */}
+          <div className="w-full m-0 p-0 px-0 sm:px-0 md:px-0 lg:px-0 xl:px-0 2xl:px-0 py-6 sm:py-10 lg:py-12 relative z-10 text-center space-y-4 sm:space-y-6">
             
             {/* Traditional Sacred Glowing Devi Mata Darshan & Akhand Jyot Diya */}
             <div className="flex justify-center items-center gap-2.5 sm:gap-4 select-none">
@@ -606,7 +608,7 @@ export default function App() {
               <span className="text-base sm:text-2xl text-brand-gold opacity-90 animate-pulse">✨</span>
             </div>
 
-            <div className="space-y-2 sm:space-y-3 w-full max-w-5xl mx-auto px-1 sm:px-2">
+            <div className="space-y-2 sm:space-y-3 w-full px-2 sm:px-4">
               <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white drop-shadow-[0_0_25px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-normal leading-tight">
                 {lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata (श्री ईश्वटीची)') : (siteContent.welcome?.titleMR || 'श्री ईश्वटीची माता')}
               </h1>
@@ -614,7 +616,7 @@ export default function App() {
                 {lang === 'EN' ? (siteContent.welcome?.subtitleEN || 'Faith • Devotion • Tradition • Service') : (siteContent.welcome?.subtitleMR || 'श्रद्धा • भक्ती • परंपरा • सेवा')}
               </p>
               <div className="h-0.5 sm:h-1 w-20 sm:w-28 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
-              <p className="text-[11px] sm:text-xs md:text-sm text-gray-200 font-sans max-w-3xl mx-auto leading-relaxed drop-shadow line-clamp-3 sm:line-clamp-none">
+              <p className="text-[11px] sm:text-xs md:text-sm text-gray-200 font-sans max-w-4xl mx-auto leading-relaxed drop-shadow line-clamp-3 sm:line-clamp-none">
                 {lang === 'EN'
                   ? (siteContent.welcome?.descEN || 'Welcome to the official digital portal of Shree Ishwatichi Mata Devasthan Mandal. Experience live darshan from home and contribute to our community welfare initiatives.')
                   : (siteContent.welcome?.descMR || 'श्री ईश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल कक्षात भाविकांचे स्वागत. घरबसल्या लाईव्ह पूजेचा आनंद घ्या आणि समाजोपयोगी उपक्रमांत भाग घ्या.')}
@@ -622,7 +624,7 @@ export default function App() {
             </div>
 
             {/* Quick Action Button Portals - Full-width responsive 4-column matrix */}
-            <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3">
+            <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2.5 lg:gap-3.5 pt-2 sm:pt-3 px-1 sm:px-2">
               <button 
                 onClick={() => setActiveTab('darshan')}
                 className="w-full min-h-[46px] sm:min-h-[52px] px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-serif font-bold text-xs sm:text-sm lg:text-base bg-brand-red text-white border-2 border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
@@ -674,6 +676,9 @@ export default function App() {
               onNavigateToSeva={() => setActiveTab('seva')}
               onRsvp={handleRsvpEvent}
             />
+
+            {/* Official Shardiya Navratri 2026 9-Day Festival Patrika (कार्यक्रम पत्रिका - २०२६) */}
+            <NavratriPatrikaSection lang={lang} />
 
             {/* Live streaming & quick timing schedule dashboards */}
             <LiveDarshanSection lang={lang} heroImagePath={heroImg} />
@@ -849,7 +854,7 @@ export default function App() {
         </div>
 
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 mt-8 pt-8 border-t border-white/5 text-center text-gray-400 text-[10px] space-y-1">
-          <p>© २०२६ श्री ईश्वटीची माता मंडळ चॅरिटेबल ट्रस्ट. सर्व हक्क सुरक्षित. नोंदणी क्र. E-५०१२५/मुंबई.</p>
+          <p>© २०२६ श्री यंग ईश्वटी नवरात्रौत्सव मंडळ चॅरिटेबल ट्रस्ट. सर्व हक्क सुरक्षित. नोंदणी क्र. E-५०१२५/मुंबई.</p>
           <p className="tracking-widest">{lang === 'EN' ? '|| Shree Ishwatichi Mata Devasthan ||' : '|| श्री ईश्वटीची माता देवस्थान ||'}</p>
         </div>
       </footer>

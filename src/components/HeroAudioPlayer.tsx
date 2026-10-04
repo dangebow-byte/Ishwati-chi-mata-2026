@@ -116,7 +116,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
   };
 
   return (
-    <div className="w-full my-3 sm:my-4 transition-all duration-300">
+    <div className="w-full my-3 sm:my-4 transition-all duration-300 px-1 sm:px-2">
       {/* Outer audio console container with temple gold trim */}
       <div className="relative rounded-2xl bg-gradient-to-r from-brand-maroon/95 via-black/90 to-brand-maroon/95 border-2 border-brand-gold/40 shadow-2xl backdrop-blur-md p-3 sm:p-4 md:p-5">
         
