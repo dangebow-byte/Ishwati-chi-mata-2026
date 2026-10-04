@@ -12,7 +12,6 @@ import {
   Sparkles, 
   ChevronRight, 
   ChevronLeft, 
-  Bell, 
   CheckCircle2, 
   ArrowRight,
   Heart
@@ -334,44 +333,44 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                 </div>
 
                 {/* 4 Counter Boxes: Days, Hours, Minutes, Seconds */}
-                <div className="grid grid-cols-4 gap-2 sm:gap-3">
+                <div className="grid grid-cols-4 gap-1.5 xs:gap-2 sm:gap-3">
                   
                   {/* Days */}
-                  <div className="bg-gradient-to-b from-[#2d0505] to-[#140101] border-2 border-brand-gold/40 rounded-xl p-2 sm:p-3 text-center shadow-lg relative group hover:border-brand-gold transition-colors">
-                    <div className="font-mono text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_10px_rgba(212,175,55,0.4)]">
+                  <div className="bg-gradient-to-b from-[#2d0505] to-[#140101] border-2 border-brand-gold/40 rounded-xl p-1.5 xs:p-2 sm:p-3 text-center shadow-lg relative group hover:border-brand-gold transition-colors">
+                    <div className="font-mono text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_10px_rgba(212,175,55,0.4)]">
                       {String(countdown.days).padStart(2, '0')}
                     </div>
-                    <div className="text-[10px] sm:text-xs font-serif font-bold text-brand-gold mt-1 uppercase tracking-wider">
+                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-serif font-bold text-brand-gold mt-1 uppercase tracking-wider">
                       {lang === 'EN' ? 'Days' : 'दिवस'}
                     </div>
                   </div>
 
                   {/* Hours */}
-                  <div className="bg-gradient-to-b from-[#2d0505] to-[#140101] border-2 border-brand-gold/40 rounded-xl p-2 sm:p-3 text-center shadow-lg relative group hover:border-brand-gold transition-colors">
-                    <div className="font-mono text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_10px_rgba(212,175,55,0.4)]">
+                  <div className="bg-gradient-to-b from-[#2d0505] to-[#140101] border-2 border-brand-gold/40 rounded-xl p-1.5 xs:p-2 sm:p-3 text-center shadow-lg relative group hover:border-brand-gold transition-colors">
+                    <div className="font-mono text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_10px_rgba(212,175,55,0.4)]">
                       {String(countdown.hours).padStart(2, '0')}
                     </div>
-                    <div className="text-[10px] sm:text-xs font-serif font-bold text-brand-gold mt-1 uppercase tracking-wider">
+                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-serif font-bold text-brand-gold mt-1 uppercase tracking-wider">
                       {lang === 'EN' ? 'Hours' : 'तास'}
                     </div>
                   </div>
 
                   {/* Minutes */}
-                  <div className="bg-gradient-to-b from-[#2d0505] to-[#140101] border-2 border-brand-gold/40 rounded-xl p-2 sm:p-3 text-center shadow-lg relative group hover:border-brand-gold transition-colors">
-                    <div className="font-mono text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_10px_rgba(212,175,55,0.4)]">
+                  <div className="bg-gradient-to-b from-[#2d0505] to-[#140101] border-2 border-brand-gold/40 rounded-xl p-1.5 xs:p-2 sm:p-3 text-center shadow-lg relative group hover:border-brand-gold transition-colors">
+                    <div className="font-mono text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_10px_rgba(212,175,55,0.4)]">
                       {String(countdown.minutes).padStart(2, '0')}
                     </div>
-                    <div className="text-[10px] sm:text-xs font-serif font-bold text-brand-gold mt-1 uppercase tracking-wider">
+                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-serif font-bold text-brand-gold mt-1 uppercase tracking-wider">
                       {lang === 'EN' ? 'Mins' : 'मिनिटे'}
                     </div>
                   </div>
 
                   {/* Seconds */}
-                  <div className="bg-gradient-to-b from-[#2d0505] to-[#140101] border-2 border-brand-gold/40 rounded-xl p-2 sm:p-3 text-center shadow-lg relative group hover:border-brand-gold transition-colors">
-                    <div className="font-mono text-2xl sm:text-3xl md:text-4xl font-black text-brand-saffron animate-pulse drop-shadow-[0_2px_10px_rgba(255,153,51,0.6)]">
+                  <div className="bg-gradient-to-b from-[#2d0505] to-[#140101] border-2 border-brand-gold/40 rounded-xl p-1.5 xs:p-2 sm:p-3 text-center shadow-lg relative group hover:border-brand-gold transition-colors">
+                    <div className="font-mono text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black text-brand-saffron animate-pulse drop-shadow-[0_2px_10px_rgba(255,153,51,0.6)]">
                       {String(countdown.seconds).padStart(2, '0')}
                     </div>
-                    <div className="text-[10px] sm:text-xs font-serif font-bold text-brand-saffron mt-1 uppercase tracking-wider">
+                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-serif font-bold text-brand-saffron mt-1 uppercase tracking-wider">
                       {lang === 'EN' ? 'Secs' : 'सेकंद'}
                     </div>
                   </div>

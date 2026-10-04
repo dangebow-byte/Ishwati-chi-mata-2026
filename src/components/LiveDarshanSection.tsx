@@ -10,7 +10,6 @@ import {
   Volume2, 
   Users, 
   Flame, 
-  Bell, 
   Music, 
   Clock, 
   AlertTriangle, 
@@ -118,8 +117,8 @@ export const DAILY_AARTI_SCHEDULE: DailyAartiItem[] = [
     period: 'evening',
     periodLabelMr: 'संध्याकाळ',
     periodLabelEn: 'Night Vigil',
-    descriptionMr: 'दिवसभरातील सर्वात मोठी दीप महाआरती, घंटानाद, वाद्यघोष व ई-सेवा संकल्प पठण.',
-    descriptionEn: 'Grandest congregation aarti of the day with bells, cymbals, chimes, and online e-seva sankalpas.',
+    descriptionMr: 'दिवसभरातील सर्वात मोठी दीप महाआरती, वाद्यघोष, शंखनाद व ई-सेवा संकल्प पठण.',
+    descriptionEn: 'Grandest congregation aarti of the day with sacred chimes, cymbals, conch resonance, and online e-seva sankalpas.',
     significanceMr: 'सर्व मनोकामना पूर्ती व ई-संकल्प फळ',
     significanceEn: 'Fulfillment of heartfelt prayers & e-sankalp fruit',
   },
@@ -188,9 +187,9 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
     return () => clearInterval(viewerInterval);
   }, []);
 
-  // Real-time calculation for Navratri Countdown (using fixed future date 2026-10-12)
+  // Real-time calculation for Navratri Countdown (starting Sunday 2026-10-11)
   useEffect(() => {
-    const festivalDate = new Date('2026-10-12T00:00:00Z').getTime();
+    const festivalDate = new Date('2026-10-11T00:00:00Z').getTime();
 
     const timeInterval = setInterval(() => {
       const now = new Date().getTime();
@@ -224,40 +223,6 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
     }
     if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
       audioCtxRef.current.resume();
-    }
-  };
-
-  const playTempleBell = () => {
-    try {
-      initAudio();
-      const ctx = audioCtxRef.current;
-      if (!ctx) return;
-
-      const gain = ctx.createGain();
-      gain.connect(ctx.destination);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
-
-      const mainOsc = ctx.createOscillator();
-      mainOsc.type = 'sine';
-      mainOsc.frequency.value = 880;
-      mainOsc.connect(gain);
-
-      const ringOsc = ctx.createOscillator();
-      ringOsc.type = 'triangle';
-      ringOsc.frequency.value = 1174.66;
-      ringOsc.connect(gain);
-
-      mainOsc.start();
-      ringOsc.start();
-
-      mainOsc.stop(ctx.currentTime + 2.5);
-      ringOsc.stop(ctx.currentTime + 2.5);
-
-      setOscillatorPlaying('bell');
-      setTimeout(() => setOscillatorPlaying(null), 1000);
-    } catch (e) {
-      console.warn('Audio Context unsupported or restricted', e);
     }
   };
 
@@ -581,13 +546,6 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                   </div>
                   <div className="flex gap-2">
                     <button 
-                      onClick={() => playTempleBell()}
-                      className="p-2 bg-black/85 hover:bg-brand-red rounded-lg text-brand-saffron cursor-pointer border border-brand-gold/30 transition-all hover:scale-105 shadow-md flex items-center gap-1 text-xs" 
-                      title={lang === 'EN' ? 'Ring Temple Bell' : 'घंटी वाजवा'}
-                    >
-                      <Bell className="h-3.5 w-3.5" />
-                    </button>
-                    <button 
                       className="px-2.5 py-1.5 bg-black/85 hover:bg-brand-red rounded-lg text-brand-gold cursor-pointer border border-brand-gold/30 text-xs font-mono font-bold shadow-md animate-pulse" 
                       title="High Quality Stream"
                     >
@@ -650,7 +608,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
               <div className="flex items-center gap-2">
                 <Disc className={`h-5 w-5 text-brand-gold ${oscillatorPlaying || isPlayingChant ? 'animate-spin' : ''}`} />
                 <h3 className="text-base sm:text-lg font-serif font-black text-brand-gold">
-                  {lang === 'EN' ? 'Temple Soundboard' : 'पवित्र ध्वनी व घंटानाद'}
+                  {lang === 'EN' ? 'Temple Soundboard' : 'पवित्र ध्वनी (Soundboard)'}
                 </h3>
               </div>
               <span className="text-[10px] font-mono bg-black/60 text-brand-saffron px-2 py-0.5 rounded border border-brand-gold/20">
@@ -660,29 +618,13 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
 
             <p className="text-[11px] text-gray-300 leading-relaxed font-sans">
               {lang === 'EN' 
-                ? 'Synthesize authentic brass bells, conch shell (Shankh), and 136Hz Omkar resonance in your home.' 
-                : 'देवीच्या पूजेचा अनुभव घरात मिळवण्यासाठी थेट घंटी, शंख आणि ॐकार जप ध्वनी निर्मिती करा.'}
+                ? 'Synthesize authentic conch shell (Shankh), and 136Hz Omkar resonance in your home.' 
+                : 'देवीच्या पूजेचा अनुभव घरात मिळवण्यासाठी थेट शंख आणि ॐकार जप ध्वनी निर्मिती करा.'}
             </p>
 
             {/* Synthesizer buttons */}
             <div className="space-y-2 pt-1 font-sans">
               
-              {/* Bell Sound */}
-              <button
-                onClick={playTempleBell}
-                className={`w-full py-2.5 px-3 rounded-xl border flex items-center justify-between text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95 ${
-                  oscillatorPlaying === 'bell'
-                    ? 'bg-brand-gold text-brand-maroon border-brand-gold scale-102'
-                    : 'bg-black/50 text-brand-gold border-brand-gold/30 hover:bg-brand-gold/15'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Bell className={`h-4 w-4 ${oscillatorPlaying === 'bell' ? 'animate-bounce text-brand-maroon' : 'text-brand-saffron'}`} />
-                  <span>{lang === 'EN' ? 'Ring Temple Brass Bells' : 'मंदिर पीतळ घंटी वाजवा'}</span>
-                </div>
-                <span className="text-[10px] opacity-80 font-mono">{lang === 'EN' ? 'Tap' : 'क्लिक'}</span>
-              </button>
-
               {/* Shankh Sound */}
               <button
                 onClick={playShankhnaad}
@@ -885,8 +827,55 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
           </div>
         )}
 
-        {/* Scrollable Vertical Table Container */}
-        <div className="relative rounded-xl border border-brand-gold/25 overflow-hidden shadow-2xl bg-black/60">
+        {/* Mobile Aarti Card List (Optimized for Small Screens) */}
+        <div className="md:hidden space-y-3">
+          {filteredAartis.map((aarti) => {
+            let cardClasses = 'bg-black/60 border rounded-xl p-3.5 space-y-2.5 transition-all ';
+            if (aarti.isLive) {
+              cardClasses += 'border-red-500 bg-red-950/40 shadow-lg shadow-red-950/50';
+            } else if (aarti.isNext) {
+              cardClasses += 'border-brand-gold bg-brand-gold/10 shadow-lg shadow-amber-950/40';
+            } else {
+              cardClasses += 'border-brand-gold/20';
+            }
+
+            return (
+              <div key={aarti.id} className={cardClasses}>
+                <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm font-black text-white">{aarti.timeEn}</span>
+                    <span className="text-[11px] font-serif font-bold text-brand-saffron">{aarti.timeMr}</span>
+                  </div>
+                  {aarti.isLive ? (
+                    <span className="text-[9px] bg-red-600 text-white uppercase font-bold px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
+                      <span>LIVE</span>
+                    </span>
+                  ) : aarti.isNext ? (
+                    <span className="text-[9px] bg-brand-gold text-brand-maroon uppercase font-bold px-2 py-0.5 rounded-full">
+                      NEXT UP
+                    </span>
+                  ) : (
+                    <span className="text-[9px] text-gray-400 font-mono">
+                      {aarti.periodLabelEn}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <h4 className="font-serif font-bold text-sm text-brand-gold">{aarti.titleMr}</h4>
+                  <div className="text-xs text-gray-300">{aarti.titleEn}</div>
+                  <div className="text-[10px] text-brand-saffron italic mt-0.5">{aarti.significanceMr}</div>
+                </div>
+
+                <p className="text-xs text-gray-300 leading-relaxed font-serif">{aarti.descriptionMr}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Scrollable Vertical Table Container (Desktop & Tablet) */}
+        <div className="hidden md:block relative rounded-xl border border-brand-gold/25 overflow-hidden shadow-2xl bg-black/60">
           <div className="max-h-[380px] overflow-y-auto overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse min-w-[700px]">
               

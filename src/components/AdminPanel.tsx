@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Lock, Eye, CheckCircle, XCircle, Trash2, ShieldCheck, Download, PlusCircle, BarChart3, Users, Flame } from 'lucide-react';
+import { Lock, Eye, CheckCircle, XCircle, Trash2, ShieldCheck, Download, PlusCircle, BarChart3, Users, Flame, Sparkles } from 'lucide-react';
 import { DevoteeExperience, DigitalSevaBooking, DonationRecord, Announcement } from '../types';
 
 interface AdminPanelProps {
@@ -32,7 +32,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 }) => {
   const [pin, setPin] = useState('');
   const [unlocked, setUnlocked] = useState(false);
-  const [activeTab, setActiveTab] = useState<'approvals' | 'bookings' | 'reports' | 'announcements' | 'cms'>('cms');
+  const [activeTab, setActiveTab] = useState<'approvals' | 'bookings' | 'reports' | 'announcements' | 'cms'>('approvals');
 
   // Welcome Hero CMS states
   const [welcomeTitleEN, setWelcomeTitleEN] = useState(siteContent?.welcome?.titleEN ?? '');
@@ -204,34 +204,34 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       </div>
 
       {/* Admin Tabs Menu */}
-      <div className="flex flex-wrap gap-2 text-xs font-bold border-b border-white/5 pb-4">
+      <div className="flex items-center gap-2 text-xs font-bold border-b border-white/5 pb-4 overflow-x-auto scrollbar-none w-full">
         <button
           onClick={() => setActiveTab('approvals')}
-          className={`px-3 py-1.5 rounded transition-all cursor-pointer ${activeTab === 'approvals' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === 'approvals' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
         >
           Devotee Experiences Review ({experiences.filter(x => !x.approved).length} Pending)
         </button>
         <button
           onClick={() => setActiveTab('bookings')}
-          className={`px-3 py-1.5 rounded transition-all cursor-pointer ${activeTab === 'bookings' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === 'bookings' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
         >
           Seva & Volunteer Bookings ({bookings.length})
         </button>
         <button
           onClick={() => setActiveTab('reports')}
-          className={`px-3 py-1.5 rounded transition-all cursor-pointer ${activeTab === 'reports' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === 'reports' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
         >
           Analytical Donation Reports
         </button>
         <button
           onClick={() => setActiveTab('announcements')}
-          className={`px-3 py-1.5 rounded transition-all cursor-pointer ${activeTab === 'announcements' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === 'announcements' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
         >
           Publish Holy Notices
         </button>
         <button
           onClick={() => setActiveTab('cms')}
-          className={`px-3 py-1.5 rounded transition-all cursor-pointer ${activeTab === 'cms' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === 'cms' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
         >
           ✍️ Manage Website CMS
         </button>
@@ -293,7 +293,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <span>Database Table logs</span>
           </div>
 
-          <div className="overflow-x-auto pb-2">
+          {/* Mobile Card List for Small Screens */}
+          <div className="md:hidden space-y-2.5">
+            {bookings.map(book => (
+              <div key={book.id} className="bg-black/50 border border-white/10 rounded-xl p-3 space-y-1.5 shadow-sm">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-mono font-bold text-brand-gold">{book.id}</span>
+                  <span className="font-mono text-brand-saffron">{book.date}</span>
+                </div>
+                <div className="text-white font-bold text-xs">{book.devoteeName}</div>
+                <div className="text-gray-300 text-[11px] truncate">{book.subType}</div>
+                <div className="flex items-center justify-between text-[10px] text-gray-400 pt-1.5 border-t border-white/5">
+                  <span>{book.phone} {book.gotra ? `• ${book.gotra}` : ''}</span>
+                  <button onClick={() => onDeleteBooking(book.id)} className="text-red-400 hover:text-red-300 p-1 cursor-pointer">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {bookings.length === 0 && (
+              <div className="py-8 text-center text-gray-500">No bookings recorded yet.</div>
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto pb-2">
             <table className="w-full min-w-[640px] text-left text-xs text-gray-300 divide-y divide-white/10">
               <thead className="text-[10px] uppercase font-mono tracking-wider text-brand-gold">
                 <tr>

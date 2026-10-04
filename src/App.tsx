@@ -25,12 +25,12 @@ import { UserProfileDashboard } from './components/UserProfileDashboard';
 import { AdminPanel } from './components/AdminPanel';
 import { ContactSection } from './components/ContactSection';
 
-import { Sparkles, Play, Flame, Bell, Award, HelpCircle } from 'lucide-react';
+import { Sparkles, Play, Flame, Award, HelpCircle } from 'lucide-react';
 import { SiteLogo } from './components/SiteLogo';
 import { DeviImage } from './components/DeviImage';
-import { TempleBell } from './components/TempleBell';
 import { HeroAudioPlayer } from './components/HeroAudioPlayer';
 import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdown';
+import { aartiAudioEngine } from './utils/aartiAudioEngine';
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
@@ -86,7 +86,7 @@ export default function App() {
 
         // Seed events
         for (const evt of INITIAL_EVENTS) {
-          await setDoc(doc(db, 'events', evt.id), evt);
+          await setDoc(doc(db, 'events', evt.id), evt, { merge: true });
         }
 
         // Seed testimonials
@@ -132,7 +132,13 @@ export default function App() {
     const unsubEvt = onSnapshot(collection(db, 'events'), (snapshot) => {
       const list: TempleEvent[] = [];
       snapshot.forEach(docSnap => {
-        list.push(docSnap.data() as TempleEvent);
+        const evtData = docSnap.data() as TempleEvent;
+        // Fix for ev-2 if previously stored in Firestore as 2026-10-12
+        if (evtData.id === 'ev-2' && evtData.date === '2026-10-12') {
+          evtData.date = '2026-10-11';
+          setDoc(doc(db, 'events', 'ev-2'), { date: '2026-10-11' }, { merge: true }).catch(() => {});
+        }
+        list.push(evtData);
       });
       list.sort((a, b) => a.date.localeCompare(b.date));
       setEvents(list);
@@ -580,24 +586,13 @@ export default function App() {
 
           <div className="mx-auto max-w-7xl px-4 py-12 sm:py-20 lg:py-28 relative z-10 text-center space-y-6 sm:space-y-8">
             
-            {/* Traditional Authentic Temple swinging brass bells and glowing Diya */}
-            <div className="flex justify-center items-center gap-8 sm:gap-14 select-none h-16 sm:h-20">
-              {/* Authentic hanging temple brass bell left */}
-              <TempleBell 
-                size="md" 
-                variant="deep" 
-                label={lang === 'EN' ? 'Temple Ghanta' : 'घंटानाद'} 
-              />
-              {/* Glowing diya center */}
-              <div className="animate-diya-flicker text-4xl sm:text-5xl drop-shadow-[0_0_15px_rgba(255,153,51,0.9)]">
-                🔥
+            {/* Traditional Sacred Glowing Akhand Jyot Diya and Divine Chants */}
+            <div className="flex justify-center items-center gap-3 sm:gap-6 select-none h-12 sm:h-16">
+              <span className="text-xl sm:text-2xl text-brand-gold opacity-80 animate-pulse">✨</span>
+              <div className="animate-diya-flicker text-4xl sm:text-5xl drop-shadow-[0_0_18px_rgba(255,153,51,0.95)]">
+                🪔
               </div>
-              {/* Authentic hanging temple brass bell right */}
-              <TempleBell 
-                size="md" 
-                variant="high" 
-                label={lang === 'EN' ? 'Sacred Chime' : 'पवित्र नाद'} 
-              />
+              <span className="text-xl sm:text-2xl text-brand-gold opacity-80 animate-pulse">✨</span>
             </div>
 
             <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto px-2">
@@ -710,16 +705,17 @@ export default function App() {
         {activeTab === 'events' && (
           <EventsSection 
             lang={lang} 
-            events={INITIAL_EVENTS} 
+            events={events.length > 0 ? events : INITIAL_EVENTS} 
             onRsvp={(evtId, name) => {
+              const matchedEvt = (events.length > 0 ? events : INITIAL_EVENTS).find(x => x.id === evtId);
               handleNewBooking({
                 id: 'RSVP-' + Math.floor(1000 + Math.random() * 9000),
                 type: 'volunteer',
-                subType: `RSVP Presence: ${INITIAL_EVENTS.find(x => x.id === evtId)?.title || 'Temple Event'}`,
+                subType: `RSVP Presence: ${matchedEvt?.title || 'Temple Event'}`,
                 devoteeName: name,
                 phone: userProfile.phone,
                 email: userProfile.email,
-                date: INITIAL_EVENTS.find(x => x.id === evtId)?.date || new Date().toISOString().split('T')[0],
+                date: matchedEvt?.date || new Date().toISOString().split('T')[0],
                 status: 'confirmed'
               });
               alert(`Awesome RSVP Registered under name: ${name}. Welcome to the local mandir!`);

@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Search, Bell, Radio, FileText, Newspaper, Megaphone } from 'lucide-react';
+import { Search, Radio, FileText, Newspaper, Megaphone } from 'lucide-react';
 import { Announcement } from '../types';
 
 interface NewsSectionProps {
@@ -54,7 +54,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ lang, announcements })
         {/* Real-time Push Notification Simulator Toggle Card */}
         <div className="bg-black/50 border border-brand-gold/25 p-3.5 rounded-xl flex items-center gap-3 w-full md:w-auto">
           <div className="h-9 w-9 rounded-full bg-brand-gold/10 text-brand-gold flex items-center justify-center shrink-0">
-            <Bell className={`h-4 w-4 ${notifEnabled ? 'animate-bounce text-brand-saffron' : ''}`} />
+            <Megaphone className={`h-4 w-4 ${notifEnabled ? 'animate-bounce text-brand-saffron' : ''}`} />
           </div>
           <div className="flex-1">
             <span className="text-[10px] text-gray-400 block font-mono">PUSH SERVICES</span>

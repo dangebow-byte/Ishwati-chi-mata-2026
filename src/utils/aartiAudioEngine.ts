@@ -161,10 +161,6 @@ export class AartiAudioEngine {
   private stateListeners: Set<(playing: boolean) => void> = new Set();
   private activeNoteNodes: { stop: () => void }[] = [];
 
-  constructor() {
-    // AudioContext will be initialized on first user interaction
-  }
-
   private initContext(): AudioContext {
     if (!this.ctx) {
       // @ts-ignore
@@ -349,25 +345,25 @@ export class AartiAudioEngine {
   }
 
   /**
-   * Synthesize temple bell / ghanta / manjira
+   * Synthesize sacred manjira / melodic metallic resonance
    */
-  private playTempleBell(ctx: AudioContext, time: number, highPitch: boolean = false) {
+  private playSacredChime(ctx: AudioContext, time: number, highPitch: boolean = false) {
     if (!this.compressor) return;
 
-    const bellGain = ctx.createGain();
-    bellGain.connect(this.compressor);
+    const chimeGain = ctx.createGain();
+    chimeGain.connect(this.compressor);
 
     const baseFreq = highPitch ? 1760 : 880;
-    bellGain.gain.setValueAtTime(0.001, time);
-    bellGain.gain.linearRampToValueAtTime(highPitch ? 0.08 : 0.16, time + 0.01);
-    bellGain.gain.exponentialRampToValueAtTime(0.0001, time + (highPitch ? 0.8 : 2.5));
+    chimeGain.gain.setValueAtTime(0.001, time);
+    chimeGain.gain.linearRampToValueAtTime(highPitch ? 0.08 : 0.16, time + 0.01);
+    chimeGain.gain.exponentialRampToValueAtTime(0.0001, time + (highPitch ? 0.8 : 2.5));
 
     // Metallic partials
     [baseFreq, baseFreq * 1.33, baseFreq * 2.0].forEach(f => {
       const osc = ctx.createOscillator();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(f, time);
-      osc.connect(bellGain);
+      osc.connect(chimeGain);
       osc.start(time);
       osc.stop(time + (highPitch ? 0.8 : 2.5));
     });
@@ -457,8 +453,8 @@ export class AartiAudioEngine {
     const ctx = this.ctx;
     let currentTimeOffset = ctx.currentTime + 0.1;
 
-    // Ring starting holy temple bell
-    this.playTempleBell(ctx, currentTimeOffset, false);
+    // Start holy opening resonance
+    this.playSacredChime(ctx, currentTimeOffset, false);
 
     let totalCycleDuration = 0;
     MARATHI_AARTI_VERSES.forEach(verse => {
@@ -496,7 +492,7 @@ export class AartiAudioEngine {
 
         // Add manjira cymbals on rhythm beats
         if (noteIdx % 2 === 0) {
-          this.playTempleBell(ctx, noteStartTime, true);
+          this.playSacredChime(ctx, noteStartTime, true);
         }
 
         verseBeatOffset += n.duration;
@@ -567,67 +563,6 @@ export class AartiAudioEngine {
 
   public getIsPlaying(): boolean {
     return this.isPlaying;
-  }
-
-  /**
-   * Ring the sacred temple bell with authentic bronze acoustic harmonics and sustained natural resonance
-   */
-  public ringSacredTempleBell(variant: 'deep' | 'high' = 'deep') {
-    try {
-      this.initContext();
-      if (!this.ctx) return;
-      const ctx = this.ctx;
-      if (ctx.state === 'suspended') {
-        ctx.resume();
-      }
-
-      const now = ctx.currentTime;
-      const bellGain = ctx.createGain();
-      if (this.compressor) {
-        bellGain.connect(this.compressor);
-      } else {
-        bellGain.connect(ctx.destination);
-      }
-
-      // Traditional Indian temple brass ghanta fundamental frequencies (D5: 587.33Hz, A5: 880Hz)
-      const baseFreq = variant === 'high' ? 880 : 587.33;
-      const duration = 3.6;
-
-      // Realistic sharp clapper attack and long bell decay
-      bellGain.gain.setValueAtTime(0.0001, now);
-      bellGain.gain.linearRampToValueAtTime(0.42, now + 0.005); // immediate metallic strike
-      bellGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-      // Authentic bronze bell harmonic and enharmonic partials
-      const partials = [
-        { mult: 0.5, gain: 0.16, sustain: 1.0 }, // Sub-octave warm bronze hum tone
-        { mult: 1.0, gain: 0.45, sustain: 0.9 }, // Fundamental strike tone
-        { mult: 1.189, gain: 0.32, sustain: 0.75 }, // Tierce (minor 3rd - distinctive to cast bells)
-        { mult: 1.5, gain: 0.28, sustain: 0.8 }, // Quint (pure fifth)
-        { mult: 2.0, gain: 0.22, sustain: 0.7 }, // Nominal octave
-        { mult: 2.76, gain: 0.14, sustain: 0.55 }, // Super-quint
-        { mult: 3.42, gain: 0.09, sustain: 0.45 }, // High shimmer overtone
-      ];
-
-      partials.forEach(p => {
-        const osc = ctx.createOscillator();
-        const pGain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(baseFreq * p.mult, now);
-
-        const pDuration = duration * p.sustain;
-        pGain.gain.setValueAtTime(p.gain, now);
-        pGain.gain.exponentialRampToValueAtTime(0.0001, now + pDuration);
-
-        osc.connect(pGain);
-        pGain.connect(bellGain);
-
-        osc.start(now);
-        osc.stop(now + pDuration);
-      });
-    } catch (e) {
-      console.warn('Temple bell audio playback error:', e);
-    }
   }
 
   public destroy() {

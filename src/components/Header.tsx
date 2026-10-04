@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import { Sunset, Languages, Moon, Sun, ShieldAlert, Award, Sparkles, Volume2, VolumeX, Menu, X, ChevronRight, Video, Heart, Calendar, BookOpen, Users, Phone, Settings, Sparkle } from 'lucide-react';
 import { TRANSLATIONS } from '../data';
 import { SiteLogo } from './SiteLogo';
-import { TempleBell } from './TempleBell';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
 
 interface HeaderProps {
@@ -148,28 +147,28 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
         
         {/* Top utility bar */}
-        <div className="flex h-9 sm:h-10 items-center justify-between border-b border-white/10 text-xs text-brand-saffron gap-2">
+        <div className="flex h-9 sm:h-10 items-center justify-between border-b border-white/10 text-xs text-brand-saffron gap-1.5 sm:gap-2 overflow-hidden">
           {/* Sacred chant greeting */}
-          <div className="flex items-center gap-1.5 font-medium min-w-0 truncate">
-            <Sparkles className="h-3.5 w-3.5 shrink-0 animate-pulse text-brand-gold" />
-            <span className="hidden md:inline truncate text-[11px] lg:text-xs">
+          <div className="flex items-center gap-1 sm:gap-1.5 font-medium min-w-0 truncate">
+            <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 animate-pulse text-brand-gold" />
+            <span className="hidden lg:inline truncate text-[11px] lg:text-xs">
               {lang === 'EN' ? '|| Hail Shree Ishwatichi Mata (श्री ईश्वटीची)! Welcome to Official Digital Portal ||' : '|| श्री ईश्वटीची माता की जय! अधिकृत डिजिटल कक्षात स्वागत ||'}
             </span>
-            <span className="md:hidden text-[10px] sm:text-xs font-serif font-bold text-brand-gold truncate">
+            <span className="lg:hidden text-[10px] sm:text-xs font-serif font-bold text-brand-gold truncate">
               || श्री ईश्वटीची प्रसन्न ||
             </span>
           </div>
 
           {/* Quick utility controls row */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {/* Background Aarti Live Audio Indicator */}
             {isAudioPlaying ? (
               <button
                 onClick={() => aartiAudioEngine.silence()}
-                className="flex items-center gap-1 text-brand-gold bg-amber-950/80 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-brand-gold/50 hover:bg-amber-900/80 transition-all cursor-pointer shadow-sm animate-pulse text-[10px]"
+                className="flex items-center gap-1 text-brand-gold bg-amber-950/80 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-brand-gold/50 hover:bg-amber-900/80 transition-all cursor-pointer shadow-sm animate-pulse text-[9px] sm:text-[10px]"
                 title={lang === 'EN' ? "Aarti playing • Click to silence" : "आरती सुरू आहे • शांत करा"}
               >
-                <Volume2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-brand-saffron" />
+                <Volume2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-brand-saffron shrink-0" />
                 <span className="font-serif font-bold text-[9px] sm:text-[10px] hidden xs:inline">
                   {lang === 'EN' ? "Aarti" : "आरती"}
                 </span>
@@ -183,45 +182,45 @@ export const Header: React.FC<HeaderProps> = ({
                   aartiAudioEngine.playAarti();
                   if (activeTab !== 'home') setActiveTab('home');
                 }}
-                className="flex items-center gap-1 text-[9px] sm:text-[10px] text-gray-300 hover:text-brand-gold bg-black/40 hover:bg-black/60 px-2 py-0.5 rounded-full border border-white/10 hover:border-brand-gold/30 transition-all cursor-pointer"
+                className="flex items-center gap-1 text-[9px] sm:text-[10px] text-gray-300 hover:text-brand-gold bg-black/40 hover:bg-black/60 px-1.5 sm:px-2 py-0.5 rounded-full border border-white/10 hover:border-brand-gold/30 transition-all cursor-pointer"
                 title={lang === 'EN' ? "Play Marathi Aarti" : "मराठी आरती सुरू करा"}
               >
-                <VolumeX className="h-3 w-3 text-gray-400" />
-                <span className="font-serif hidden sm:inline">{lang === 'EN' ? "Aarti: Off" : "आरती"}</span>
+                <VolumeX className="h-3 w-3 text-gray-400 shrink-0" />
+                <span className="font-serif hidden sm:inline">{lang === 'EN' ? "Aarti" : "आरती"}</span>
               </button>
             )}
 
             {/* Devotion Streak Indicator */}
             <button 
               onClick={() => handleSelectTab('profile')} 
-              className="flex items-center gap-1 rounded-full bg-black/40 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs text-brand-gold border border-brand-gold/30 hover:border-brand-saffron transition-all"
+              className="flex items-center gap-1 rounded-full bg-black/40 px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs text-brand-gold border border-brand-gold/30 hover:border-brand-saffron transition-all shrink-0"
               title="Your Prayer Streak counter! Click to claim rewards"
             >
-              <Award className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-brand-saffron" />
-              <span className="hidden sm:inline">{lang === 'EN' ? 'Streak' : 'सातत्य'}: </span>
-              <strong>{streak} 🔥</strong>
+              <Award className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-brand-saffron shrink-0" />
+              <span className="hidden md:inline">{lang === 'EN' ? 'Streak' : 'सातत्य'}: </span>
+              <strong>{streak}🔥</strong>
             </button>
 
             {/* Language Selection */}
             <button
               onClick={handleLangToggle}
-              className="flex items-center gap-1 text-brand-gold bg-black/40 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-brand-gold/20 hover:bg-black/60 transition-all cursor-pointer text-[9px] sm:text-[10px] font-bold"
+              className="flex items-center gap-0.5 sm:gap-1 text-brand-gold bg-black/40 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-brand-gold/20 hover:bg-black/60 transition-all cursor-pointer text-[9px] sm:text-[10px] font-bold shrink-0"
               title={lang === 'EN' ? 'मराठीमध्ये बदला' : 'Switch to English'}
             >
-              <Languages className="h-3 w-3 text-brand-gold" />
+              <Languages className="h-3 w-3 text-brand-gold shrink-0" />
               <span>{lang === 'EN' ? 'MR' : 'EN'}</span>
             </button>
 
             {/* Google Authentication */}
             {user ? (
-              <div className="flex items-center gap-1.5 bg-black/40 px-2 py-0.5 sm:py-1 rounded-full border border-brand-gold/20">
+              <div className="flex items-center gap-1 sm:gap-1.5 bg-black/40 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-brand-gold/20 shrink-0">
                 <img
                   src={user.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=50&q=80'}
                   alt={user.displayName || 'Devotee'}
-                  className="h-4 w-4 sm:h-4.5 sm:w-4.5 rounded-full border border-brand-gold/40"
+                  className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 rounded-full border border-brand-gold/40 shrink-0"
                   referrerPolicy="no-referrer"
                 />
-                <span className="hidden lg:inline text-[9px] text-white max-w-[80px] truncate">
+                <span className="hidden xl:inline text-[9px] text-white max-w-[80px] truncate">
                   {user.displayName?.split(' ')[0] || 'Devotee'}
                 </span>
                 <button
@@ -234,7 +233,7 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={onLogin}
-                className="flex items-center gap-1 bg-brand-gold hover:bg-brand-saffron text-brand-maroon px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-serif font-black text-[9px] sm:text-[10px] shadow border border-brand-gold/50 cursor-pointer"
+                className="flex items-center gap-1 bg-brand-gold hover:bg-brand-saffron text-brand-maroon px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-serif font-black text-[9px] sm:text-[10px] shadow border border-brand-gold/50 cursor-pointer shrink-0"
               >
                 🔐 <span className="hidden xs:inline">{lang === 'EN' ? 'Login' : 'लॉगिन'}</span>
               </button>
@@ -243,7 +242,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Night usage toggle */}
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-1 hover:text-brand-gold transition-colors text-brand-saffron"
+              className="p-1 hover:text-brand-gold transition-colors text-brand-saffron shrink-0"
               title={darkMode ? 'Switch to Bright Theme' : 'Switch to Sunset Night view'}
               aria-label="Toggle dark mode"
             >
@@ -253,71 +252,44 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Primary Navbar Brand Row */}
-        <div className="flex items-center justify-between py-3 sm:py-4 lg:py-5 gap-3 sm:gap-4">
+        <div className="flex items-center justify-between py-2 sm:py-3.5 lg:py-4 gap-2 sm:gap-4">
           
           {/* Logo & Temple Title */}
           <div 
-            className="flex items-center gap-3 sm:gap-4 lg:gap-5 cursor-pointer group min-w-0" 
+            className="flex items-center gap-2 sm:gap-3.5 lg:gap-4 cursor-pointer group min-w-0 flex-1" 
             onClick={() => handleSelectTab('home')}
           >
             <div className="relative shrink-0 flex items-center justify-center">
               <SiteLogo 
-                size="lg" 
-                className="group-hover:scale-105 transition-transform drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]" 
+                size="md"
+                className="h-10 w-10 xs:h-12 xs:w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 group-hover:scale-105 transition-transform drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]" 
                 priority 
               />
             </div>
             
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                <h1 className="font-serif text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-normal text-brand-gold drop-shadow-md leading-normal">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap">
+                <h1 className="font-serif text-base xs:text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-normal text-brand-gold drop-shadow-md leading-tight">
                   श्री ईश्वटीची माता मंडळ
                 </h1>
-                <span className="text-[9px] sm:text-xs bg-brand-red text-brand-gold border border-brand-gold/40 px-2 py-0.5 rounded font-serif font-bold shrink-0 shadow-sm">
+                <span className="text-[8px] xs:text-[9px] sm:text-xs bg-brand-red text-brand-gold border border-brand-gold/40 px-1.5 sm:px-2 py-0.5 rounded font-serif font-bold shrink-0 shadow-sm">
                   देवस्थान
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-brand-saffron tracking-wide font-sans font-medium mt-0.5 sm:mt-1 leading-relaxed">
+              <p className="text-[10px] sm:text-xs md:text-sm text-brand-saffron tracking-wide font-sans font-medium mt-0.5 leading-normal truncate">
                 {lang === 'EN' ? 'Shree Ishwatichi Mata Devasthan Trust • Estd 1976' : t.subtitle}
               </p>
             </div>
           </div>
 
-          {/* Interactive Sacred Temple Bells in Header with physical & visual feedback */}
-          <div className="hidden lg:flex items-center gap-3.5 px-3.5 py-1.5 bg-black/35 rounded-2xl border border-brand-gold/30 backdrop-blur-sm shadow-inner">
-            <TempleBell 
-              size="md" 
-              variant="deep" 
-              label={lang === 'EN' ? 'Ring Ghanta' : 'घंटानाद'} 
-            />
-            <div className="text-left text-[11px] leading-tight select-none">
-              <span className="font-serif font-bold text-brand-gold block">
-                {lang === 'EN' ? 'Temple Bell' : 'पवित्र घंटी'}
-              </span>
-              <span className="text-gray-300 text-[10px] font-sans">
-                {lang === 'EN' ? 'Click to ring' : 'नाद स्पर्श करा'}
-              </span>
-            </div>
-          </div>
-
           {/* Right Controls: Quick Action & Mobile Hamburger */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Interactive Header Temple Bell for mobile & small screens */}
-            <div className="lg:hidden flex items-center pr-1">
-              <TempleBell 
-                size="sm" 
-                showChain={false} 
-                variant="high"
-                label={lang === 'EN' ? 'Bell' : 'घंटी'} 
-              />
-            </div>
-
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Quick Live Darshan CTA on tablet/desktop */}
             <button
               onClick={() => handleSelectTab('darshan')}
-              className="hidden sm:flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-brand-red to-red-700 hover:from-red-700 hover:to-brand-red border border-brand-gold/50 text-white font-serif font-bold text-xs lg:text-sm shadow-lg cursor-pointer transition-all hover:scale-105"
+              className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-brand-red to-red-700 hover:from-red-700 hover:to-brand-red border border-brand-gold/50 text-white font-serif font-bold text-xs lg:text-sm shadow-lg cursor-pointer transition-all hover:scale-105"
             >
-              <span className="h-2.5 w-2.5 rounded-full bg-green-400 animate-ping" />
+              <span className="h-2 w-2 rounded-full bg-green-400 animate-ping" />
               <span>{lang === 'EN' ? 'Live Darshan' : 'थेट दर्शन'}</span>
             </button>
 
@@ -327,14 +299,14 @@ export const Header: React.FC<HeaderProps> = ({
               className="md:hidden p-2 rounded-lg bg-black/40 hover:bg-black/60 border border-brand-gold/30 text-brand-gold transition-colors cursor-pointer"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             >
-              {mobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
         {/* Desktop / Tablet Horizontal Navigation Tabs */}
-        <div className="hidden md:block border-t border-brand-gold/15 pt-2.5 pb-2.5">
-          <nav className="flex items-center justify-center flex-wrap gap-1.5 lg:gap-2 xl:gap-2.5 py-1">
+        <div className="hidden md:block border-t border-brand-gold/15 pt-2 pb-2">
+          <nav className="flex items-center justify-center flex-wrap gap-1 lg:gap-2 py-1">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -342,7 +314,7 @@ export const Header: React.FC<HeaderProps> = ({
                   key={item.id}
                   id={`nav-tab-${item.id}`}
                   onClick={() => handleSelectTab(item.id)}
-                  className={`px-3 py-1.5 lg:px-3.5 lg:py-2 text-xs lg:text-sm font-semibold rounded-lg transition-all duration-300 pointer cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-2.5 py-1.5 lg:px-3.5 lg:py-2 text-xs lg:text-sm font-semibold rounded-lg transition-all duration-200 pointer cursor-pointer flex items-center gap-1.5 ${
                     isActive
                       ? 'bg-brand-red text-white border-b-2 border-brand-gold shadow-lg shadow-black/40 scale-105'
                       : 'hover:bg-white/10 text-white/90 hover:text-white'
@@ -365,31 +337,28 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Mobile Horizontal Fast Swipe Tabs (visible on < md) */}
-        <div className="md:hidden relative -mx-3 px-3 overflow-x-auto pb-2.5 pt-0.5 scrollbar-none">
+        <div className="md:hidden relative overflow-x-auto pb-2 pt-1 scrollbar-none" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="flex items-center gap-1.5 w-max">
-            {navItems.slice(0, 6).map((item) => {
+            {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleSelectTab(item.id)}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-full whitespace-nowrap transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-full whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 ${
                     isActive
                       ? 'bg-brand-gold text-brand-maroon shadow-md border border-brand-gold'
-                      : 'bg-black/35 text-white/85 border border-white/10'
+                      : 'bg-black/40 text-white/90 border border-white/10 hover:border-brand-gold/40'
                   }`}
                 >
-                  <span className="mr-1">{item.icon}</span>
+                  <span>{item.icon}</span>
                   <span>{item.label}</span>
+                  {item.id === 'darshan' && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-ping ml-0.5" />
+                  )}
                 </button>
               );
             })}
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="px-2.5 py-1 text-[11px] font-bold rounded-full whitespace-nowrap bg-brand-red/80 text-white border border-brand-gold/40 cursor-pointer"
-            >
-              + {lang === 'EN' ? 'All Portals' : 'सर्व विभाग'}
-            </button>
           </div>
         </div>
 

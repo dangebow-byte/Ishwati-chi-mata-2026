@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Play, Pause, Music, ChevronDown, ChevronUp, Bell } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, Music, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
 
 interface HeroAudioPlayerProps {
@@ -142,7 +142,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
                 </span>
               </div>
               <p className="text-[11px] text-gray-300 font-sans mt-0.5">
-                {lang === 'EN' ? 'Authentic devotional rhythm in Raga Bhupali with temple bells' : 'पारंपरिक राग भूप, पवित्र घंटानाद व टाळ-मृदंग ताल'}
+                {lang === 'EN' ? 'Authentic devotional rhythm in Raga Bhupali with sacred melodies' : 'पारंपरिक राग भूप, पावन नाद व टाळ-मृदंग ताल'}
               </p>
             </div>
           </div>
@@ -218,7 +218,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
                 ) : (
                   <span className="text-gray-300 text-xs font-normal">
                     {lang === 'EN' 
-                      ? 'Click play to start Marathi Aarti in female voice with temple bells' 
+                      ? 'Click play to start Marathi Aarti in female voice with sacred melodies' 
                       : 'स्त्री स्वरात पावन मराठी आरती ऐकण्यासाठी प्ले बटण दाबा'}
                   </span>
                 )}
@@ -297,7 +297,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
           <div className="mt-4 pt-3.5 border-t border-brand-gold/25 text-left font-serif space-y-3 animate-fade-in bg-black/60 p-4 sm:p-5 rounded-xl border border-brand-gold/20">
             <div className="flex items-center justify-between border-b border-brand-gold/15 pb-2">
               <h5 className="text-sm font-bold uppercase tracking-wider text-brand-gold flex items-center gap-2">
-                <Bell className="h-4 w-4 text-brand-saffron" />
+                <Sparkles className="h-4 w-4 text-brand-gold" />
                 <span>॥ श्री ईश्वटीची माता आरती (मराठी) ॥</span>
               </h5>
               <span className="text-[10px] text-gray-300 font-sans bg-brand-maroon px-2 py-0.5 rounded border border-brand-gold/30">
