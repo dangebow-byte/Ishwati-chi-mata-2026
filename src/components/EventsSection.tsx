@@ -56,7 +56,7 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ lang, events, onRs
           <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-wider block mb-1">
             🗓️ Utsav Schedule
           </span>
-          <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
+          <h2 className="text-2xl md:text-4xl font-sans font-black text-white">
             {lang === 'EN' ? 'Shree Ishwatichi Festivals & Cultural Events' : 'श्री इश्वटीची आगामी उत्सव व सांस्कृतिक कार्यक्रम'}
           </h2>
           <p className="text-xs text-gray-300 mt-1">
@@ -130,7 +130,7 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ lang, events, onRs
               {/* Event Body */}
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
-                  <h3 className="text-lg font-serif font-bold text-white tracking-wide">
+                  <h3 className="text-lg font-sans font-bold text-white tracking-wide">
                     {lang === 'EN' ? evt.title : evt.titleMarathi}
                   </h3>
                   <div className="flex items-center gap-4 text-xs text-gray-400">
@@ -157,7 +157,7 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ lang, events, onRs
                   <button
                     onClick={() => handleOpenRsvpPopup(evt)}
                     disabled={isRegistered}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold font-serif transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-4 py-2 rounded-lg text-xs font-bold font-sans transition-all flex items-center gap-1.5 cursor-pointer ${
                       isRegistered
                         ? 'bg-green-600/30 text-green-300 border border-green-500/30 cursor-default'
                         : 'bg-brand-red text-white hover:bg-brand-saffron hover:text-brand-maroon border border-brand-gold/30'
@@ -199,7 +199,7 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ lang, events, onRs
 
             <div className="text-center space-y-1">
               <Award className="h-10 w-10 text-brand-gold mx-auto animate-bounce" />
-              <h3 className="text-xl font-serif font-black text-white">Event RSVP Register</h3>
+              <h3 className="text-xl font-sans font-black text-white">Event RSVP Register</h3>
               <p className="text-xs text-brand-saffron font-bold">
                 {lang === 'EN' ? popupEvent.title : popupEvent.titleMarathi}
               </p>
@@ -221,7 +221,7 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ lang, events, onRs
                 </span>
               </div>
 
-              <div className="flex gap-2 text-xs font-serif font-bold pt-2">
+              <div className="flex gap-2 text-xs font-sans font-bold pt-2">
                 <button
                   type="button"
                   onClick={() => setPopupEvent(null)}

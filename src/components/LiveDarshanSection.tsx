@@ -464,7 +464,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
       {/* Main Header visual */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-brand-gold/20">
         <div>
-          <h2 className="text-2xl md:text-4xl font-serif font-black flex items-center gap-2.5 text-white">
+          <h2 className="text-2xl md:text-4xl font-sans font-black flex items-center gap-2.5 text-white">
             <span className="relative flex h-3.5 w-3.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500"></span>
@@ -535,7 +535,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                 <div className="absolute top-0 left-0 w-full h-[1px] bg-brand-gold/30 animate-pulse pointer-events-none z-[2]" />
                 
                 {/* Sacred watermark badge */}
-                <div className="absolute top-3 left-24 z-10 bg-brand-maroon/90 backdrop-blur-sm border border-brand-gold/60 text-brand-gold text-[10px] font-serif font-black px-2.5 py-1 rounded shadow flex items-center gap-1.5">
+                <div className="absolute top-3 left-24 z-10 bg-brand-maroon/90 backdrop-blur-sm border border-brand-gold/60 text-brand-gold text-[10px] font-sans font-black px-2.5 py-1 rounded shadow flex items-center gap-1.5">
                   <span>🌸</span>
                   <span>श्री इश्वटीची थेट दर्शन</span>
                 </div>
@@ -607,7 +607,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Disc className={`h-5 w-5 text-brand-gold ${oscillatorPlaying || isPlayingChant ? 'animate-spin' : ''}`} />
-                <h3 className="text-base sm:text-lg font-serif font-black text-brand-gold">
+                <h3 className="text-base sm:text-lg font-sans font-black text-brand-gold">
                   {lang === 'EN' ? 'Temple Soundboard' : 'पवित्र ध्वनी (Soundboard)'}
                 </h3>
               </div>
@@ -686,7 +686,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                     : (lang === 'EN' ? 'Next Up Ceremony' : 'पुढील नियोजित आरती')}
                 </span>
               </div>
-              <h5 className="font-serif font-black text-sm text-white">
+              <h5 className="font-sans font-black text-sm text-white">
                 {lang === 'EN' ? nextAartiSummary.item.titleEn : nextAartiSummary.item.titleMr}
               </h5>
               <div className="flex items-center justify-between text-xs text-brand-saffron font-mono mt-1 pt-1 border-t border-white/10">
@@ -709,7 +709,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-2xl select-none">🪔</span>
-              <h3 className="font-serif font-black text-lg sm:text-2xl text-brand-gold tracking-wide">
+              <h3 className="font-sans font-black text-lg sm:text-2xl text-brand-gold tracking-wide">
                 {lang === 'EN' ? 'Daily Aarti Timings & Sacred Schedule' : 'दैनिक आरती वेळापत्रक व पूजा विधी'}
               </h3>
               <span className="text-[10px] font-mono bg-brand-gold text-brand-maroon font-bold px-2 py-0.5 rounded shadow-sm">
@@ -736,7 +736,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
             <div className="flex items-center gap-1 bg-black/50 p-1 rounded-xl border border-brand-gold/20 text-xs overflow-x-auto max-w-full">
               <button
                 onClick={() => setSelectedFilter('all')}
-                className={`px-2.5 py-1 rounded-lg font-serif transition-all cursor-pointer text-[11px] whitespace-nowrap ${
+                className={`px-2.5 py-1 rounded-lg font-sans transition-all cursor-pointer text-[11px] whitespace-nowrap ${
                   selectedFilter === 'all'
                     ? 'bg-brand-gold text-brand-maroon font-bold shadow-md'
                     : 'text-gray-300 hover:text-white'
@@ -746,7 +746,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
               </button>
               <button
                 onClick={() => setSelectedFilter('morning')}
-                className={`px-2.5 py-1 rounded-lg font-serif transition-all cursor-pointer text-[11px] whitespace-nowrap ${
+                className={`px-2.5 py-1 rounded-lg font-sans transition-all cursor-pointer text-[11px] whitespace-nowrap ${
                   selectedFilter === 'morning'
                     ? 'bg-brand-gold text-brand-maroon font-bold shadow-md'
                     : 'text-gray-300 hover:text-white'
@@ -756,7 +756,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
               </button>
               <button
                 onClick={() => setSelectedFilter('afternoon')}
-                className={`px-2.5 py-1 rounded-lg font-serif transition-all cursor-pointer text-[11px] whitespace-nowrap ${
+                className={`px-2.5 py-1 rounded-lg font-sans transition-all cursor-pointer text-[11px] whitespace-nowrap ${
                   selectedFilter === 'afternoon'
                     ? 'bg-brand-gold text-brand-maroon font-bold shadow-md'
                     : 'text-gray-300 hover:text-white'
@@ -766,7 +766,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
               </button>
               <button
                 onClick={() => setSelectedFilter('evening')}
-                className={`px-2.5 py-1 rounded-lg font-serif transition-all cursor-pointer text-[11px] whitespace-nowrap ${
+                className={`px-2.5 py-1 rounded-lg font-sans transition-all cursor-pointer text-[11px] whitespace-nowrap ${
                   selectedFilter === 'evening'
                     ? 'bg-brand-gold text-brand-maroon font-bold shadow-md'
                     : 'text-gray-300 hover:text-white'
@@ -802,7 +802,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                   }`}>
                     {nextAartiSummary.isLive ? 'LIVE NOW' : 'NEXT UP'}
                   </span>
-                  <span className="text-xs font-serif font-black text-brand-gold">
+                  <span className="text-xs font-sans font-black text-brand-gold">
                     {nextAartiSummary.item.titleMr} / {nextAartiSummary.item.titleEn}
                   </span>
                 </div>
@@ -818,7 +818,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                   aartiAudioEngine.playAarti();
                   window.scrollTo({ top: 380, behavior: 'smooth' });
                 }}
-                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-gold to-amber-500 text-brand-maroon font-serif font-bold text-xs hover:scale-105 transition-all shadow cursor-pointer flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-gold to-amber-500 text-brand-maroon font-sans font-bold text-xs hover:scale-105 transition-all shadow cursor-pointer flex items-center gap-1.5"
               >
                 <span>🪔</span>
                 <span>{lang === 'EN' ? 'Play Vocal Aarti' : 'मराठी आरती ऐका'}</span>
@@ -844,7 +844,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                 <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm font-black text-white">{aarti.timeEn}</span>
-                    <span className="text-[11px] font-serif font-bold text-brand-saffron">{aarti.timeMr}</span>
+                    <span className="text-[11px] font-sans font-bold text-brand-saffron">{aarti.timeMr}</span>
                   </div>
                   {aarti.isLive ? (
                     <span className="text-[9px] bg-red-600 text-white uppercase font-bold px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
@@ -863,12 +863,12 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                 </div>
 
                 <div>
-                  <h4 className="font-serif font-bold text-sm text-brand-gold">{aarti.titleMr}</h4>
+                  <h4 className="font-sans font-bold text-sm text-brand-gold">{aarti.titleMr}</h4>
                   <div className="text-xs text-gray-300">{aarti.titleEn}</div>
                   <div className="text-[10px] text-brand-saffron italic mt-0.5">{aarti.significanceMr}</div>
                 </div>
 
-                <p className="text-xs text-gray-300 leading-relaxed font-serif">{aarti.descriptionMr}</p>
+                <p className="text-xs text-gray-300 leading-relaxed font-sans">{aarti.descriptionMr}</p>
               </div>
             );
           })}
@@ -880,7 +880,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
             <table className="w-full text-left border-collapse min-w-[700px]">
               
               {/* Sticky Table Header */}
-              <thead className="sticky top-0 bg-[#240303] text-brand-gold border-b-2 border-brand-gold/40 z-10 font-serif text-xs uppercase tracking-wider shadow-md">
+              <thead className="sticky top-0 bg-[#240303] text-brand-gold border-b-2 border-brand-gold/40 z-10 font-sans text-xs uppercase tracking-wider shadow-md">
                 <tr>
                   <th className="py-3 px-4 w-[16%]">
                     <div className="flex flex-col">
@@ -944,7 +944,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                           <span className="font-mono text-sm sm:text-base font-black text-white group-hover:text-brand-gold transition-colors">
                             {aarti.timeEn}
                           </span>
-                          <span className="text-[11px] font-serif font-bold text-brand-saffron">
+                          <span className="text-[11px] font-sans font-bold text-brand-saffron">
                             {aarti.timeMr}
                           </span>
                           <span className="text-[9px] text-gray-400 font-mono">
@@ -957,7 +957,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                       <td className="py-3.5 px-4 align-top">
                         <div className="space-y-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-serif font-black text-sm text-brand-gold group-hover:underline">
+                            <span className="font-sans font-black text-sm text-brand-gold group-hover:underline">
                               {aarti.titleMr}
                             </span>
                             {aarti.isLive && (
@@ -983,7 +983,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                       {/* Column 3: Significance & Description in Marathi & English */}
                       <td className="py-3.5 px-4 align-top">
                         <div className="space-y-1 text-gray-200">
-                          <p className="text-xs leading-relaxed font-serif">
+                          <p className="text-xs leading-relaxed font-sans">
                             {aarti.descriptionMr}
                           </p>
                           <p className="text-[11px] text-gray-400 leading-normal font-sans">
@@ -1000,7 +1000,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                               <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
                               <span className="font-bold text-[10px] font-mono">LIVE NOW</span>
                             </div>
-                            <span className="text-[9px] font-serif font-bold text-red-300">चालू आहे</span>
+                            <span className="text-[9px] font-sans font-bold text-red-300">चालू आहे</span>
                           </div>
                         ) : aarti.isNext ? (
                           <div className="inline-flex flex-col items-center gap-0.5 bg-brand-gold/20 border border-brand-gold/60 px-2.5 py-1 rounded-lg text-brand-gold shadow-md">
@@ -1008,7 +1008,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                               <Timer className="h-3 w-3 text-brand-gold animate-bounce" />
                               <span className="font-bold text-[10px] font-mono">NEXT UP</span>
                             </div>
-                            <span className="text-[9px] font-serif font-bold text-amber-200">
+                            <span className="text-[9px] font-sans font-bold text-amber-200">
                               पुढील आरती
                             </span>
                           </div>
@@ -1018,12 +1018,12 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                               <CheckCircle2 className="h-3 w-3 text-green-400/80" />
                               <span className="text-[10px] font-mono">DONE</span>
                             </div>
-                            <span className="text-[9px] font-serif">आज संपन्न</span>
+                            <span className="text-[9px] font-sans">आज संपन्न</span>
                           </div>
                         ) : (
                           <div className="inline-flex flex-col items-center gap-0.5 bg-black/40 border border-white/10 px-2 py-1 rounded-lg text-gray-300">
                             <span className="text-[10px] font-mono text-brand-saffron">UPCOMING</span>
-                            <span className="text-[9px] font-serif">नियोजित</span>
+                            <span className="text-[9px] font-sans">नियोजित</span>
                           </div>
                         )}
                       </td>

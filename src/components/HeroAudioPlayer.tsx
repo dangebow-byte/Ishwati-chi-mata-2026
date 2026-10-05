@@ -133,10 +133,10 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
             <span className="text-xl sm:text-2xl select-none shrink-0">🪔</span>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                <h4 className="font-serif font-black text-xs sm:text-base text-brand-gold tracking-wide truncate">
+                <h4 className="font-sans font-extrabold sm:font-black text-xs sm:text-base text-brand-gold tracking-wide truncate">
                   {lang === 'EN' ? 'Shree Ishwatichi Mata Aarti (Marathi)' : 'श्री इश्वटीची माता आरती (मराठी)'}
                 </h4>
-                <span className="text-[9px] sm:text-[10px] font-serif font-bold bg-brand-gold/15 text-brand-gold px-2 py-0.5 rounded-full border border-brand-gold/40 flex items-center gap-1 shadow-sm shrink-0">
+                <span className="text-[9px] sm:text-[10px] font-sans font-bold bg-brand-gold/15 text-brand-gold px-2 py-0.5 rounded-full border border-brand-gold/40 flex items-center gap-1 shadow-sm shrink-0">
                   <span>👩</span>
                   <span>{lang === 'EN' ? 'Female Voice' : 'स्त्री स्वर गायन'}</span>
                 </span>
@@ -148,7 +148,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
           </div>
 
           {/* Quick status pill */}
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-brand-saffron font-serif font-medium bg-black/40 px-2.5 py-0.5 sm:py-1 rounded-full border border-white/10 shrink-0 self-end sm:self-auto">
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-brand-saffron font-sans font-medium bg-black/40 px-2.5 py-0.5 sm:py-1 rounded-full border border-white/10 shrink-0 self-end sm:self-auto">
             <span className="inline-block h-2 w-2 rounded-full bg-green-400 animate-pulse" />
             <span>{lang === 'EN' ? 'Temple Sanctum Audio' : 'मंदिरातील पवित्र महाआरती'}</span>
           </div>
@@ -211,7 +211,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
                 {isPlaying ? (
                   <div className="flex items-center gap-1.5 animate-pulse min-w-0">
                     <Music className="h-3.5 w-3.5 shrink-0 text-brand-gold" />
-                    <span className="font-serif text-white tracking-wide truncate">
+                    <span className="font-sans font-bold text-white tracking-wide truncate">
                       {currentLine.mr || 'जय देवी जय देवी जय इश्वटी माते...'}
                     </span>
                   </div>
@@ -282,7 +282,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
             {/* Full lyrics expander toggle */}
             <button
               onClick={() => setShowLyrics(!showLyrics)}
-              className="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-black/50 hover:bg-brand-red/30 border border-brand-gold/30 text-brand-gold text-[11px] sm:text-xs font-serif font-bold flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+              className="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-black/50 hover:bg-brand-red/30 border border-brand-gold/30 text-brand-gold text-[11px] sm:text-xs font-sans font-bold flex items-center gap-1 transition-colors cursor-pointer shrink-0"
               title={showLyrics ? 'Hide Lyrics' : 'View Full Marathi Aarti Lyrics'}
             >
               <span>{lang === 'EN' ? 'Lyrics' : 'संपूर्ण आरती'}</span>
@@ -294,7 +294,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
 
         {/* Collapsible Full Marathi Aarti Lyrics Sheet */}
         {showLyrics && (
-          <div className="mt-4 pt-3.5 border-t border-brand-gold/25 text-left font-serif space-y-3 animate-fade-in bg-black/60 p-4 sm:p-5 rounded-xl border border-brand-gold/20">
+          <div className="mt-4 pt-3.5 border-t border-brand-gold/25 text-left font-sans space-y-3 animate-fade-in bg-black/60 p-4 sm:p-5 rounded-xl border border-brand-gold/20">
             <div className="flex items-center justify-between border-b border-brand-gold/15 pb-2">
               <h5 className="text-sm font-bold uppercase tracking-wider text-brand-gold flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-brand-gold" />
@@ -305,7 +305,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
               </span>
             </div>
 
-            <div className="text-xs sm:text-sm text-gray-100 leading-relaxed font-serif space-y-3 max-h-56 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="text-xs sm:text-sm text-gray-100 leading-relaxed font-sans space-y-3 max-h-56 overflow-y-auto pr-2 custom-scrollbar">
               <div className="bg-brand-maroon/40 p-2.5 rounded-lg border-l-2 border-brand-gold">
                 <p className="font-bold text-brand-gold">
                   जय देवी जय देवी जय इश्वटी माते ।<br />

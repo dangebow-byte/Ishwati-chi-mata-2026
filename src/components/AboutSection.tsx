@@ -62,7 +62,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
           <BookOpen className="h-3.5 w-3.5" />
           <span>{lang === 'EN' ? 'Divine Heritage' : 'दैवी इतिहास आणि महात्म्य'}</span>
         </div>
-        <h2 className="font-serif text-3xl md:text-5xl font-extrabold text-white">
+        <h2 className="font-sans text-3xl md:text-5xl font-extrabold text-white">
           {lang === 'EN' ? 'About Shree Ishwatichi Mata' : 'श्री इश्वटीची मातेविषयी सविस्तर माहिती'}
         </h2>
         <div className="h-0.5 w-36 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
@@ -90,7 +90,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
             <span className="text-[11px] font-mono uppercase tracking-widest text-brand-gold font-bold">
               {lang === 'EN' ? 'Official Sanctum Sanctorum' : 'अधिकृत गाभारा व राजमुद्रा'}
             </span>
-            <h3 className="font-serif text-xl sm:text-2xl font-black text-white">
+            <h3 className="font-sans text-xl sm:text-2xl font-black text-white">
               {lang === 'EN' ? 'Shree Ishwatichi Mata & Mandal Insignia' : 'श्री इश्वटीची माता आणि अधिकृत बोधचिन्ह'}
             </h3>
             <p className="text-xs text-gray-300 leading-relaxed">
@@ -109,7 +109,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-brand-saffron">
               <History className="h-5 w-5" />
-              <h3 className="text-xl font-serif font-bold tracking-wide">
+              <h3 className="text-xl font-sans font-bold tracking-wide">
                 {lang === 'EN' ? (siteContent?.originTitleEN || 'The Goddess & Origin') : (siteContent?.originTitleMR || 'देवीची उत्पत्ती व आख्यायिका')}
               </h3>
             </div>
@@ -137,7 +137,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-brand-saffron">
               <Sparkles className="h-5 w-5" />
-              <h3 className="text-xl font-serif font-bold tracking-wide">
+              <h3 className="text-xl font-sans font-bold tracking-wide">
                 {lang === 'EN' ? (siteContent?.missionTitleEN || 'Shree Young Ishwati Navratrotsav Mandal Mission & Community Vision') : (siteContent?.missionTitleMR || 'श्री यंग इश्वटी नवरात्रौत्सव मंडळाचा संकल्प आणि उद्दिष्टे')}
               </h3>
             </div>
@@ -197,7 +197,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
               <Milestone className="h-4 w-4" />
               <span>{lang === 'EN' ? 'Historical Journey Map' : 'ऐतिहासिक प्रवास आलेख'}</span>
             </div>
-            <h3 className="text-2xl font-serif font-black text-white">
+            <h3 className="text-2xl font-sans font-black text-white">
               {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Milestones & Establishment' : 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ: स्थापनेपासूनचा दैवी इतिहास'}
             </h3>
           </div>
@@ -237,7 +237,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
               {lang === 'EN' ? 'Verified Milestone' : 'महत्त्वाचा टप्पा'}
             </span>
           </div>
-          <h4 className="text-xl md:text-2xl font-serif font-extrabold text-white">
+          <h4 className="text-xl md:text-2xl font-sans font-extrabold text-white">
             {lang === 'EN' ? selectedMilestone.title : selectedMilestone.titleMarathi}
           </h4>
           <p className="text-sm text-gray-300 leading-relaxed font-sans">

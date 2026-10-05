@@ -37,7 +37,7 @@
   <circle cx="345" cy="115" r="23" fill="#FFFFFF" opacity="0.9" />
 
   <!-- Sacred Devanagari Calligraphy in Pure White -->
-  <g text-anchor="middle" font-family="'Noto Sans Devanagari', 'FreeSans', 'Yatra One', serif" font-weight="900" fill="#FFFFFF">
+  <g text-anchor="middle" font-family="'Noto Sans Devanagari', 'Mukta', 'FreeSans', sans-serif" font-weight="900" fill="#FFFFFF">
     <text x="250" y="235" font-size="62" letter-spacing="2" filter="url(#whiteGlow)">
       इश्वटीची
     </text>
@@ -51,7 +51,7 @@
 
   <!-- Bottom Arch Inscription -->
   <path id="archBottomWhite" d="M 80,310 A 200,200 0 0,0 420,310" fill="none" stroke="none" />
-  <text font-family="'Noto Sans Devanagari', 'FreeSans', serif" font-size="14" fill="#FFFFFF" font-weight="700" letter-spacing="3" text-anchor="middle">
+  <text font-family="'Noto Sans Devanagari', 'Mukta', 'FreeSans', sans-serif" font-size="14" fill="#FFFFFF" font-weight="700" letter-spacing="3" text-anchor="middle">
     <textPath href="#archBottomWhite" startOffset="50%">
       || श्री इश्वटीची माता प्रसन्न • स्थापना १९७६ ||
     </textPath>

@@ -63,7 +63,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-wider block mb-1">
             🖼️ Vision of Divinity
           </span>
-          <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
+          <h2 className="text-2xl md:text-4xl font-sans font-black text-white">
             {lang === 'EN' ? 'Shree Ishwatichi Mata Grand Album Gallery' : 'श्री इश्वटीची माता भव्य अल्बम प्रेक्षागृह'}
           </h2>
           <p className="text-xs text-gray-300 mt-1">
@@ -79,7 +79,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               onClick={() => setActiveCategory(cat)}
               className={`px-3 py-1.5 rounded-md text-[11px] font-bold cursor-pointer transition-all ${
                 activeCategory === cat
-                  ? 'bg-brand-red text-white font-serif tracking-wide shadow border border-brand-gold/30'
+                  ? 'bg-brand-red text-white font-sans tracking-wide shadow border border-brand-gold/30'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -98,7 +98,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             className="break-inside-avoid relative group rounded-xl overflow-hidden border border-white/5 bg-brand-maroon/10 hover:border-brand-gold/45 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-2xl hover:-translate-y-1 block"
           >
             {/* Sacred emblem badge directly on photo */}
-            <div className="absolute top-2.5 left-2.5 z-10 bg-brand-maroon/90 backdrop-blur-sm border border-brand-gold/60 text-brand-gold text-[10px] font-serif font-black px-2 py-0.5 rounded shadow flex items-center gap-1">
+            <div className="absolute top-2.5 left-2.5 z-10 bg-brand-maroon/90 backdrop-blur-sm border border-brand-gold/60 text-brand-gold text-[10px] font-sans font-black px-2 py-0.5 rounded shadow flex items-center gap-1">
               <span>🌸</span>
               <span>श्री इश्वटीची</span>
             </div>
@@ -113,7 +113,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             {/* Absolute Hover details */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
               <span className="text-[9px] text-brand-saffron uppercase font-mono tracking-widest">{item.category} • श्री इश्वटीची</span>
-              <h4 className="text-xs sm:text-sm font-serif font-black text-white mt-1">
+              <h4 className="text-xs sm:text-sm font-sans font-black text-white mt-1">
                 {lang === 'EN' ? item.title : item.titleMarathi}
               </h4>
               <div className="flex items-center justify-between text-[10px] text-gray-400 mt-2 border-t border-white/10 pt-2">
@@ -133,7 +133,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
 
       {/* Simulated Devotee Video Gallery Section */}
       <div className="border-t border-white/5 pt-8 space-y-4">
-        <div className="flex items-center gap-2 text-brand-gold font-serif font-bold text-lg">
+        <div className="flex items-center gap-2 text-brand-gold font-sans font-bold text-lg">
           <Video className="h-5 w-5 text-brand-saffron animate-pulse" />
           <span>{lang === 'EN' ? 'Shree Ishwatichi Holy Videos & Aarti Hymns' : 'श्री इश्वटीची भक्तीपर व्हिडिओ आणि महाआरती'}</span>
         </div>
@@ -212,7 +212,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           <div className="flex justify-between items-center bg-black/60 px-4 py-3 rounded-xl border border-white/10">
             <div className="text-left">
               <span className="text-[10px] text-brand-saffron uppercase font-mono font-bold block">{selectedItem.category}</span>
-              <h3 className="text-sm md:text-base font-serif font-semibold truncate max-w-xs sm:max-w-md">
+              <h3 className="text-sm md:text-base font-sans font-semibold truncate max-w-xs sm:max-w-md">
                 {lang === 'EN' ? selectedItem.title : selectedItem.titleMarathi}
               </h3>
             </div>
@@ -283,7 +283,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                 style={{ transform: `scale(${zoomLevel})` }}
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute bottom-3 bg-brand-maroon/90 backdrop-blur-md border border-brand-gold/60 px-4 py-1 rounded-full text-brand-gold text-xs font-serif font-black shadow-xl pointer-events-none select-none">
+              <div className="absolute bottom-3 bg-brand-maroon/90 backdrop-blur-md border border-brand-gold/60 px-4 py-1 rounded-full text-brand-gold text-xs font-sans font-black shadow-xl pointer-events-none select-none">
                 || श्री इश्वटीची माता प्रसन्न ||
               </div>
             </div>

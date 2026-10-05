@@ -50,13 +50,13 @@ export const SocialWorkSection: React.FC<SocialWorkSectionProps> = ({ lang }) =>
         <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-wider bg-brand-gold/10 px-3 py-1 rounded-full border border-brand-gold/30">
           🤝 Devotion in Action
         </span>
-        <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
-          {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Social Activities' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ: सामाजिक सेवा आणि लोककल्याणकारी कार्ये'}
+        <h2 className="text-2xl md:text-4xl font-sans font-black text-white">
+          {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Social Activities' : 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ: सामाजिक सेवा आणि लोककल्याणकारी कार्ये'}
         </h2>
         <p className="text-xs text-gray-300">
           {lang === 'EN' 
             ? 'Translating spiritual faith directly into human service. We stand devoted to health, green forests, and quality school resources.' 
-            : 'श्री ईश्वटीची मातेच्या भक्तीचे संचित समाजोपयोगी सेवेत परावर्तित करतो. शिक्षण, आरोग्य आणि पर्यावरण कार्यात आमचे योगदान.'}
+            : 'श्री इश्वटीची मातेच्या भक्तीचे संचित समाजोपयोगी सेवेत परावर्तित करतो. शिक्षण, आरोग्य आणि पर्यावरण कार्यात आमचे योगदान.'}
         </p>
       </div>
 
@@ -94,7 +94,7 @@ export const SocialWorkSection: React.FC<SocialWorkSectionProps> = ({ lang }) =>
             {/* Content card details */}
             <div className="sm:col-span-8 p-5 flex flex-col justify-between space-y-3">
               <div className="space-y-1.5">
-                <h4 className="text-sm font-serif font-black text-brand-gold tracking-wide">
+                <h4 className="text-sm font-sans font-black text-brand-gold tracking-wide">
                   {act.title}
                 </h4>
                 <p className="text-xs text-gray-300 leading-relaxed font-sans">

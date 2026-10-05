@@ -48,7 +48,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
         <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-wider bg-brand-gold/10 px-3 py-1 rounded-full border border-brand-gold/30">
           📍 Address & Location
         </span>
-        <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
+        <h2 className="text-2xl md:text-4xl font-sans font-black text-white">
           {lang === 'EN' ? 'Contact Shree Young Ishwati Navratrotsav Mandal' : 'श्री यंग इश्वटी नवरात्रौत्सव मंडळाशी संपर्क साधा'}
         </h2>
         <p className="text-xs text-gray-300">
@@ -60,7 +60,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
         
         {/* Contact Form Left span 7 */}
         <div className="lg:col-span-7 bg-black/40 border border-brand-gold/15 p-5 md:p-8 rounded-xl space-y-4">
-          <div className="flex items-center gap-2 text-brand-gold font-serif font-bold text-base border-b border-white/5 pb-2">
+          <div className="flex items-center gap-2 text-brand-gold font-sans font-bold text-base border-b border-white/5 pb-2">
             <Send className="h-4.5 w-4.5 text-brand-saffron animate-pulse" />
             <span>{lang === 'EN' ? 'Send Devotional Query Message' : 'थेट चौकशी संदेश पाठवा'}</span>
           </div>
@@ -122,7 +122,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
 
               <button
                 type="submit"
-                className="w-full py-2.5 bg-brand-gold text-brand-maroon font-serif font-black text-xs rounded-lg hover:opacity-95 cursor-pointer shadow"
+                className="w-full py-2.5 bg-brand-gold text-brand-maroon font-sans font-black text-xs rounded-lg hover:opacity-95 cursor-pointer shadow"
               >
                 🚀 {lang === 'EN' ? 'Transmit Sacred Enquiry' : 'संदेश मंडळाकडे सुपूर्द करा'}
               </button>
@@ -141,7 +141,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
                   setSubmitted(false);
                   setFormData({ name: '', mobile: '', email: '', message: '' });
                 }}
-                className="px-4 py-1.5 bg-white/10 hover:bg-white/15 rounded text-xs text-white cursor-pointer font-serif font-bold"
+                className="px-4 py-1.5 bg-white/10 hover:bg-white/15 rounded text-xs text-white cursor-pointer font-sans font-bold"
               >
                 Send Another Message
               </button>
@@ -153,7 +153,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
         <div className="lg:col-span-5 bg-gradient-to-b from-brand-maroon/40 to-black/60 border border-brand-gold/15 p-5 md:p-6 rounded-xl flex flex-col justify-between space-y-6">
           <div className="space-y-4 text-xs font-sans">
             
-            <div className="flex items-center gap-2 text-brand-gold font-serif font-black">
+            <div className="flex items-center gap-2 text-brand-gold font-sans font-black">
               <MapPin className="h-5 w-5 text-brand-saffron" />
               <span>Temple Office Coordinates</span>
             </div>
@@ -222,7 +222,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
               <span className="text-gray-400 italic">Dombivli Sector-4 Map</span>
               <button 
                 onClick={() => alert('Launching GPS routing simulation on coordinates 19.2182, 73.0864!')}
-                className="bg-brand-gold text-brand-maroon px-2 py-0.5 rounded font-bold font-serif flex items-center gap-0.5 cursor-pointer"
+                className="bg-brand-gold text-brand-maroon px-2 py-0.5 rounded font-bold font-sans flex items-center gap-0.5 cursor-pointer"
               >
                 <Navigation className="h-2.5 w-2.5" />
                 <span>Get Routes</span>

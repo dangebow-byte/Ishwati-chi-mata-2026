@@ -124,7 +124,7 @@ export const DigitalSevaSection: React.FC<DigitalSevaSectionProps> = ({ lang, on
         <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-widest bg-brand-gold/10 px-3 py-1 rounded-full border border-brand-gold/30">
           ✨ Digital Seva Portals
         </span>
-        <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
+        <h2 className="text-2xl md:text-4xl font-sans font-black text-white">
           {lang === 'EN' ? 'Online Devotional Services' : 'ऑनलाइन डिजिटल सेवा दालन'}
         </h2>
         <p className="text-xs text-gray-300">
@@ -146,7 +146,7 @@ export const DigitalSevaSection: React.FC<DigitalSevaSectionProps> = ({ lang, on
                 handleTypeSelect(key as any);
                 setConfirmedBooking(null);
               }}
-              className={`py-2.5 sm:py-3 px-2 rounded-xl text-xs font-bold font-serif transition-all flex flex-col items-center gap-1.5 cursor-pointer border ${
+              className={`py-2.5 sm:py-3 px-2 rounded-xl text-xs font-bold font-sans transition-all flex flex-col items-center gap-1.5 cursor-pointer border ${
                 isLastOnMobile ? 'col-span-2 sm:col-span-1' : ''
               } ${
                 isSelected
@@ -172,7 +172,7 @@ export const DigitalSevaSection: React.FC<DigitalSevaSectionProps> = ({ lang, on
           
           {/* Seva Form Box (Left) */}
           <form onSubmit={handleSubmit} className="lg:col-span-7 bg-black/40 border border-brand-gold/15 rounded-xl p-5 md:p-8 space-y-4">
-            <div className="flex items-center gap-2 text-brand-saffron font-serif font-bold text-lg border-b border-white/5 pb-2">
+            <div className="flex items-center gap-2 text-brand-saffron font-sans font-bold text-lg border-b border-white/5 pb-2">
               <span>{sevaDetails[sevaType].title}</span>
             </div>
 
@@ -280,7 +280,7 @@ export const DigitalSevaSection: React.FC<DigitalSevaSectionProps> = ({ lang, on
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-brand-red via-brand-saffron to-brand-gold text-brand-maroon font-bold font-serif py-3 rounded-xl hover:opacity-90 active:scale-[0.99] transition-all cursor-pointer shadow-lg outline-none text-sm "
+              className="w-full bg-gradient-to-r from-brand-red via-brand-saffron to-brand-gold text-brand-maroon font-bold font-sans py-3 rounded-xl hover:opacity-90 active:scale-[0.99] transition-all cursor-pointer shadow-lg outline-none text-sm "
             >
               🕌 {lang === 'EN' ? 'Register Digital Seva Slot' : 'डिजिटल सेवा स्वनिर्णय नोंदणी करा'}
             </button>
@@ -289,7 +289,7 @@ export const DigitalSevaSection: React.FC<DigitalSevaSectionProps> = ({ lang, on
           {/* Guidelines block (Right) */}
           <div className="lg:col-span-5 bg-gradient-to-b from-brand-maroon/40 to-black/60 border border-brand-gold/15 rounded-xl p-5 md:p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-brand-gold font-serif font-black">
+              <div className="flex items-center gap-2 text-brand-gold font-sans font-black">
                 <ShieldCheck className="h-5 w-5 text-brand-saffron" />
                 <span>{lang === 'EN' ? 'Devout Guidelines' : 'महत्त्वाचे नियम व अटी'}</span>
               </div>
@@ -333,7 +333,7 @@ export const DigitalSevaSection: React.FC<DigitalSevaSectionProps> = ({ lang, on
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-2xl font-serif font-black text-brand-gold">
+            <h3 className="text-2xl font-sans font-black text-brand-gold">
               {lang === 'EN' ? 'Seva Successfully Registered!' : 'सेवा नाव नोंदणी यशस्वी!'}
             </h3>
             <p className="text-xs text-brand-saffron font-mono tracking-widest uppercase">
@@ -373,13 +373,13 @@ export const DigitalSevaSection: React.FC<DigitalSevaSectionProps> = ({ lang, on
           <div className="flex gap-2">
             <button
               onClick={() => setConfirmedBooking(null)}
-              className="flex-1 bg-white/10 hover:bg-white/15 px-4 py-2.5 rounded-lg text-xs font-bold font-serif cursor-pointer"
+              className="flex-1 bg-white/10 hover:bg-white/15 px-4 py-2.5 rounded-lg text-xs font-bold font-sans cursor-pointer"
             >
               ← {lang === 'EN' ? 'Book Another Seva' : 'इतर सेवा बुक करा'}
             </button>
             <button
               onClick={() => window.print()}
-              className="flex-1 bg-brand-gold text-brand-maroon hover:opacity-95 px-4 py-2.5 rounded-lg text-xs font-bold font-serif cursor-pointer"
+              className="flex-1 bg-brand-gold text-brand-maroon hover:opacity-95 px-4 py-2.5 rounded-lg text-xs font-bold font-sans cursor-pointer"
             >
               🖨️ {lang === 'EN' ? 'Print Confirmation' : 'पावती प्रिंट करा'}
             </button>

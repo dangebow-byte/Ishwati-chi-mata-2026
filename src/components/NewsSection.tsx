@@ -43,11 +43,11 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ lang, announcements })
           <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-wider block mb-1">
             📢 Bulletins & updates
           </span>
-          <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
+          <h2 className="text-2xl md:text-4xl font-sans font-black text-white">
             {lang === 'EN' ? 'Official News & Holy Notices' : 'अधिकृत घोषणा व ताज्या घडामोडी'}
           </h2>
           <p className="text-xs text-gray-300 mt-1">
-            {lang === 'EN' ? 'Stay connected to official circulars issued by Shree Young Ishwati Navratrotsav Mandal Trustees.' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळाने घेतलेले महत्त्वपूर्ण निर्णय, प्रसिद्धीपत्रके व महत्त्वाच्या धार्मिक नियमांची एकत्रित माहिती.'}
+            {lang === 'EN' ? 'Stay connected to official circulars issued by Shree Young Ishwati Navratrotsav Mandal Trustees.' : 'श्री यंग इश्वटी नवरात्रौत्सव मंडळाने घेतलेले महत्त्वपूर्ण निर्णय, प्रसिद्धीपत्रके व महत्त्वाच्या धार्मिक नियमांची एकत्रित माहिती.'}
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ lang, announcements })
               onClick={() => setCategory(cat)}
               className={`px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
                 category === cat
-                  ? 'bg-brand-saffron text-brand-maroon font-serif text-xs font-black'
+                  ? 'bg-brand-saffron text-brand-maroon font-sans text-xs font-black'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -127,7 +127,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ lang, announcements })
                 </span>
                 <span className="text-[10px] text-gray-500 font-mono">{item.date}</span>
               </div>
-              <h3 className="text-sm md:text-base font-serif font-bold text-white tracking-wide">
+              <h3 className="text-sm md:text-base font-sans font-bold text-white tracking-wide">
                 {lang === 'EN' ? item.title : item.titleMarathi}
               </h3>
               <p className="text-gray-300 leading-relaxed pt-1 text-xs">

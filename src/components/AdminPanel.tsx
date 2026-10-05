@@ -147,7 +147,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       <div className="max-w-md mx-auto bg-gradient-to-b from-brand-maroon/60 to-black p-6 md:p-8 rounded-xl border border-brand-gold/35 text-center space-y-6 font-sans shadow-2xl">
         <Lock className="h-12 w-12 text-brand-gold mx-auto animate-pulse" />
         <div className="space-y-1">
-          <h3 className="text-xl font-serif font-black text-white">Administrator Secure Station</h3>
+          <h3 className="text-xl font-sans font-black text-white">Administrator Secure Station</h3>
           <p className="text-xs text-gray-400">
             {lang === 'EN' ? 'Enter the security PIN to access the Temple Control Center.' : 'मुख्य नियंत्रण कक्षेमध्ये प्रवेश मिळवण्यासाठी संकेत पासवर्ड टाका.'}
           </p>
@@ -164,7 +164,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           />
           <button
             type="submit"
-            className="w-full py-2.5 bg-brand-gold text-brand-maroon font-serif font-bold text-xs rounded-lg hover:opacity-95 cursor-pointer shadow"
+            className="w-full py-2.5 bg-brand-gold text-brand-maroon font-sans font-bold text-xs rounded-lg hover:opacity-95 cursor-pointer shadow"
           >
             Authorize Access
           </button>
@@ -186,7 +186,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-wider block">
             ⚙️ Control panel
           </span>
-          <h2 className="text-2xl font-serif font-black text-white">
+          <h2 className="text-2xl font-sans font-black text-white">
             Temple Board Executive Desk
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">
@@ -389,7 +389,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
           {/* SVG Bar Chart representing donation values across categorised groups */}
           <div className="bg-black/40 border border-brand-gold/15 rounded-xl p-5 md:p-6 space-y-4">
-            <h3 className="text-sm font-serif font-bold text-white tracking-wide">
+            <h3 className="text-sm font-sans font-bold text-white tracking-wide">
               📊 Funds Distribution Allocation Chart
             </h3>
 
@@ -441,7 +441,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       {/* Publish Announcements tab */}
       {activeTab === 'announcements' && (
         <form onSubmit={handleCreateAnnouncement} className="space-y-4 text-xs max-w-xl bg-black/45 border border-white/5 p-6 rounded-xl shadow-lg">
-          <div className="flex items-center gap-1.5 text-xs text-brand-gold font-serif font-bold uppercase pb-1 border-b border-white/5">
+          <div className="flex items-center gap-1.5 text-xs text-brand-gold font-sans font-bold uppercase pb-1 border-b border-white/5">
             <PlusCircle className="h-4 w-4" />
             <span>Produce Fresh Notice Circular</span>
           </div>
@@ -475,7 +475,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <select
               value={annCategory}
               onChange={e => setAnnCategory(e.target.value as any)}
-              className="w-full bg-zinc-900 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:outline-none focus:border-brand-gold font-bold font-serif"
+              className="w-full bg-zinc-900 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:outline-none focus:border-brand-gold font-bold font-sans"
             >
               <option value="Notice">Notice</option>
               <option value="Festival">Festival Update</option>
@@ -510,7 +510,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
           <button
             type="submit"
-            className="w-full bg-brand-gold text-brand-maroon font-serif font-bold py-2.5 rounded-lg hover:opacity-90 cursor-pointer shadow text-xs"
+            className="w-full bg-brand-gold text-brand-maroon font-sans font-bold py-2.5 rounded-lg hover:opacity-90 cursor-pointer shadow text-xs"
           >
             Publish New Announcement Circular
           </button>
@@ -530,7 +530,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <div className="bg-black/40 border border-brand-gold/15 p-6 rounded-xl space-y-4">
               <div className="flex items-center gap-2 text-brand-gold border-b border-white/5 pb-2">
                 <span className="text-xl">📺</span>
-                <h3 className="text-sm font-serif font-bold uppercase tracking-wider">Configure Hero Welcome Area</h3>
+                <h3 className="text-sm font-sans font-bold uppercase tracking-wider">Configure Hero Welcome Area</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -607,7 +607,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     descEN: welcomeDescEN,
                     descMR: welcomeDescMR
                   })}
-                  className="px-6 py-2 bg-brand-gold hover:opacity-95 text-brand-maroon font-serif font-black rounded-lg cursor-pointer flex items-center gap-1.5 shadow"
+                  className="px-6 py-2 bg-brand-gold hover:opacity-95 text-brand-maroon font-sans font-black rounded-lg cursor-pointer flex items-center gap-1.5 shadow"
                 >
                   Save Welcome Hero CMS Changes
                 </button>
@@ -618,7 +618,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <div className="bg-black/40 border border-brand-gold/15 p-6 rounded-xl space-y-4">
               <div className="flex items-center gap-2 text-brand-gold border-b border-white/5 pb-2">
                 <span className="text-xl">📖</span>
-                <h3 className="text-sm font-serif font-bold uppercase tracking-wider">Configure About & Historical Narrative</h3>
+                <h3 className="text-sm font-sans font-bold uppercase tracking-wider">Configure About & Historical Narrative</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -711,7 +711,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     mission3_descEN: siteContent?.about?.mission3_descEN || 'Pledging 100% plastic-free festivals and organizing local sapling distribution drives.',
                     mission3_descMR: siteContent?.about?.mission3_descMR || 'उत्सवात शंभर टक्के कचराविहीन व्यवस्था आणि वृक्षारोपण मोहिमेला गती देणे.'
                   })}
-                  className="px-6 py-2 bg-brand-gold hover:opacity-95 text-brand-maroon font-serif font-black rounded-lg cursor-pointer flex items-center gap-1.5 shadow"
+                  className="px-6 py-2 bg-brand-gold hover:opacity-95 text-brand-maroon font-sans font-black rounded-lg cursor-pointer flex items-center gap-1.5 shadow"
                 >
                   Save Historical Content CMS Changes
                 </button>
@@ -722,7 +722,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <div className="bg-black/40 border border-brand-gold/15 p-6 rounded-xl space-y-4">
               <div className="flex items-center gap-2 text-brand-gold border-b border-white/5 pb-2">
                 <span className="text-xl">📍</span>
-                <h3 className="text-sm font-serif font-bold uppercase tracking-wider">Configure Office Addresses, Hotlines & Emails</h3>
+                <h3 className="text-sm font-sans font-bold uppercase tracking-wider">Configure Office Addresses, Hotlines & Emails</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -778,7 +778,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     hoursEN: siteContent?.contact?.hoursEN || '05:00 AM - 10:00 PM Daily',
                     hoursMR: siteContent?.contact?.hoursMR || 'दररोज सकाळी ०५:०० ते रात्री १०:००'
                   })}
-                  className="px-6 py-2 bg-brand-gold hover:opacity-95 text-brand-maroon font-serif font-black rounded-lg cursor-pointer flex items-center gap-1.5 shadow"
+                  className="px-6 py-2 bg-brand-gold hover:opacity-95 text-brand-maroon font-sans font-black rounded-lg cursor-pointer flex items-center gap-1.5 shadow"
                 >
                   Save Office Contact Details CMS Changes
                 </button>

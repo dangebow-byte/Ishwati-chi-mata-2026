@@ -59,7 +59,7 @@ export const DevoteeExperiencesSection: React.FC<DevoteeExperiencesSectionProps>
         <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-wider bg-brand-gold/10 px-3 py-1 rounded-full border border-brand-gold/30">
           🌸 Holy Testimonials
         </span>
-        <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
+        <h2 className="text-2xl md:text-4xl font-sans font-black text-white">
           {lang === 'EN' ? 'Devotee Miracle Experiences' : 'भाविकांचे दैवी आलेले प्रचिती अनुभव'}
         </h2>
         <p className="text-xs text-gray-300">
@@ -74,7 +74,7 @@ export const DevoteeExperiencesSection: React.FC<DevoteeExperiencesSectionProps>
         {/* Approved Testimonial Carousel/List Cards (Left span 7) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between border-b border-white/5 pb-2">
-            <span className="text-sm font-bold text-brand-gold font-serif">
+            <span className="text-sm font-bold text-brand-gold font-sans">
               🛡️ {lang === 'EN' ? 'Verified Miracle Tales' : 'प्रमाणित सत्य अनुभव'}
             </span>
             <span className="text-xs text-gray-400 font-mono">
@@ -124,7 +124,7 @@ export const DevoteeExperiencesSection: React.FC<DevoteeExperiencesSectionProps>
           {!tempSubmitted ? (
             <form onSubmit={handleSubmit} className="bg-gradient-to-b from-brand-maroon/60 to-black/80 border border-brand-gold/25 p-5 md:p-6 rounded-xl space-y-4 shadow-2xl">
               
-              <div className="flex items-center gap-2 text-brand-gold font-serif font-bold text-base border-b border-white/5 pb-2">
+              <div className="flex items-center gap-2 text-brand-gold font-sans font-bold text-base border-b border-white/5 pb-2">
                 <MessageSquareCode className="h-5 w-5 text-brand-saffron animate-pulse" />
                 <span>{lang === 'EN' ? 'Share Your Miracle Story' : 'तुम्हाला आलेला अनुभव लिहा'}</span>
               </div>
@@ -200,7 +200,7 @@ export const DevoteeExperiencesSection: React.FC<DevoteeExperiencesSectionProps>
 
               <button
                 type="submit"
-                className="w-full py-2.5 bg-brand-gold text-brand-maroon font-bold font-serif text-xs rounded-lg hover:opacity-95 active:scale-[0.99] transition-all cursor-pointer shadow"
+                className="w-full py-2.5 bg-brand-gold text-brand-maroon font-bold font-sans text-xs rounded-lg hover:opacity-95 active:scale-[0.99] transition-all cursor-pointer shadow"
               >
                 ✍️ {lang === 'EN' ? 'Submit to Temple Review Board' : 'मंडळाच्या स्वीकृत समितीकडे पाठवा'}
               </button>
@@ -209,7 +209,7 @@ export const DevoteeExperiencesSection: React.FC<DevoteeExperiencesSectionProps>
             /* Submitted review status block */
             <div className="bg-gradient-to-br from-brand-maroon/50 to-black border-2 border-brand-gold/40 p-6 rounded-xl space-y-4 text-center">
               <ShieldCheck className="h-10 w-10 text-brand-gold mx-auto animate-bounce" />
-              <h4 className="text-lg font-serif font-black text-white">
+              <h4 className="text-lg font-sans font-black text-white">
                 {lang === 'EN' ? 'Experience Under Review!' : 'अनुभव पडताळणी प्रक्रियेत आहे!'}
               </h4>
               <p className="text-xs text-gray-300 leading-relaxed font-sans">
@@ -224,7 +224,7 @@ export const DevoteeExperiencesSection: React.FC<DevoteeExperiencesSectionProps>
 
               <button
                 onClick={() => setTempSubmitted(false)}
-                className="w-full py-2 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-bold cursor-pointer font-serif"
+                className="w-full py-2 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-bold cursor-pointer font-sans"
               >
                 Write Another Story
               </button>

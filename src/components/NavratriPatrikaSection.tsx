@@ -77,20 +77,20 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
         {/* Sacred Trishul & Devasthan Invocation */}
         <div className="flex items-center justify-center gap-3">
           <span className="text-xl sm:text-2xl text-brand-gold animate-pulse">🔱</span>
-          <span className="font-serif font-black text-brand-gold text-base sm:text-xl tracking-widest drop-shadow-[0_0_12px_rgba(212,175,55,0.7)]">
-            ॥ श्री ईश्वटीची माता ॥
+          <span className="font-sans font-black text-brand-gold text-base sm:text-xl tracking-widest drop-shadow-[0_0_12px_rgba(212,175,55,0.7)]">
+            ॥ श्री इश्वटीची माता ॥
           </span>
           <span className="text-xl sm:text-2xl text-brand-gold animate-pulse">🔱</span>
         </div>
 
         {/* Official Mandal Title */}
         <div className="space-y-1">
-          <h2 className="font-serif font-black text-2xl sm:text-4xl lg:text-5xl text-white tracking-wide drop-shadow-md">
+          <h2 className="font-sans font-black text-2xl sm:text-4xl lg:text-5xl text-white tracking-wide drop-shadow-md">
             {lang === 'EN' ? MANDAL_PATRIKA_METADATA.mandalNameEn : MANDAL_PATRIKA_METADATA.mandalNameMr}
           </h2>
           <p className="text-xs sm:text-sm text-gray-300 font-sans tracking-wide">
             {lang === 'EN' ? MANDAL_PATRIKA_METADATA.regNumberEn : MANDAL_PATRIKA_METADATA.regNumberMr} •{' '}
-            <strong className="text-brand-saffron font-serif font-bold">
+            <strong className="text-brand-saffron font-sans font-bold">
               {lang === 'EN' ? MANDAL_PATRIKA_METADATA.yearLabelEn : MANDAL_PATRIKA_METADATA.yearLabelMr}
             </strong>
           </p>
@@ -100,14 +100,14 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
         <div className="pt-2 flex justify-center">
           <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-gradient-to-r from-brand-maroon via-red-950 to-brand-maroon border-2 border-brand-gold shadow-[0_0_20px_rgba(212,175,55,0.5)]">
             <span className="text-lg">🪔</span>
-            <h3 className="font-serif font-black text-base sm:text-2xl text-brand-gold uppercase tracking-wider">
+            <h3 className="font-sans font-black text-base sm:text-2xl text-brand-gold uppercase tracking-wider">
               {lang === 'EN' ? MANDAL_PATRIKA_METADATA.titleEn : MANDAL_PATRIKA_METADATA.titleMr}
             </h3>
             <span className="text-lg">🪔</span>
           </div>
         </div>
 
-        <p className="text-xs sm:text-sm text-brand-saffron font-medium max-w-3xl mx-auto pt-1 font-serif">
+        <p className="text-xs sm:text-sm text-brand-saffron font-medium max-w-3xl mx-auto pt-1 font-sans">
           {lang === 'EN'
             ? 'Official 9-Day Festival Calendar for Shardiya Navratri 2026 • 11 October to 25 October 2026'
             : 'शारदीय नवरात्रौत्सव २०२६ चे अधिकृत ९ दिवसांचे सविस्तर व पावन कार्यक्रम वेळापत्रक • ११ ऑक्टोबर ते २५ ऑक्टोबर २०२६'}
@@ -185,7 +185,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
             
             <button
               onClick={handlePrint}
-              className="px-3.5 py-1.5 rounded-xl bg-brand-maroon hover:bg-brand-red text-brand-gold border border-brand-gold/40 flex items-center gap-1.5 font-serif font-bold text-xs shadow transition-all cursor-pointer shrink-0 active:scale-95"
+              className="px-3.5 py-1.5 rounded-xl bg-brand-maroon hover:bg-brand-red text-brand-gold border border-brand-gold/40 flex items-center gap-1.5 font-sans font-bold text-xs shadow transition-all cursor-pointer shrink-0 active:scale-95"
               title={lang === 'EN' ? 'Print or Save Patrika' : 'पत्रिका प्रिंट करा / सेव्ह करा'}
             >
               <Printer className="h-3.5 w-3.5" />
@@ -202,7 +202,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
         <table className="w-full text-left border-collapse min-w-[760px]">
           
           {/* Table Header */}
-          <thead className="bg-[#380202] text-brand-gold border-b-2 border-brand-gold/50 font-serif text-sm uppercase tracking-wider">
+          <thead className="bg-[#380202] text-brand-gold border-b-2 border-brand-gold/50 font-sans text-sm uppercase tracking-wider">
             <tr>
               <th className="py-3.5 px-4 w-[14%] border-r border-white/10 text-center font-black">
                 {lang === 'EN' ? 'Day (वार)' : 'वार'}
@@ -237,7 +237,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                 <tr key={day.id} className={rowClass}>
                   
                   {/* Column 1: Day */}
-                  <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-serif">
+                  <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-sans">
                     <span className="font-bold text-sm text-white block">
                       {lang === 'EN' ? day.dayNameEn : day.dayNameMr}
                     </span>
@@ -247,7 +247,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                   </td>
 
                   {/* Column 2: Date */}
-                  <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-serif">
+                  <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-sans">
                     <span className="text-sm font-bold text-brand-saffron block">
                       {lang === 'EN' ? day.dateStrEn : day.dateStrMr}
                     </span>
@@ -262,7 +262,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                   </td>
 
                   {/* Column 3: Time */}
-                  <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-serif">
+                  <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-sans">
                     {day.events.length > 1 ? (
                       <div className="space-y-1.5">
                         {day.events.map((evt, eIdx) => (
@@ -281,7 +281,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                   </td>
 
                   {/* Column 4: Program Details */}
-                  <td className="py-3.5 px-5 align-middle font-serif">
+                  <td className="py-3.5 px-5 align-middle font-sans">
                     <div className="space-y-2">
                       {day.events.map((evt, eIdx) => (
                         <div key={eIdx} className="flex items-start gap-2">
@@ -323,14 +323,14 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
               {/* Card Header: Day, Date, Tag */}
               <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="h-7 w-7 rounded-full bg-brand-gold/15 text-brand-gold border border-brand-gold/40 flex items-center justify-center font-serif font-black text-xs">
+                  <span className="h-7 w-7 rounded-full bg-brand-gold/15 text-brand-gold border border-brand-gold/40 flex items-center justify-center font-sans font-black text-xs">
                     {day.dayIndex}
                   </span>
                   <div>
-                    <h4 className="font-serif font-bold text-white text-sm">
+                    <h4 className="font-sans font-bold text-white text-sm">
                       {lang === 'EN' ? day.dayNameEn : day.dayNameMr}
                     </h4>
-                    <span className="text-[11px] font-serif font-medium text-brand-saffron block">
+                    <span className="text-[11px] font-sans font-medium text-brand-saffron block">
                       {lang === 'EN' ? day.dateStrEn : day.dateStrMr}
                     </span>
                   </div>
@@ -349,7 +349,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
               </div>
 
               {/* Events in Day */}
-              <div className="space-y-2.5 font-serif pt-0.5">
+              <div className="space-y-2.5 font-sans pt-0.5">
                 {day.events.map((evt, eIdx) => (
                   <div key={eIdx} className="bg-brand-maroon/20 p-2.5 rounded-xl border border-brand-gold/15 space-y-1">
                     <div className="flex items-center gap-1.5 text-[11px] font-mono text-brand-gold font-bold">
@@ -371,7 +371,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
       </div>
 
       {/* Special Notice Banner (विशेष सूचना) from Physical Patrika */}
-      <div className="mt-6 p-4 rounded-2xl bg-gradient-to-r from-brand-maroon/80 via-black to-brand-maroon/80 border-2 border-brand-gold/40 shadow-xl space-y-1.5 text-center font-serif">
+      <div className="mt-6 p-4 rounded-2xl bg-gradient-to-r from-brand-maroon/80 via-black to-brand-maroon/80 border-2 border-brand-gold/40 shadow-xl space-y-1.5 text-center font-sans">
         <h4 className="font-bold text-brand-gold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2">
           <span>🔔</span>
           <span>{lang === 'EN' ? 'Mandatory Guidelines & Special Notice' : 'विशेष सूचना'}</span>
@@ -383,7 +383,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
       </div>
 
       {/* Executive Committee Officers Desk (कार्यकारी मंडळ) */}
-      <div className="mt-6 pt-5 border-t border-brand-gold/25 font-serif">
+      <div className="mt-6 pt-5 border-t border-brand-gold/25 font-sans">
         <h5 className="text-xs text-brand-gold uppercase tracking-widest text-center font-bold mb-4">
           ॥ {lang === 'EN' ? 'Executive Committee Officers' : 'कार्यकारी मंडळ पदाधिकारी'} ॥
         </h5>

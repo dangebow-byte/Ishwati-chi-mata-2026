@@ -60,7 +60,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
           <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-wider block mb-1">
             🔥 Spiritual Hub
           </span>
-          <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
+          <h2 className="text-2xl md:text-4xl font-sans font-black text-white">
             {lang === 'EN' ? 'Devotee Personalized Sanctuary' : 'वैयक्तिक भक्ती केंद्र प्रोफाइल'}
           </h2>
           <p className="text-xs text-gray-300 mt-1">
@@ -73,7 +73,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
         {/* Daily Claim Action Spot */}
         <button
           onClick={onClaimDaily}
-          className="bg-gradient-to-r from-brand-saffron via-brand-gold to-brand-saffron text-brand-maroon font-serif font-black text-xs px-5 py-3 rounded-xl hover:scale-105 transition-all shadow-md active:scale-95 cursor-pointer outline-none flex items-center gap-1.5"
+          className="bg-gradient-to-r from-brand-saffron via-brand-gold to-brand-saffron text-brand-maroon font-sans font-black text-xs px-5 py-3 rounded-xl hover:scale-105 transition-all shadow-md active:scale-95 cursor-pointer outline-none flex items-center gap-1.5"
         >
           <Flame className="h-4 w-4 animate-bounce text-brand-red" />
           <span>{lang === 'EN' ? 'Claim Daily Darshan Check-in' : 'दैनिक भक्ती गुण आवडीने नोंदवा'}</span>
@@ -85,7 +85,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
         {/* Profile Card & Input (Left span 5) */}
         <div className="lg:col-span-5 bg-black/40 border border-brand-gold/15 p-5 md:p-6 rounded-xl space-y-6">
           <div className="flex justify-between items-center border-b border-white/5 pb-2">
-            <h3 className="text-base font-serif font-bold text-brand-gold">
+            <h3 className="text-base font-sans font-bold text-brand-gold">
               {lang === 'EN' ? 'Sacred Devotee Profile' : 'भाविकाचे मूळ प्रोफाईल'}
             </h3>
             <button
@@ -102,7 +102,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
           {!editMode ? (
             <div className="space-y-4 text-xs font-sans">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-brand-red text-brand-gold border-2 border-brand-gold flex items-center justify-center text-xl font-bold font-serif shadow">
+                <div className="h-12 w-12 rounded-full bg-brand-red text-brand-gold border-2 border-brand-gold flex items-center justify-center text-xl font-bold font-sans shadow">
                   {profile.name ? profile.name.charAt(0).toUpperCase() : 'B'}
                 </div>
                 <div>
@@ -178,7 +178,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
 
               <button
                 type="submit"
-                className="w-full bg-brand-gold text-brand-maroon font-serif font-bold py-2 rounded-lg hover:opacity-90 cursor-pointer"
+                className="w-full bg-brand-gold text-brand-maroon font-sans font-bold py-2 rounded-lg hover:opacity-90 cursor-pointer"
               >
                 Save Profile Adjustments
               </button>
@@ -187,7 +187,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
 
           {/* Fitness Exporter Section as requested by prompt! ("export progress to external fitness apps") */}
           <div className="border-t border-white/5 pt-5 space-y-4">
-            <div className="flex items-center gap-1.5 text-xs text-brand-gold font-serif font-bold">
+            <div className="flex items-center gap-1.5 text-xs text-brand-gold font-sans font-bold">
               <Activity className="h-4 w-4 text-brand-saffron animate-pulse" />
               <span>{lang === 'EN' ? 'Pilgrimage Walking Sync' : 'प्रदक्षिणा अंतर सिंक इंजिन'}</span>
             </div>
@@ -226,7 +226,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
         {/* Milestones and claiming trophies (Right span 7) */}
         <div className="lg:col-span-7 bg-brand-maroon/20 border border-brand-gold/15 p-5 md:p-6 rounded-xl space-y-4 font-sans">
           <div className="border-b border-white/5 pb-2 flex justify-between items-center">
-            <h3 className="text-base font-serif font-bold text-white tracking-wide">
+            <h3 className="text-base font-sans font-bold text-white tracking-wide">
               🥇 {lang === 'EN' ? 'Spiritual Milestones & Badges' : 'भक्ती पुरस्कार व सुवर्ण पदके'}
             </h3>
             <span className="text-[10px] bg-brand-gold/15 text-brand-gold font-mono px-2 py-0.5 rounded">

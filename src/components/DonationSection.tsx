@@ -84,7 +84,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
           <span className="text-brand-gold text-xs font-mono font-bold uppercase tracking-wider block mb-1">
             💝 Sacred Charities
           </span>
-          <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
+          <h2 className="text-2xl md:text-4xl font-sans font-black text-white">
             {lang === 'EN' ? 'Online Donation Portals' : 'पवित्र देणगी व निधी संकलन दालन'}
           </h2>
           <p className="text-xs text-gray-300 mt-1">
@@ -93,7 +93,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
               : 'कलम ८०जी अंतर्गत अधिकृत आयकर वजावट. तुमच्या प्रत्येक थेंबाने समाजोपयोगी सेवा कार्यास गती मिळते.'}
           </p>
         </div>
-        <div className="bg-brand-gold/15 border-2 border-brand-gold py-1.5 px-4 rounded-full text-brand-gold font-serif font-black text-xs animate-pulse">
+        <div className="bg-brand-gold/15 border-2 border-brand-gold py-1.5 px-4 rounded-full text-brand-gold font-sans font-black text-xs animate-pulse">
           🏆 {lang === 'EN' ? '80G Tax Exemption Certified' : '८०जी आयकर करसवलत प्रमाणपत्र'}
         </div>
       </div>
@@ -103,7 +103,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
           
           {/* Fund Details Setup Left Column */}
           <div className="lg:col-span-8 bg-black/40 border border-brand-gold/15 rounded-xl p-5 md:p-8 space-y-5">
-            <div className="flex items-center gap-2 text-brand-saffron font-serif font-bold text-lg border-b border-white/5 pb-2">
+            <div className="flex items-center gap-2 text-brand-saffron font-sans font-bold text-lg border-b border-white/5 pb-2">
               <Heart className="h-5 w-5 text-red-500 animate-pulse" />
               <span>{lang === 'EN' ? 'Configure Devout Gift' : 'देणगी पर्याय निवडा'}</span>
             </div>
@@ -214,7 +214,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-brand-red via-brand-saffron to-brand-gold text-brand-maroon font-serif font-black py-3 rounded-xl hover:opacity-95 text-sm cursor-pointer shadow-lg outline-none"
+              className="w-full bg-gradient-to-r from-brand-red via-brand-saffron to-brand-gold text-brand-maroon font-sans font-black py-3 rounded-xl hover:opacity-95 text-sm cursor-pointer shadow-lg outline-none"
             >
               🤝 {lang === 'EN' ? `Proceed to Donate ₹${amount.toLocaleString()}` : `देणगी स्वीकारण्यासाठी पुढे जा - ₹${amount.toLocaleString()}`}
             </button>
@@ -223,7 +223,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
           {/* Secure Trust Callout Card on Right Column */}
           <div className="lg:col-span-4 bg-gradient-to-b from-brand-maroon/40 to-black/60 border border-brand-gold/15 rounded-xl p-5 md:p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-4 text-xs font-sans">
-              <div className="flex items-center gap-2 text-brand-gold font-serif font-black">
+              <div className="flex items-center gap-2 text-brand-gold font-sans font-black">
                 <Printer className="h-5 w-5 text-brand-saffron animate-bounce" />
                 <span>Exemption Clauses</span>
               </div>
@@ -260,7 +260,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
         <div className="max-w-xl mx-auto rounded-xl border-2 border-brand-gold bg-black p-6 space-y-6 font-sans">
           
           <div className="text-center space-y-1">
-            <h3 className="text-lg font-serif font-black text-white">Secure Divine Exchange Portal</h3>
+            <h3 className="text-lg font-sans font-black text-white">Secure Divine Exchange Portal</h3>
             <p className="text-xs text-brand-saffron font-bold">Amount: ₹ {amount.toLocaleString()}</p>
           </div>
 
@@ -379,13 +379,13 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
           <div className="flex gap-2">
             <button
               onClick={() => setCheckoutStep('form')}
-              className="flex-1 bg-white/10 hover:bg-white/15 py-3 rounded-lg text-xs font-bold font-serif cursor-pointer"
+              className="flex-1 bg-white/10 hover:bg-white/15 py-3 rounded-lg text-xs font-bold font-sans cursor-pointer"
             >
               Cancel Setup
             </button>
             <button
               onClick={handleConfirmPayment}
-              className="flex-1 bg-brand-gold text-brand-maroon hover:opacity-95 py-3 rounded-lg text-xs font-black font-serif cursor-pointer shadow"
+              className="flex-1 bg-brand-gold text-brand-maroon hover:opacity-95 py-3 rounded-lg text-xs font-black font-sans cursor-pointer shadow"
             >
               Confirm Simulated Payment
             </button>
@@ -407,13 +407,13 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
             {/* Receipt Header logo */}
             <div className="text-center space-y-2 relative border-b-2 border-brand-gold/60 pb-5">
               <SiteLogo size="md" className="mx-auto mb-2 drop-shadow-md" />
-              <span className="text-brand-red font-serif font-black text-lg sm:text-2xl tracking-wide uppercase block">
+              <span className="text-brand-red font-sans font-black text-lg sm:text-2xl tracking-wide uppercase block">
                 {lang === 'EN' ? 'Shree Ishwatichi Mata Charitable Devasthan Trust' : 'श्री इश्वटीची माता चॅरिटेबल देवस्थान ट्रस्ट'}
               </span>
               <span className="text-[9px] sm:text-[10px] text-gray-600 font-mono tracking-wider sm:tracking-widest uppercase block">
                 Govt Regd No: E-50125/MUMBAI • Section 80G Approval No: SEC80G/5482/2026
               </span>
-              <span className="bg-brand-red text-white text-[9px] sm:text-[10px] font-bold font-serif uppercase tracking-widest py-0.5 px-3 sm:px-4 rounded-full inline-block border border-brand-gold">
+              <span className="bg-brand-red text-white text-[9px] sm:text-[10px] font-bold font-sans uppercase tracking-widest py-0.5 px-3 sm:px-4 rounded-full inline-block border border-brand-gold">
                 OFFICIAL SACRED GIFT RECEIPT
               </span>
             </div>
@@ -457,7 +457,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
                 </div>
                 <div className="text-right space-y-1">
                   <span className="text-[9px] text-gray-400 uppercase block">Authorized Signatory</span>
-                  <span className="font-serif text-[11px] font-bold italic text-brand-maroon block">S. D. Deshmukh (Trustee Head)</span>
+                  <span className="font-sans text-[11px] font-bold italic text-brand-maroon block">S. D. Deshmukh (Trustee Head)</span>
                   <span className="text-[8px] text-gray-500 font-mono block">Executive Court of Trustees</span>
                 </div>
               </div>
@@ -474,13 +474,13 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
           <div className="flex gap-2">
             <button
               onClick={() => setCheckoutStep('form')}
-              className="flex-1 bg-white/10 hover:bg-white/15 px-4 py-3 rounded-lg text-xs font-bold font-serif cursor-pointer"
+              className="flex-1 bg-white/10 hover:bg-white/15 px-4 py-3 rounded-lg text-xs font-bold font-sans cursor-pointer"
             >
               ← Convert Another Gift
             </button>
             <button
               onClick={() => window.print()}
-              className="flex-1 bg-brand-gold text-brand-maroon hover:opacity-95 px-4 py-3 rounded-lg text-xs font-black font-serif cursor-pointer shadow flex items-center justify-center gap-2"
+              className="flex-1 bg-brand-gold text-brand-maroon hover:opacity-95 px-4 py-3 rounded-lg text-xs font-black font-sans cursor-pointer shadow flex items-center justify-center gap-2"
             >
               <Printer className="h-4 w-4" />
               <span>Print Tax Exemption PDF / 80G</span>

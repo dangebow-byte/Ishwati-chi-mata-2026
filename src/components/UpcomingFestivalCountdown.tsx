@@ -183,7 +183,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-gold"></span>
             </span>
 
-            <span className="text-xs sm:text-sm font-serif font-black uppercase tracking-wider text-brand-gold flex items-center gap-1.5 bg-brand-gold/15 px-3 py-1 rounded-full border border-brand-gold/40 shadow-sm">
+            <span className="text-xs sm:text-sm font-sans font-black uppercase tracking-wider text-brand-gold flex items-center gap-1.5 bg-brand-gold/15 px-3 py-1 rounded-full border border-brand-gold/40 shadow-sm">
               <Flame className="h-3.5 w-3.5 text-brand-saffron animate-bounce" />
               <span>{lang === 'EN' ? 'Upcoming Major Temple Festival' : 'आगामी प्रमुख पावन महोत्सव'}</span>
             </span>
@@ -227,14 +227,14 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
           <div className="col-span-1 lg:col-span-7 space-y-4 text-left">
             
             <div>
-              <h3 className="font-serif font-black text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white tracking-normal leading-tight drop-shadow-md">
+              <h3 className="font-sans font-black text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white tracking-normal leading-tight drop-shadow-md">
                 {lang === 'EN' ? currentFestival.title : currentFestival.titleMarathi}
               </h3>
               
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-2.5 text-xs sm:text-sm text-brand-saffron font-medium">
                 <span className="flex items-center gap-1.5 bg-black/40 px-2.5 py-1 rounded-lg border border-brand-gold/20">
                   <Calendar className="h-3.5 w-3.5 text-brand-gold" />
-                  <span className="font-serif text-white">{lang === 'EN' ? formattedDate.en : formattedDate.mr}</span>
+                  <span className="font-sans text-white">{lang === 'EN' ? formattedDate.en : formattedDate.mr}</span>
                 </span>
                 
                 {currentFestival.time && (
@@ -262,7 +262,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                 </strong>
               </div>
 
-              <span className="text-[11px] text-brand-gold/90 font-serif italic flex items-center gap-1">
+              <span className="text-[11px] text-brand-gold/90 font-sans italic flex items-center gap-1">
                 <span>🪔</span>
                 <span>{lang === 'EN' ? 'Free Mahaprasad Dining Included' : 'सर्व भाविकांसाठी महाप्रसाद भोजन व्यवस्था'}</span>
               </span>
@@ -272,7 +272,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={() => setIsRsvpModalOpen(true)}
-                className="px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-red to-red-700 hover:from-red-700 hover:to-brand-red text-white font-serif font-bold text-xs sm:text-sm border border-brand-gold/50 shadow-lg hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5"
+                className="px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-red to-red-700 hover:from-red-700 hover:to-brand-red text-white font-sans font-bold text-xs sm:text-sm border border-brand-gold/50 shadow-lg hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <span>✋</span>
                 <span>{lang === 'EN' ? 'Confirm Your Attendance' : 'उपस्थिती नोंदवा (RSVP)'}</span>
@@ -281,7 +281,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
               {onNavigateToSeva && (
                 <button
                   onClick={onNavigateToSeva}
-                  className="px-4 sm:px-5 py-2.5 rounded-xl bg-brand-maroon hover:bg-brand-maroon/80 text-brand-gold font-serif font-bold text-xs sm:text-sm border border-brand-gold/40 shadow hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-4 sm:px-5 py-2.5 rounded-xl bg-brand-maroon hover:bg-brand-maroon/80 text-brand-gold font-sans font-bold text-xs sm:text-sm border border-brand-gold/40 shadow hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <span>📿</span>
                   <span>{lang === 'EN' ? 'Pre-Book Special Seva' : 'विशेष पूजा व सेवा नोंदणी'}</span>
@@ -291,7 +291,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
               {onNavigateToEvents && (
                 <button
                   onClick={onNavigateToEvents}
-                  className="px-3.5 py-2.5 rounded-xl bg-black/40 hover:bg-black/70 text-gray-300 hover:text-white font-serif font-semibold text-xs border border-white/15 transition-all cursor-pointer flex items-center gap-1"
+                  className="px-3.5 py-2.5 rounded-xl bg-black/40 hover:bg-black/70 text-gray-300 hover:text-white font-sans font-semibold text-xs border border-white/15 transition-all cursor-pointer flex items-center gap-1"
                 >
                   <span>{lang === 'EN' ? 'All Events' : 'सर्व उत्सव'}</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -308,7 +308,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
               /* Live Celebration Banner when today is the festival */
               <div className="w-full bg-gradient-to-br from-red-950/90 via-brand-maroon to-black border-2 border-red-500/70 p-6 rounded-2xl text-center space-y-3 shadow-2xl animate-pulse">
                 <span className="text-4xl animate-bounce inline-block">🎉</span>
-                <h4 className="font-serif font-black text-xl sm:text-2xl text-brand-gold tracking-wide">
+                <h4 className="font-sans font-black text-xl sm:text-2xl text-brand-gold tracking-wide">
                   {lang === 'EN' ? 'FESTIVAL IS LIVE TODAY!' : 'पावन महोत्सव आज सुरू आहे!'}
                 </h4>
                 <p className="text-xs text-gray-200 font-sans leading-relaxed">
@@ -327,7 +327,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
               /* High-Impact 4-Digit Countdown Display */
               <div className="w-full bg-black/60 border-2 border-brand-gold/30 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3.5 text-center relative overflow-hidden">
                 
-                <div className="flex items-center justify-center gap-1.5 text-brand-saffron text-xs font-serif font-bold uppercase tracking-wider">
+                <div className="flex items-center justify-center gap-1.5 text-brand-saffron text-xs font-sans font-bold uppercase tracking-wider">
                   <Sparkles className="h-3.5 w-3.5 text-brand-gold animate-spin" />
                   <span>{lang === 'EN' ? 'Countdown to Auspicious Day' : 'महोत्सव शुभारंभ उलटी गणना'}</span>
                 </div>
@@ -340,7 +340,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                     <div className="font-mono text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_10px_rgba(212,175,55,0.4)]">
                       {String(countdown.days).padStart(2, '0')}
                     </div>
-                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-serif font-bold text-brand-gold mt-1 uppercase tracking-wider">
+                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-sans font-bold text-brand-gold mt-1 uppercase tracking-wider">
                       {lang === 'EN' ? 'Days' : 'दिवस'}
                     </div>
                   </div>
@@ -350,7 +350,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                     <div className="font-mono text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_10px_rgba(212,175,55,0.4)]">
                       {String(countdown.hours).padStart(2, '0')}
                     </div>
-                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-serif font-bold text-brand-gold mt-1 uppercase tracking-wider">
+                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-sans font-bold text-brand-gold mt-1 uppercase tracking-wider">
                       {lang === 'EN' ? 'Hours' : 'तास'}
                     </div>
                   </div>
@@ -360,7 +360,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                     <div className="font-mono text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_10px_rgba(212,175,55,0.4)]">
                       {String(countdown.minutes).padStart(2, '0')}
                     </div>
-                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-serif font-bold text-brand-gold mt-1 uppercase tracking-wider">
+                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-sans font-bold text-brand-gold mt-1 uppercase tracking-wider">
                       {lang === 'EN' ? 'Mins' : 'मिनिटे'}
                     </div>
                   </div>
@@ -370,7 +370,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                     <div className="font-mono text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black text-brand-saffron animate-pulse drop-shadow-[0_2px_10px_rgba(255,153,51,0.6)]">
                       {String(countdown.seconds).padStart(2, '0')}
                     </div>
-                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-serif font-bold text-brand-saffron mt-1 uppercase tracking-wider">
+                    <div className="text-[9px] xs:text-[10px] sm:text-xs font-sans font-bold text-brand-saffron mt-1 uppercase tracking-wider">
                       {lang === 'EN' ? 'Secs' : 'सेकंद'}
                     </div>
                   </div>
@@ -404,7 +404,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
             <div className="flex items-center justify-between border-b border-brand-gold/20 pb-3">
               <div className="flex items-center gap-2">
                 <span className="text-xl">✋</span>
-                <h4 className="font-serif font-black text-lg text-brand-gold">
+                <h4 className="font-sans font-black text-lg text-brand-gold">
                   {lang === 'EN' ? 'Festival Attendance Registration' : 'महोत्सव उपस्थिती नोंदणी'}
                 </h4>
               </div>
@@ -419,13 +419,13 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
             {rsvpSuccess ? (
               <div className="text-center py-6 space-y-3">
                 <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto animate-bounce" />
-                <h5 className="font-serif font-bold text-lg text-white">
+                <h5 className="font-sans font-bold text-lg text-white">
                   {lang === 'EN' ? 'Attendance Confirmed! 🙏' : 'उपस्थिती यशस्वी नोंदली गेली! 🙏'}
                 </h5>
                 <p className="text-xs text-gray-300">
                   {lang === 'EN'
                     ? 'Thank you for registering. May Shree Ishwatichi Mata bless you and your family.'
-                    : 'नोंदणी केल्याबद्दल धन्यवाद. श्री ईश्वटीची मातेची कृपा आपल्यावर सदैव राहो.'}
+                    : 'नोंदणी केल्याबद्दल धन्यवाद. श्री इश्वटीची मातेची कृपा आपल्यावर सदैव राहो.'}
                 </p>
               </div>
             ) : (
@@ -437,7 +437,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                 </p>
 
                 <div>
-                  <label className="block text-xs font-serif font-bold text-brand-gold mb-1">
+                  <label className="block text-xs font-sans font-bold text-brand-gold mb-1">
                     {lang === 'EN' ? 'Devotee / Family Head Name *' : 'भाविक / कुटुंब प्रमुखाचे नाव *'}
                   </label>
                   <input
@@ -451,7 +451,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-serif font-bold text-brand-gold mb-1">
+                  <label className="block text-xs font-sans font-bold text-brand-gold mb-1">
                     {lang === 'EN' ? 'Mobile Number (for SMS Darshan Pass)' : 'मोबाईल क्रमांक (दर्शन सूचना SMS साठी)'}
                   </label>
                   <input
@@ -467,13 +467,13 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                   <button
                     type="button"
                     onClick={() => setIsRsvpModalOpen(false)}
-                    className="px-4 py-2 rounded-xl bg-black/40 text-gray-300 hover:text-white text-xs font-serif cursor-pointer border border-white/10"
+                    className="px-4 py-2 rounded-xl bg-black/40 text-gray-300 hover:text-white text-xs font-sans cursor-pointer border border-white/10"
                   >
                     {lang === 'EN' ? 'Cancel' : 'रद्द करा'}
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-brand-red to-red-700 text-white font-serif font-bold text-xs shadow-lg hover:scale-105 transition-all cursor-pointer border border-brand-gold/40"
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-brand-red to-red-700 text-white font-sans font-bold text-xs shadow-lg hover:scale-105 transition-all cursor-pointer border border-brand-gold/40"
                   >
                     {lang === 'EN' ? 'Confirm Attendance' : 'उपस्थिती निश्चित करा'}
                   </button>

@@ -172,7 +172,7 @@ export const Header: React.FC<HeaderProps> = ({
                 title={lang === 'EN' ? "Aarti playing • Click to silence" : "आरती सुरू आहे • शांत करा"}
               >
                 <Volume2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-brand-saffron shrink-0" />
-                <span className="font-serif font-bold text-[9px] sm:text-[10px] hidden xs:inline">
+                <span className="font-sans font-bold text-[9px] sm:text-[10px] hidden xs:inline">
                   {lang === 'EN' ? "Aarti" : "आरती"}
                 </span>
                 <span className="text-[8px] sm:text-[9px] bg-brand-gold text-brand-maroon px-1 rounded font-bold">
@@ -189,7 +189,7 @@ export const Header: React.FC<HeaderProps> = ({
                 title={lang === 'EN' ? "Play Marathi Aarti" : "मराठी आरती सुरू करा"}
               >
                 <VolumeX className="h-3 w-3 text-gray-400 shrink-0" />
-                <span className="font-serif hidden sm:inline">{lang === 'EN' ? "Aarti" : "आरती"}</span>
+                <span className="font-sans hidden sm:inline">{lang === 'EN' ? "Aarti" : "आरती"}</span>
               </button>
             )}
 
@@ -236,7 +236,7 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={onLogin}
-                className="flex items-center gap-1 bg-brand-gold hover:bg-brand-saffron text-brand-maroon px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-serif font-black text-[9px] sm:text-[10px] shadow border border-brand-gold/50 cursor-pointer shrink-0"
+                className="flex items-center gap-1 bg-brand-gold hover:bg-brand-saffron text-brand-maroon px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-sans font-extrabold sm:font-black text-[9px] sm:text-[10px] shadow border border-brand-gold/50 cursor-pointer shrink-0"
               >
                 🔐 <span className="hidden xs:inline">{lang === 'EN' ? 'Login' : 'लॉगिन'}</span>
               </button>
@@ -290,7 +290,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Quick Live Darshan CTA on tablet/desktop */}
             <button
               onClick={() => handleSelectTab('darshan')}
-              className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-brand-red to-red-700 hover:from-red-700 hover:to-brand-red border border-brand-gold/50 text-white font-serif font-bold text-xs lg:text-sm shadow-lg cursor-pointer transition-all hover:scale-105"
+              className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-brand-red to-red-700 hover:from-red-700 hover:to-brand-red border border-brand-gold/50 text-white font-sans font-bold text-xs lg:text-sm shadow-lg cursor-pointer transition-all hover:scale-105"
             >
               <span className="h-2 w-2 rounded-full bg-green-400 animate-ping" />
               <span>{lang === 'EN' ? 'Live Darshan' : 'थेट दर्शन'}</span>
@@ -384,7 +384,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="flex items-center gap-2.5">
                 <SiteLogo size="xs" />
                 <div>
-                  <h3 className="font-serif font-black text-sm text-brand-gold">
+                  <h3 className="font-sans font-extrabold sm:font-black text-sm text-brand-gold">
                     श्री इश्वटीची माता डिजिटल दालन
                   </h3>
                   <p className="text-[10px] text-brand-saffron font-mono">
@@ -446,7 +446,7 @@ export const Header: React.FC<HeaderProps> = ({
                       </span>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-serif text-sm font-bold truncate">{item.label}</span>
+                          <span className="font-sans text-sm font-bold truncate">{item.label}</span>
                           {item.id === 'darshan' && (
                             <span className="h-2 w-2 rounded-full bg-green-400 animate-ping shrink-0" />
                           )}
