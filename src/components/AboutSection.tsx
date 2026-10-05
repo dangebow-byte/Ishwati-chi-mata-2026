@@ -63,13 +63,13 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
           <span>{lang === 'EN' ? 'Divine Heritage' : 'दैवी इतिहास आणि महात्म्य'}</span>
         </div>
         <h2 className="font-serif text-3xl md:text-5xl font-extrabold text-white">
-          {lang === 'EN' ? 'About Shree Ishwatichi Mata' : 'श्री ईश्वटीची मातेविषयी सविस्तर माहिती'}
+          {lang === 'EN' ? 'About Shree Ishwatichi Mata' : 'श्री इश्वटीची मातेविषयी सविस्तर माहिती'}
         </h2>
         <div className="h-0.5 w-36 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
         <p className="text-sm md:text-base text-gray-300 leading-relaxed font-sans">
           {lang === 'EN'
             ? (siteContent?.headerDescEN || 'Deeply rooted in ancient traditional heritage, Shree Ishwatichi Mata reigns as the supreme protectress of the region, blessing millions of devotees who experience physical healing and inner peace upon entering her presence.')
-            : (siteContent?.headerDescMR || 'अनादी काळापासून भक्तांचे श्रद्धास्थान असलेल्या श्री ईश्वटीची देवीच्या स्थापनेपासूनचा देदीप्यमान इतिहास, भक्तांना आलेले दैवी अनुभव आणि समाजोपयोगी कार्याची यशोगाथा.')}
+            : (siteContent?.headerDescMR || 'अनादी काळापासून भक्तांचे श्रद्धास्थान असलेल्या श्री इश्वटीची देवीच्या स्थापनेपासूनचा देदीप्यमान इतिहास, भक्तांना आलेले दैवी अनुभव आणि समाजोपयोगी कार्याची यशोगाथा.')}
         </p>
       </div>
 
@@ -91,12 +91,12 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
               {lang === 'EN' ? 'Official Sanctum Sanctorum' : 'अधिकृत गाभारा व राजमुद्रा'}
             </span>
             <h3 className="font-serif text-xl sm:text-2xl font-black text-white">
-              {lang === 'EN' ? 'Shree Ishwatichi Mata & Mandal Insignia' : 'श्री ईश्वटीची माता आणि अधिकृत बोधचिन्ह'}
+              {lang === 'EN' ? 'Shree Ishwatichi Mata & Mandal Insignia' : 'श्री इश्वटीची माता आणि अधिकृत बोधचिन्ह'}
             </h3>
             <p className="text-xs text-gray-300 leading-relaxed">
               {lang === 'EN'
                 ? 'Original consecrated idol venerated continuously since 1976 under the spiritual guardianship of Shree Ishwatichi Mata Mandal.'
-                : '१९७६ पासून भक्तांच्या अखंड सेवेत असलेली श्री ईश्वटीची मातेची स्वयंभू पाषाण मूर्ती आणि अधिकृत बोधचिन्ह.'}
+                : '१९७६ पासून भक्तांच्या अखंड सेवेत असलेली श्री इश्वटीची मातेची स्वयंभू पाषाण मूर्ती आणि अधिकृत बोधचिन्ह.'}
             </p>
           </div>
         </div>
@@ -117,7 +117,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
               {lang === 'EN' ? (
                 siteContent?.originTextEN || 'The holy origin story of Shree Ishwatichi Mata stems from deep community devotion...'
               ) : (
-                siteContent?.originTextMR || 'श्री ईश्वटीची मातेच्या मूळ मंदिराचा उगम अत्यंत पवित्र आहे...'
+                siteContent?.originTextMR || 'श्री इश्वटीची मातेच्या मूळ मंदिराचा उगम अत्यंत पवित्र आहे...'
               )}
             </p>
           </div>
@@ -138,7 +138,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
             <div className="flex items-center gap-2 text-brand-saffron">
               <Sparkles className="h-5 w-5" />
               <h3 className="text-xl font-serif font-bold tracking-wide">
-                {lang === 'EN' ? (siteContent?.missionTitleEN || 'Shree Young Ishwati Navratrotsav Mandal Mission & Community Vision') : (siteContent?.missionTitleMR || 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळाचा संकल्प आणि उद्दिष्टे')}
+                {lang === 'EN' ? (siteContent?.missionTitleEN || 'Shree Young Ishwati Navratrotsav Mandal Mission & Community Vision') : (siteContent?.missionTitleMR || 'श्री यंग इश्वटी नवरात्रौत्सव मंडळाचा संकल्प आणि उद्दिष्टे')}
               </h3>
             </div>
             
@@ -198,7 +198,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
               <span>{lang === 'EN' ? 'Historical Journey Map' : 'ऐतिहासिक प्रवास आलेख'}</span>
             </div>
             <h3 className="text-2xl font-serif font-black text-white">
-              {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Milestones & Establishment' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ: स्थापनेपासूनचा दैवी इतिहास'}
+              {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Milestones & Establishment' : 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ: स्थापनेपासूनचा दैवी इतिहास'}
             </h3>
           </div>
           <span className="text-xs text-gray-400 italic">

@@ -537,7 +537,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                 {/* Sacred watermark badge */}
                 <div className="absolute top-3 left-24 z-10 bg-brand-maroon/90 backdrop-blur-sm border border-brand-gold/60 text-brand-gold text-[10px] font-serif font-black px-2.5 py-1 rounded shadow flex items-center gap-1.5">
                   <span>🌸</span>
-                  <span>श्री ईश्वटीची थेट दर्शन</span>
+                  <span>श्री इश्वटीची थेट दर्शन</span>
                 </div>
 
                 <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between">
@@ -1068,7 +1068,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
               <span>
                 {lang === 'EN'
                   ? 'Total 6 sacred daily aartis scheduled at Shree Ishwatichi Mata Devasthan.'
-                  : 'श्री ईश्वटीची माता देवस्थानात दररोज ६ प्रमुख आरत्या व नैवेद्य विधी संपन्न होतात.'}
+                  : 'श्री इश्वटीची माता देवस्थानात दररोज ६ प्रमुख आरत्या व नैवेद्य विधी संपन्न होतात.'}
               </span>
             </div>
             <div className="text-[10px] text-brand-gold font-mono flex items-center gap-1.5">

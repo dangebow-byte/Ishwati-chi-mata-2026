@@ -24,7 +24,7 @@ export interface DeviImageProps {
 }
 
 export const DeviImage: React.FC<DeviImageProps> = ({
-  alt = 'श्री ईश्वटीची माता अधिकृत दिव्य दर्शन मूर्ती (Shree Ishwatichi Mata Official Sacred Idol)',
+  alt = 'श्री इश्वटीची माता अधिकृत दिव्य दर्शन मूर्ती (Shree Ishwatichi Mata Official Sacred Idol)',
   className = '',
   imageClassName = '',
   aspectRatio = 'portrait',

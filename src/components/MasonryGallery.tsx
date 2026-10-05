@@ -64,7 +64,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             🖼️ Vision of Divinity
           </span>
           <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
-            {lang === 'EN' ? 'Shree Ishwatichi Mata Grand Album Gallery' : 'श्री ईश्वटीची माता भव्य अल्बम प्रेक्षागृह'}
+            {lang === 'EN' ? 'Shree Ishwatichi Mata Grand Album Gallery' : 'श्री इश्वटीची माता भव्य अल्बम प्रेक्षागृह'}
           </h2>
           <p className="text-xs text-gray-300 mt-1">
             {lang === 'EN' ? 'Click on any sacred photograph to trigger high-fidelity zoom lightboxes & sharing protocols.' : 'देवींचे देखणे रूप, मंदिर सजावट आणि सामाजिक कार्याची बोलकी छायाचित्रे.'}
@@ -100,7 +100,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             {/* Sacred emblem badge directly on photo */}
             <div className="absolute top-2.5 left-2.5 z-10 bg-brand-maroon/90 backdrop-blur-sm border border-brand-gold/60 text-brand-gold text-[10px] font-serif font-black px-2 py-0.5 rounded shadow flex items-center gap-1">
               <span>🌸</span>
-              <span>श्री ईश्वटीची</span>
+              <span>श्री इश्वटीची</span>
             </div>
 
             {/* Aspect specific tags */}
@@ -112,7 +112,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             />
             {/* Absolute Hover details */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-              <span className="text-[9px] text-brand-saffron uppercase font-mono tracking-widest">{item.category} • श्री ईश्वटीची</span>
+              <span className="text-[9px] text-brand-saffron uppercase font-mono tracking-widest">{item.category} • श्री इश्वटीची</span>
               <h4 className="text-xs sm:text-sm font-serif font-black text-white mt-1">
                 {lang === 'EN' ? item.title : item.titleMarathi}
               </h4>
@@ -135,7 +135,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       <div className="border-t border-white/5 pt-8 space-y-4">
         <div className="flex items-center gap-2 text-brand-gold font-serif font-bold text-lg">
           <Video className="h-5 w-5 text-brand-saffron animate-pulse" />
-          <span>{lang === 'EN' ? 'Shree Ishwatichi Holy Videos & Aarti Hymns' : 'श्री ईश्वटीची भक्तीपर व्हिडिओ आणि महाआरती'}</span>
+          <span>{lang === 'EN' ? 'Shree Ishwatichi Holy Videos & Aarti Hymns' : 'श्री इश्वटीची भक्तीपर व्हिडिओ आणि महाआरती'}</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -152,10 +152,10 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             </div>
             <div>
               <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                {lang === 'EN' ? 'Shree Ishwatichi Divine Swarna Maha Aarti' : 'श्री ईश्वटीची दिव्य सुवर्ण महाआरती'}
+                {lang === 'EN' ? 'Shree Ishwatichi Divine Swarna Maha Aarti' : 'श्री इश्वटीची दिव्य सुवर्ण महाआरती'}
               </h4>
               <p className="text-[11px] text-gray-400 mt-1">
-                {lang === 'EN' ? 'High fidelity morning Kakad aarti performed daily inside the sanctum.' : 'श्री ईश्वटीची मातेची दररोज सकाळी साजरी केली जाणारी काकड आरती विधी.'}
+                {lang === 'EN' ? 'High fidelity morning Kakad aarti performed daily inside the sanctum.' : 'श्री इश्वटीची मातेची दररोज सकाळी साजरी केली जाणारी काकड आरती विधी.'}
               </p>
             </div>
           </div>
@@ -173,10 +173,10 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             </div>
             <div>
               <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                {lang === 'EN' ? 'Shree Ishwatichi Annual Rath Yatra Highlights' : 'श्री ईश्वटीची वार्षिक रथयात्रा उत्सव'}
+                {lang === 'EN' ? 'Shree Ishwatichi Annual Rath Yatra Highlights' : 'श्री इश्वटीची वार्षिक रथयात्रा उत्सव'}
               </h4>
               <p className="text-[11px] text-gray-400 mt-1">
-                {lang === 'EN' ? 'Visual snippets showing the grand golden Rath carrying Shree Ishwatichi Mata across lines of devotees.' : 'श्री ईश्वटीची मातेची पालखी व सुवर्ण रथ मिरवणूक सोहळा.'}
+                {lang === 'EN' ? 'Visual snippets showing the grand golden Rath carrying Shree Ishwatichi Mata across lines of devotees.' : 'श्री इश्वटीची मातेची पालखी व सुवर्ण रथ मिरवणूक सोहळा.'}
               </p>
             </div>
           </div>
@@ -194,10 +194,10 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             </div>
             <div>
               <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Social Welfare Work' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ सामाजिक सेवा कार्य'}
+                {lang === 'EN' ? 'Shree Young Ishwati Navratrotsav Mandal Social Welfare Work' : 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ सामाजिक सेवा कार्य'}
               </h4>
               <p className="text-[11px] text-gray-400 mt-1">
-                {lang === 'EN' ? 'Footage from health campaigns, free clinics, water distributions, and education programs.' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळातर्फे आयोजित मोफत आरोग्य तपासणी, औषध व अन्नदान उपक्रम.'}
+                {lang === 'EN' ? 'Footage from health campaigns, free clinics, water distributions, and education programs.' : 'श्री यंग इश्वटी नवरात्रौत्सव मंडळातर्फे आयोजित मोफत आरोग्य तपासणी, औषध व अन्नदान उपक्रम.'}
               </p>
             </div>
           </div>
@@ -284,7 +284,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                 referrerPolicy="no-referrer"
               />
               <div className="absolute bottom-3 bg-brand-maroon/90 backdrop-blur-md border border-brand-gold/60 px-4 py-1 rounded-full text-brand-gold text-xs font-serif font-black shadow-xl pointer-events-none select-none">
-                || श्री ईश्वटीची माता प्रसन्न ||
+                || श्री इश्वटीची माता प्रसन्न ||
               </div>
             </div>
           </div>

@@ -134,7 +134,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 <h4 className="font-serif font-black text-xs sm:text-base text-brand-gold tracking-wide truncate">
-                  {lang === 'EN' ? 'Shree Ishwatichi Mata Aarti (Marathi)' : 'श्री ईश्वटीची माता आरती (मराठी)'}
+                  {lang === 'EN' ? 'Shree Ishwatichi Mata Aarti (Marathi)' : 'श्री इश्वटीची माता आरती (मराठी)'}
                 </h4>
                 <span className="text-[9px] sm:text-[10px] font-serif font-bold bg-brand-gold/15 text-brand-gold px-2 py-0.5 rounded-full border border-brand-gold/40 flex items-center gap-1 shadow-sm shrink-0">
                   <span>👩</span>
@@ -212,7 +212,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
                   <div className="flex items-center gap-1.5 animate-pulse min-w-0">
                     <Music className="h-3.5 w-3.5 shrink-0 text-brand-gold" />
                     <span className="font-serif text-white tracking-wide truncate">
-                      {currentLine.mr || 'जय देवी जय देवी जय ईश्वटी माते...'}
+                      {currentLine.mr || 'जय देवी जय देवी जय इश्वटी माते...'}
                     </span>
                   </div>
                 ) : (
@@ -298,7 +298,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
             <div className="flex items-center justify-between border-b border-brand-gold/15 pb-2">
               <h5 className="text-sm font-bold uppercase tracking-wider text-brand-gold flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-brand-gold" />
-                <span>॥ श्री ईश्वटीची माता आरती (मराठी) ॥</span>
+                <span>॥ श्री इश्वटीची माता आरती (मराठी) ॥</span>
               </h5>
               <span className="text-[10px] text-gray-300 font-sans bg-brand-maroon px-2 py-0.5 rounded border border-brand-gold/30">
                 {lang === 'EN' ? 'Traditional Marathi Aarti' : 'पारंपरिक मराठी रचना'}
@@ -308,7 +308,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
             <div className="text-xs sm:text-sm text-gray-100 leading-relaxed font-serif space-y-3 max-h-56 overflow-y-auto pr-2 custom-scrollbar">
               <div className="bg-brand-maroon/40 p-2.5 rounded-lg border-l-2 border-brand-gold">
                 <p className="font-bold text-brand-gold">
-                  जय देवी जय देवी जय ईश्वटी माते ।<br />
+                  जय देवी जय देवी जय इश्वटी माते ।<br />
                   प्रसन्न होऊनि पावे भक्तांच्या हाके ॥ धृ. ॥
                 </p>
               </div>
@@ -319,7 +319,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
                   भक्तजन धावती कराया तव आरती ।<br />
                   कष्ट निवारुनी देई सुख समृद्धी ।<br />
                   हात जोडुनी चरणी नमितो आदिशक्ती ॥ १ ॥<br />
-                  <span className="text-brand-saffron text-xs italic">जय देवी जय देवी जय ईश्वटी माते...</span>
+                  <span className="text-brand-saffron text-xs italic">जय देवी जय देवी जय इश्वटी माते...</span>
                 </p>
               </div>
 
@@ -329,7 +329,7 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
                   अखंड ज्योती तेवे मातेच्या द्वारी ।<br />
                   अन्नछत्र चालती दयाळू तुझी करुणा ।<br />
                   संकट हरुनी रक्षी आमुच्या जीवना ॥ २ ॥<br />
-                  <span className="text-brand-saffron text-xs italic">जय देवी जय देवी जय ईश्वटी माते...</span>
+                  <span className="text-brand-saffron text-xs italic">जय देवी जय देवी जय इश्वटी माते...</span>
                 </p>
               </div>
 
@@ -337,10 +337,10 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
                 <p>
                   कर्पूर आरती दीप ओवाळू प्रेमे ।<br />
                   अखंड जयघोष करू मंगल नेमे ।<br />
-                  ईश्वटी माते तूच आमुची तारक ।<br />
+                  इश्वटी माते तूच आमुची तारक ।<br />
                   कृपाछत्र असू दे अखंड रक्षक ॥ ३ ॥<br />
                   <span className="font-bold text-brand-gold">
-                    जय देवी जय देवी जय ईश्वटी माते ।<br />
+                    जय देवी जय देवी जय इश्वटी माते ।<br />
                     प्रसन्न होऊनि पावे भक्तांच्या हाके ॥
                   </span>
                 </p>

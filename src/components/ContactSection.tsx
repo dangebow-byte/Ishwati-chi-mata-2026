@@ -49,7 +49,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
           📍 Address & Location
         </span>
         <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
-          {lang === 'EN' ? 'Contact Shree Young Ishwati Navratrotsav Mandal' : 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळाशी संपर्क साधा'}
+          {lang === 'EN' ? 'Contact Shree Young Ishwati Navratrotsav Mandal' : 'श्री यंग इश्वटी नवरात्रौत्सव मंडळाशी संपर्क साधा'}
         </h2>
         <p className="text-xs text-gray-300">
           {lang === 'EN' ? 'Reach out for inquiries, donation credentials verification, or volunteer rosters.' : 'पूजा बुकिंग, देणगी पावत्या आणि स्वयंसेवक उपक्रमांविषयी चौकशीसाठी खालील माध्यमांतून संपर्क साधा.'}
@@ -164,7 +164,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
                 <br />
                 {lang === 'EN'
                   ? (siteContent?.addressEN || 'Shree Ishwatichi Mata Mandir Court, Sector-4, Traditional Lane 5, Dombivli East, Thane. Near Shivaji Garden, Maharashtra 421201')
-                  : (siteContent?.addressMR || 'श्री ईश्वटीची माता मंदिर चौक, सेक्टर-४, पारंपरिक गल्ली क्र ५, डोंबिवली पूर्व, ठाणे. जवळ शिवाजी उद्यान, महाराष्ट्र ४२१२०१')}
+                  : (siteContent?.addressMR || 'श्री इश्वटीची माता मंदिर चौक, सेक्टर-४, पारंपरिक गल्ली क्र ५, डोंबिवली पूर्व, ठाणे. जवळ शिवाजी उद्यान, महाराष्ट्र ४२१२०१')}
               </p>
 
               <p>
@@ -214,7 +214,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
                 </span>
               </span>
               <span className="bg-brand-maroon/90 text-brand-gold border border-brand-gold text-[8px] font-bold px-1 py-0.5 rounded shadow mt-1 whitespace-nowrap">
-                {lang === 'EN' ? 'SHREE ISHWATICHI MATA MANDIR' : 'श्री ईश्वटीची मंदिर'}
+                {lang === 'EN' ? 'SHREE ISHWATICHI MATA MANDIR' : 'श्री इश्वटीची मंदिर'}
               </span>
             </div>
 

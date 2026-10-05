@@ -57,12 +57,12 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ lang, events, onRs
             🗓️ Utsav Schedule
           </span>
           <h2 className="text-2xl md:text-4xl font-serif font-black text-white">
-            {lang === 'EN' ? 'Shree Ishwatichi Festivals & Cultural Events' : 'श्री ईश्वटीची आगामी उत्सव व सांस्कृतिक कार्यक्रम'}
+            {lang === 'EN' ? 'Shree Ishwatichi Festivals & Cultural Events' : 'श्री इश्वटीची आगामी उत्सव व सांस्कृतिक कार्यक्रम'}
           </h2>
           <p className="text-xs text-gray-300 mt-1">
             {lang === 'EN' 
               ? 'Participate physically or online in Shree Ishwatichi celebrations. Register your presence to assist with food dining planning.' 
-              : 'श्री ईश्वटीची मातेच्या चालू वर्षातील विविध उत्सव व सांस्कृतिक कार्यक्रम. महाप्रसाद भोजनाच्या नियोजनासाठी कृपया नोंदणी करावी.'}
+              : 'श्री इश्वटीची मातेच्या चालू वर्षातील विविध उत्सव व सांस्कृतिक कार्यक्रम. महाप्रसाद भोजनाच्या नियोजनासाठी कृपया नोंदणी करावी.'}
           </p>
         </div>
 

@@ -610,7 +610,7 @@ export default function App() {
 
             <div className="space-y-2 sm:space-y-3 w-full px-2 sm:px-4">
               <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white drop-shadow-[0_0_25px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-normal leading-tight">
-                {lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata (श्री ईश्वटीची)') : (siteContent.welcome?.titleMR || 'श्री ईश्वटीची माता')}
+                {lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata (श्री इश्वटीची)') : (siteContent.welcome?.titleMR || 'श्री इश्वटीची माता')}
               </h1>
               <p className="font-sans text-xs sm:text-lg lg:text-xl font-extrabold text-[#FF9933] tracking-wide uppercase drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] leading-relaxed">
                 {lang === 'EN' ? (siteContent.welcome?.subtitleEN || 'Faith • Devotion • Tradition • Service') : (siteContent.welcome?.subtitleMR || 'श्रद्धा • भक्ती • परंपरा • सेवा')}
@@ -619,7 +619,7 @@ export default function App() {
               <p className="text-[11px] sm:text-xs md:text-sm text-gray-200 font-sans max-w-4xl mx-auto leading-relaxed drop-shadow line-clamp-3 sm:line-clamp-none">
                 {lang === 'EN'
                   ? (siteContent.welcome?.descEN || 'Welcome to the official digital portal of Shree Ishwatichi Mata Devasthan Mandal. Experience live darshan from home and contribute to our community welfare initiatives.')
-                  : (siteContent.welcome?.descMR || 'श्री ईश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल कक्षात भाविकांचे स्वागत. घरबसल्या लाईव्ह पूजेचा आनंद घ्या आणि समाजोपयोगी उपक्रमांत भाग घ्या.')}
+                  : (siteContent.welcome?.descMR || 'श्री इश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल कक्षात भाविकांचे स्वागत. घरबसल्या लाईव्ह पूजेचा आनंद घ्या आणि समाजोपयोगी उपक्रमांत भाग घ्या.')}
               </p>
             </div>
 
@@ -854,8 +854,8 @@ export default function App() {
         </div>
 
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 mt-8 pt-8 border-t border-white/5 text-center text-gray-400 text-[10px] space-y-1">
-          <p>© २०२६ श्री यंग ईश्वटी नवरात्रौत्सव मंडळ चॅरिटेबल ट्रस्ट. सर्व हक्क सुरक्षित. नोंदणी क्र. E-५०१२५/मुंबई.</p>
-          <p className="tracking-widest">{lang === 'EN' ? '|| Shree Ishwatichi Mata Devasthan ||' : '|| श्री ईश्वटीची माता देवस्थान ||'}</p>
+          <p>© २०२६ श्री यंग इश्वटी नवरात्रौत्सव मंडळ चॅरिटेबल ट्रस्ट. सर्व हक्क सुरक्षित. नोंदणी क्र. E-५०१२५/मुंबई.</p>
+          <p className="tracking-widest">{lang === 'EN' ? '|| Shree Ishwatichi Mata Devasthan ||' : '|| श्री इश्वटीची माता देवस्थान ||'}</p>
         </div>
       </footer>
 

@@ -230,7 +230,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
               <p className="leading-relaxed text-gray-300">
                 {lang === 'EN'
                   ? 'Shree Ishwatichi Mata Charitable Trust is registered under section 80G of the Indian Income Tax Act. Devotees receive tax deduction certificates matching 50% of the total gifted amount directly inside their email inbox when providing their PAN card numbers.'
-                  : 'श्री ईश्वटीची माता चॅरिटेबल ट्रस्ट कलम ८०जी अंतर्गत सवलत पात्र आहे. पॅन कार्ड नंबर अचूक भरल्यास वर्षाला ५०% टक्के सवलत प्राप्ती कर कायद्यानुसार दिली जाईल.'}
+                  : 'श्री इश्वटीची माता चॅरिटेबल ट्रस्ट कलम ८०जी अंतर्गत सवलत पात्र आहे. पॅन कार्ड नंबर अचूक भरल्यास वर्षाला ५०% टक्के सवलत प्राप्ती कर कायद्यानुसार दिली जाईल.'}
               </p>
               
               <div className="border border-brand-gold/25 p-3 rounded bg-brand-gold/5 flex gap-2">
@@ -408,7 +408,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
             <div className="text-center space-y-2 relative border-b-2 border-brand-gold/60 pb-5">
               <SiteLogo size="md" className="mx-auto mb-2 drop-shadow-md" />
               <span className="text-brand-red font-serif font-black text-lg sm:text-2xl tracking-wide uppercase block">
-                {lang === 'EN' ? 'Shree Ishwatichi Mata Charitable Devasthan Trust' : 'श्री ईश्वटीची माता चॅरिटेबल देवस्थान ट्रस्ट'}
+                {lang === 'EN' ? 'Shree Ishwatichi Mata Charitable Devasthan Trust' : 'श्री इश्वटीची माता चॅरिटेबल देवस्थान ट्रस्ट'}
               </span>
               <span className="text-[9px] sm:text-[10px] text-gray-600 font-mono tracking-wider sm:tracking-widest uppercase block">
                 Govt Regd No: E-50125/MUMBAI • Section 80G Approval No: SEC80G/5482/2026
@@ -465,7 +465,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ lang, onNewDon
 
             {/* Receipt Footer boundary */}
             <div className="border-t-2 border-dashed border-gray-300 pt-4 text-center text-[10px] text-gray-400 leading-relaxed font-mono uppercase">
-              "Blessings be upon your household from Shree Ishwatichi Mata (श्री ईश्वटीची)"
+              "Blessings be upon your household from Shree Ishwatichi Mata (श्री इश्वटीची)"
             </div>
 
           </div>
