@@ -157,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden lg:inline truncate text-[11px] lg:text-xs">
               {lang === 'EN' ? '|| Hail Shree Ishwatichi Mata (श्री इश्वटीची)! Welcome to Official Digital Portal ||' : '|| श्री इश्वटीची माता की जय! अधिकृत डिजिटल कक्षात स्वागत ||'}
             </span>
-            <span className="lg:hidden text-[10px] sm:text-xs font-serif font-bold text-brand-gold truncate">
+            <span className="lg:hidden text-[10px] sm:text-xs font-sans font-bold text-brand-gold truncate">
               || श्री इश्वटीची प्रसन्न ||
             </span>
           </div>
@@ -272,10 +272,10 @@ export const Header: React.FC<HeaderProps> = ({
             
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap">
-                <h1 className="font-serif text-base xs:text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-normal text-brand-gold drop-shadow-md leading-tight">
+                <h1 className="font-sans text-base xs:text-lg sm:text-2xl md:text-3xl lg:text-4xl font-extrabold sm:font-black tracking-normal text-brand-gold drop-shadow-md leading-tight">
                   श्री यंग इश्वटी नवरात्रौत्सव मंडळ
                 </h1>
-                <span className="text-[8px] xs:text-[9px] sm:text-xs bg-brand-red text-brand-gold border border-brand-gold/40 px-1.5 sm:px-2 py-0.5 rounded font-serif font-bold shrink-0 shadow-sm">
+                <span className="text-[8px] xs:text-[9px] sm:text-xs bg-brand-red text-brand-gold border border-brand-gold/40 px-1.5 sm:px-2 py-0.5 rounded font-sans font-bold shrink-0 shadow-sm">
                   देवस्थान
                 </span>
               </div>

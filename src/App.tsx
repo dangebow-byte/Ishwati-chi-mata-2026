@@ -37,6 +37,26 @@ import { aartiAudioEngine } from './utils/aartiAudioEngine';
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 import heroImg from './assets/devotional/devi-mata-main.webp';
 
+// Ensure consistent Marathi spelling across all dynamic Firestore documents, inputs and cached states
+export function cleanDevanagariSpelling<T>(val: T): T {
+  if (typeof val === 'string') {
+    return val
+      .replace(/ईश्वटी/g, 'इश्वटी')
+      .replace(/ईश्व/g, 'इश्व') as unknown as T;
+  }
+  if (Array.isArray(val)) {
+    return val.map(cleanDevanagariSpelling) as unknown as T;
+  }
+  if (val !== null && typeof val === 'object') {
+    const res: any = {};
+    for (const [k, v] of Object.entries(val)) {
+      res[k] = cleanDevanagariSpelling(v);
+    }
+    return res;
+  }
+  return val;
+}
+
 export default function App() {
   const [lang, setLang] = useState<'EN' | 'MR'>('MR');
   const [darkMode, setDarkMode] = useState(true);
@@ -76,7 +96,7 @@ export default function App() {
           await setDoc(doc(db, 'site_content', key), {
             id: key,
             contentKey: key,
-            data: DEFAULT_SITE_CONTENT[key]
+            data: cleanDevanagariSpelling(DEFAULT_SITE_CONTENT[key])
           });
         }
 
@@ -111,10 +131,10 @@ export default function App() {
       snapshot.forEach(docSnap => {
         const val = docSnap.data();
         if (val.contentKey && val.data) {
-          contentMap[val.contentKey] = val.data;
+          contentMap[val.contentKey] = cleanDevanagariSpelling(val.data);
         }
       });
-      setSiteContent(contentMap);
+      setSiteContent(cleanDevanagariSpelling(contentMap));
     }, (err) => {
       handleFirestoreError(err, OperationType.GET, 'site_content');
     });
@@ -122,7 +142,7 @@ export default function App() {
     const unsubAnn = onSnapshot(collection(db, 'announcements'), (snapshot) => {
       const list: Announcement[] = [];
       snapshot.forEach(docSnap => {
-        list.push(docSnap.data() as Announcement);
+        list.push(cleanDevanagariSpelling(docSnap.data() as Announcement));
       });
       list.sort((a, b) => b.date.localeCompare(a.date));
       setAnnouncements(list);
@@ -133,7 +153,7 @@ export default function App() {
     const unsubEvt = onSnapshot(collection(db, 'events'), (snapshot) => {
       const list: TempleEvent[] = [];
       snapshot.forEach(docSnap => {
-        const evtData = docSnap.data() as TempleEvent;
+        const evtData = cleanDevanagariSpelling(docSnap.data() as TempleEvent);
         // Fix for ev-2 if previously stored in Firestore as 2026-10-12
         if (evtData.id === 'ev-2' && evtData.date === '2026-10-12') {
           evtData.date = '2026-10-11';
@@ -192,7 +212,7 @@ export default function App() {
     const unsubTest = onSnapshot(testimonialsQuery, (snapshot) => {
       const list: DevoteeExperience[] = [];
       snapshot.forEach(docSnap => {
-        list.push(docSnap.data() as DevoteeExperience);
+        list.push(cleanDevanagariSpelling(docSnap.data() as DevoteeExperience));
       });
       list.sort((a, b) => b.date.localeCompare(a.date));
       setExperiences(list);
@@ -316,7 +336,7 @@ export default function App() {
   // State handlers triggers
   const handleAddExperience = async (exp: DevoteeExperience) => {
     try {
-      await setDoc(doc(db, 'testimonials', exp.id), exp);
+      await setDoc(doc(db, 'testimonials', exp.id), cleanDevanagariSpelling(exp));
     } catch (e) {
       handleFirestoreError(e, OperationType.WRITE, `testimonials/${exp.id}`);
     }
@@ -340,7 +360,7 @@ export default function App() {
     try {
       await setDoc(doc(db, 'site_content', key), {
         contentKey: key,
-        data: data
+        data: cleanDevanagariSpelling(data)
       });
       alert(lang === 'EN' ? 'Site content saved to database!' : 'वेबसाईट माहिती डेटाबेसमध्ये जतन केली!');
     } catch (e) {
@@ -350,7 +370,7 @@ export default function App() {
 
   const handleNewBooking = async (booking: DigitalSevaBooking) => {
     try {
-      await setDoc(doc(db, 'bookings', booking.id), booking);
+      await setDoc(doc(db, 'bookings', booking.id), cleanDevanagariSpelling(booking));
 
       // Save logs to history locally
       const logId = 'lg-' + Math.floor(Math.random() * 10000);
@@ -440,7 +460,7 @@ export default function App() {
 
   const handleAddAnnouncement = async (ann: Announcement) => {
     try {
-      await setDoc(doc(db, 'announcements', ann.id), ann);
+      await setDoc(doc(db, 'announcements', ann.id), cleanDevanagariSpelling(ann));
     } catch (e) {
       handleFirestoreError(e, OperationType.WRITE, `announcements/${ann.id}`);
     }
@@ -609,17 +629,17 @@ export default function App() {
             </div>
 
             <div className="space-y-2 sm:space-y-3 w-full px-2 sm:px-4">
-              <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white drop-shadow-[0_0_25px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-normal leading-tight">
-                {lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata (श्री इश्वटीची)') : (siteContent.welcome?.titleMR || 'श्री इश्वटीची माता')}
+              <h1 className="font-sans text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold sm:font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] sm:drop-shadow-[0_0_25px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-normal leading-tight">
+                {cleanDevanagariSpelling(lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata (श्री इश्वटीची)') : (siteContent.welcome?.titleMR || 'श्री इश्वटीची माता'))}
               </h1>
               <p className="font-sans text-xs sm:text-lg lg:text-xl font-extrabold text-[#FF9933] tracking-wide uppercase drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] leading-relaxed">
-                {lang === 'EN' ? (siteContent.welcome?.subtitleEN || 'Faith • Devotion • Tradition • Service') : (siteContent.welcome?.subtitleMR || 'श्रद्धा • भक्ती • परंपरा • सेवा')}
+                {cleanDevanagariSpelling(lang === 'EN' ? (siteContent.welcome?.subtitleEN || 'Faith • Devotion • Tradition • Service') : (siteContent.welcome?.subtitleMR || 'श्रद्धा • भक्ती • परंपरा • सेवा'))}
               </p>
               <div className="h-0.5 sm:h-1 w-20 sm:w-28 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
               <p className="text-[11px] sm:text-xs md:text-sm text-gray-200 font-sans max-w-4xl mx-auto leading-relaxed drop-shadow line-clamp-3 sm:line-clamp-none">
-                {lang === 'EN'
+                {cleanDevanagariSpelling(lang === 'EN'
                   ? (siteContent.welcome?.descEN || 'Welcome to the official digital portal of Shree Ishwatichi Mata Devasthan Mandal. Experience live darshan from home and contribute to our community welfare initiatives.')
-                  : (siteContent.welcome?.descMR || 'श्री इश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल कक्षात भाविकांचे स्वागत. घरबसल्या लाईव्ह पूजेचा आनंद घ्या आणि समाजोपयोगी उपक्रमांत भाग घ्या.')}
+                  : (siteContent.welcome?.descMR || 'श्री इश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल कक्षात भाविकांचे स्वागत. घरबसल्या लाईव्ह पूजेचा आनंद घ्या आणि समाजोपयोगी उपक्रमांत भाग घ्या.'))}
               </p>
             </div>
 
