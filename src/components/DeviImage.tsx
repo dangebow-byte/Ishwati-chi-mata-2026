@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
+import deviMainPng from '../assets/devotional/devi-mata-main.png';
 import deviMainWebp from '../assets/devotional/devi-mata-main.webp';
 import deviMobileWebp from '../assets/devotional/devi-mata-main-mobile.webp';
 import deviMainJpg from '../assets/devotional/devi-mata-main.jpeg';
@@ -19,6 +20,7 @@ export interface DeviImageProps {
   withAura?: boolean;
   withFrame?: boolean;
   objectFit?: 'cover' | 'contain';
+  objectPosition?: string;
   onClick?: () => void;
   src?: string;
 }
@@ -32,6 +34,7 @@ export const DeviImage: React.FC<DeviImageProps> = ({
   withAura = false,
   withFrame = false,
   objectFit = 'cover',
+  objectPosition,
   onClick,
   src,
 }) => {
@@ -53,9 +56,13 @@ export const DeviImage: React.FC<DeviImageProps> = ({
     : '';
 
   // Select optimal source
-  const activeImage = src || deviMainJpg;
-  const activeWebp = src || deviMainWebp;
-  const activeMobileWebp = src || deviMobileWebp;
+  const [imageError, setImageError] = useState(false);
+
+  // If a specific src prop is passed (e.g. heroImagePath), prioritize it everywhere;
+  // otherwise, default to the official new sacred idol portrait across PNG/WebP/JPEG
+  const activeImage = imageError ? (src || deviMainPng || deviMainJpg) : (src || deviMainPng || deviMainJpg);
+  const activeWebp = src ? src : deviMainWebp;
+  const activeMobileWebp = src ? src : deviMobileWebp;
 
   return (
     <div
@@ -65,27 +72,37 @@ export const DeviImage: React.FC<DeviImageProps> = ({
       } ${className}`}
     >
       <picture className="w-full h-full block overflow-hidden relative z-[1]">
-        {/* Mobile optimized WebP */}
-        <source
-          media="(max-width: 640px)"
-          srcSet={activeMobileWebp}
-          type="image/webp"
-        />
-        {/* High-res WebP for tablets & desktops */}
-        <source
-          srcSet={activeWebp}
-          type="image/webp"
-        />
+        {/* Mobile optimized WebP if not explicitly overridden by custom src */}
+        {!src && (
+          <source
+            media="(max-width: 640px)"
+            srcSet={activeMobileWebp}
+            type="image/webp"
+          />
+        )}
+        {/* High-res WebP for tablets & desktops if not explicitly overridden */}
+        {!src && (
+          <source
+            srcSet={activeWebp}
+            type="image/webp"
+          />
+        )}
         {/* Universal Fallback Image */}
         <img
           src={activeImage}
           alt={alt}
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
-          className={`w-full h-full object-${objectFit} ${
-            objectFit === 'cover' ? 'object-center sm:object-[center_18%]' : 'object-center'
-          } transition-all duration-500 ${imageClassName}`}
-          style={{ objectFit: objectFit || 'cover' }}
+          onError={() => {
+            if (!imageError) {
+              setImageError(true);
+            }
+          }}
+          className={`w-full h-full transition-all duration-500 ${imageClassName}`}
+          style={{ 
+            objectFit: objectFit || 'cover',
+            objectPosition: objectPosition || (objectFit === 'cover' ? 'center 15%' : 'center center')
+          }}
           referrerPolicy="no-referrer"
         />
       </picture>

@@ -42,34 +42,6 @@ html, body, #root {
   position: relative;
 }
 
-/* Ensure Header navigation spans 100% of the viewport width across all device breakpoints */
-#root > div > header {
-  padding: 0 !important;
-  margin: 0 !important;
-  width: 100vw !important;
-  max-width: 100vw !important;
-  box-sizing: border-box !important;
-}
-
-/* Ensure hero banner section explicitly removes all internal margins and horizontal padding across all screen sizes to align perfectly with the full-width navigation header */
-#root > div > section,
-#root > div > section.relative.w-full.m-0.p-0.min-h-\[460px\] {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-#root > div > section > div {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
 body {
   font-family: var(--font-sans);
   background-color: #4A0404; /* Deep rich maroon from Immersive UI */

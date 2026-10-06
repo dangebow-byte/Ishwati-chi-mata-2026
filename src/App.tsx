@@ -562,38 +562,40 @@ export default function App() {
 
       {/* Resilient Quota Notification Banner */}
       {quotaWarning && (
-        <div className="w-full bg-amber-950/90 border-b border-amber-500/40 text-amber-200 text-xs py-2 px-4 flex items-center justify-between gap-3 z-40 backdrop-blur-md">
-          <div className="flex items-center gap-2">
-            <span className="text-base">ℹ️</span>
-            <span>
-              {lang === 'EN'
-                ? 'Daily free read quota reached for today. Running in high-performance cached mode with full live access. Quota automatically resets tomorrow.'
-                : 'दैनिक मोफत मर्यादा पूर्ण झाल्यामुळे स्थानिक सुरक्षित डेटा वापरला जात आहे. सर्व दर्शन, सेवा व देणगी वैशिष्ट्ये सुरळीत सुरू आहेत.'}
-            </span>
+        <div className="w-full bg-amber-950/90 border-b border-amber-500/40 text-amber-200 text-xs py-2 z-40 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-base">ℹ️</span>
+              <span>
+                {lang === 'EN'
+                  ? 'Daily free read quota reached for today. Running in high-performance cached mode with full live access. Quota automatically resets tomorrow.'
+                  : 'दैनिक मोफत मर्यादा पूर्ण झाल्यामुळे स्थानिक सुरक्षित डेटा वापरला जात आहे. सर्व दर्शन, सेवा व देणगी वैशिष्ट्ये सुरळीत सुरू आहेत.'}
+              </span>
+            </div>
+            <button
+              onClick={() => setQuotaWarning(null)}
+              className="text-amber-300 hover:text-white px-2 py-0.5 rounded text-xs font-bold cursor-pointer"
+            >
+              ✕
+            </button>
           </div>
-          <button
-            onClick={() => setQuotaWarning(null)}
-            className="text-amber-300 hover:text-white px-2 py-0.5 rounded text-xs font-bold cursor-pointer"
-          >
-            ✕
-          </button>
         </div>
       )}
 
       {/* HERO SECTION / BANNER CANVAS */}
       {activeTab === 'home' && (
         <section 
-          className="relative w-full m-0 p-0 mx-0 px-0 min-h-[460px] sm:min-h-[540px] lg:min-h-[600px] overflow-hidden border-b border-brand-gold/15 bg-black flex flex-col items-center justify-center"
-          style={{ margin: 0, paddingLeft: 0, paddingRight: 0, width: '100%' }}
+          className="relative w-full min-h-[460px] sm:min-h-[540px] lg:min-h-[600px] overflow-hidden border-b border-brand-gold/15 bg-black flex flex-col items-center justify-center"
         >
           {/* Main Visual Altar background */}
           <div className="absolute inset-0 z-0 overflow-hidden">
             <DeviImage 
               aspectRatio="auto"
               objectFit="cover"
+              objectPosition="center 10%"
               priority
               className="w-full h-full opacity-65 brightness-95 saturate-[1.1] scale-100 transform transform-gpu overflow-hidden"
-              imageClassName="w-full h-full object-cover object-[center_12%] sm:object-[center_18%]"
+              imageClassName="w-full h-full"
             />
             {/* Soft Royal gradients */}
             <div className="absolute inset-0 bg-gradient-to-t from-brand-maroon via-black/40 to-transparent pointer-events-none" />
@@ -629,8 +631,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* MAIN CONTENT WRAPPER: Zero horizontal whitespace (margins/padding) across all breakpoints */}
-          <div className="w-full m-0 p-0 mx-0 px-0 sm:px-0 md:px-0 lg:px-0 xl:px-0 2xl:px-0 py-6 sm:py-10 lg:py-12 relative z-10 text-center space-y-4 sm:space-y-6" style={{ margin: 0, paddingLeft: 0, paddingRight: 0, width: '100%' }}>
+          {/* MAIN CONTENT WRAPPER: Generous responsive horizontal padding preventing content from touching edges */}
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 relative z-10 text-center space-y-5 sm:space-y-6">
             
             {/* Traditional Sacred Glowing Devi Mata Darshan & Akhand Jyot Diya */}
             <div className="flex justify-center items-center gap-2.5 sm:gap-4 select-none">
@@ -640,9 +642,10 @@ export default function App() {
                   <DeviImage 
                     aspectRatio="square" 
                     objectFit="cover"
+                    objectPosition="center 10%"
                     priority
                     className="w-full h-full rounded-full" 
-                    imageClassName="w-full h-full object-cover object-top"
+                    imageClassName="w-full h-full"
                   />
                 </div>
                 <div className="absolute -bottom-2 -right-1 animate-diya-flicker text-xl sm:text-2xl drop-shadow-[0_0_12px_rgba(255,153,51,0.95)]">
@@ -652,7 +655,7 @@ export default function App() {
               <span className="text-base sm:text-2xl text-brand-gold opacity-90 animate-pulse">✨</span>
             </div>
 
-            <div className="space-y-2 sm:space-y-3 w-full m-0 p-0 mx-0 px-0" style={{ margin: 0, paddingLeft: 0, paddingRight: 0 }}>
+            <div className="space-y-2 sm:space-y-3 w-full">
               <h1 className="font-sans text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold sm:font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] sm:drop-shadow-[0_0_25px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-normal leading-tight">
                 {cleanDevanagariSpelling(lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata (श्री इश्वटीची)') : (siteContent.welcome?.titleMR || 'श्री इश्वटीची माता'))}
               </h1>
@@ -660,39 +663,39 @@ export default function App() {
                 {cleanDevanagariSpelling(lang === 'EN' ? (siteContent.welcome?.subtitleEN || 'Faith • Devotion • Tradition • Service') : (siteContent.welcome?.subtitleMR || 'श्रद्धा • भक्ती • परंपरा • सेवा'))}
               </p>
               <div className="h-0.5 sm:h-1 w-20 sm:w-28 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
-              <p className="text-[11px] sm:text-xs md:text-sm text-gray-200 font-sans max-w-4xl mx-auto leading-relaxed drop-shadow line-clamp-3 sm:line-clamp-none px-2">
+              <p className="text-xs sm:text-sm md:text-base text-gray-200 font-sans max-w-4xl mx-auto leading-relaxed drop-shadow line-clamp-3 sm:line-clamp-none px-2">
                 {cleanDevanagariSpelling(lang === 'EN'
                   ? (siteContent.welcome?.descEN || 'Welcome to the official digital portal of Shree Ishwatichi Mata Devasthan Mandal. Experience live darshan from home and contribute to our community welfare initiatives.')
                   : (siteContent.welcome?.descMR || 'श्री इश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल कक्षात भाविकांचे स्वागत. घरबसल्या लाईव्ह पूजेचा आनंद घ्या आणि समाजोपयोगी उपक्रमांत भाग घ्या.'))}
               </p>
             </div>
 
-            {/* Quick Action Button Portals - Full-width responsive 4-column matrix */}
-            <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2.5 lg:gap-3.5 pt-2 sm:pt-3 m-0 p-0 mx-0 px-0" style={{ margin: 0, paddingLeft: 0, paddingRight: 0 }}>
+            {/* Quick Action Button Portals - Full-width responsive 4-column matrix with comfortable gaps and padding */}
+            <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 lg:gap-4 pt-3 sm:pt-4">
               <button 
                 onClick={() => setActiveTab('darshan')}
-                className="w-full min-h-[46px] sm:min-h-[52px] px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-brand-red text-white border-2 border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
+                className="w-full min-h-[48px] sm:min-h-[54px] px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-brand-red text-white border-2 border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
               >
                 <span className="text-base sm:text-xl shrink-0">🎥</span> 
                 <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn1}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('seva')}
-                className="w-full min-h-[46px] sm:min-h-[52px] px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-brand-maroon text-brand-gold border-2 border-brand-gold hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
+                className="w-full min-h-[48px] sm:min-h-[54px] px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-brand-maroon text-brand-gold border-2 border-brand-gold hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
               >
                 <span className="text-base sm:text-xl shrink-0">🕯️</span> 
                 <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn2}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('donation')}
-                className="w-full min-h-[46px] sm:min-h-[52px] px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-brand-gold text-brand-maroon hover:opacity-95 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
+                className="w-full min-h-[48px] sm:min-h-[54px] px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-brand-gold text-brand-maroon hover:opacity-95 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
               >
                 <span className="text-base sm:text-xl shrink-0">💝</span> 
                 <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn3}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('testimonials')}
-                className="w-full min-h-[46px] sm:min-h-[52px] px-2 sm:px-4 py-2 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-black/70 text-white border-2 border-white/20 hover:bg-white/20 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
+                className="w-full min-h-[48px] sm:min-h-[54px] px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-black/70 text-white border-2 border-white/20 hover:bg-white/20 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
               >
                 <span className="text-base sm:text-xl shrink-0">📝</span> 
                 <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn4}</span>
@@ -707,7 +710,7 @@ export default function App() {
       )}
 
       {/* MAIN VIEWPORT MATRIX CONTROLLER */}
-      <main className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-8 relative z-10 space-y-8 sm:space-y-10">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 relative z-10 space-y-8 sm:space-y-12">
         
         {/* Render Tab specific portals */}
         {activeTab === 'home' && (
@@ -721,9 +724,6 @@ export default function App() {
               onNavigateToPatrika={() => setActiveTab('patrika')}
               onRsvp={handleRsvpEvent}
             />
-
-            {/* Official Shardiya Navratri 2026 9-Day Festival Patrika (कार्यक्रम पत्रिका - २०२६) */}
-            <NavratriPatrikaSection lang={lang} />
 
             {/* Live streaming & quick timing schedule dashboards */}
             <LiveDarshanSection lang={lang} heroImagePath={heroImg} />
@@ -852,7 +852,7 @@ export default function App() {
 
       {/* MAIN FOOTER */}
       <footer className="w-full bg-brand-maroon border-t border-brand-gold/25 text-white/95 py-10 pb-28 md:pb-12 select-none relative z-10 font-sans text-xs">
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           
           <div className="space-y-3">
             <div className="flex items-center gap-3">

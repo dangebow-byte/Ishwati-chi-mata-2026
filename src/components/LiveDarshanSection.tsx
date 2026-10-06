@@ -525,9 +525,10 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                   alt="Shree Ishwatichi Mata Darshan Chamber Live"
                   aspectRatio="auto"
                   objectFit="cover"
+                  objectPosition="center 12%"
                   priority
                   className="w-full h-full overflow-hidden"
-                  imageClassName="w-full h-full object-cover object-[center_18%] transition-transform duration-1000 group-hover:scale-105"
+                  imageClassName="w-full h-full transition-transform duration-1000 group-hover:scale-105"
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none z-[2]" />

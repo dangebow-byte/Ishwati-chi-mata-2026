@@ -72,8 +72,14 @@ export const Header: React.FC<HeaderProps> = ({
     { 
       id: 'about', 
       label: t.nav_about, 
-      icon: '📜', 
+      icon: '🕉️', 
       desc: lang === 'EN' ? 'Sanctum history & sacred origin' : 'मंदिराचा इतिहास व देवीची आख्यायिका' 
+    },
+    { 
+      id: 'patrika', 
+      label: t.nav_patrika || (lang === 'EN' ? 'Karyakram Patrika' : 'कार्यक्रम पत्रिका'), 
+      icon: '📜', 
+      desc: lang === 'EN' ? 'Official 2026 9-Day Navratri Festival Program' : 'अधिकृत २०२६ नवरात्रौत्सव ९-दिवसीय कार्यक्रम पत्रिका' 
     },
     { 
       id: 'darshan', 
@@ -92,12 +98,6 @@ export const Header: React.FC<HeaderProps> = ({
       label: t.nav_events, 
       icon: '🗓️', 
       desc: lang === 'EN' ? 'Festival calendar & RSVP presence' : 'उत्सव वेळापत्रक व उपस्थिती नोंदणी' 
-    },
-    { 
-      id: 'patrika', 
-      label: lang === 'EN' ? 'Navratri Patrika' : 'नवरात्र पत्रिका', 
-      icon: '📜', 
-      desc: lang === 'EN' ? 'Official 2026 9-Day Navratri Festival Program' : 'अधिकृत २०२६ नवरात्रौत्सव ९-दिवसीय कार्यक्रम पत्रिका' 
     },
     { 
       id: 'gallery', 
@@ -150,13 +150,12 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header 
-      className="sticky top-0 z-50 w-screen m-0 p-0 px-0 mx-0 border-b border-brand-gold/20 bg-brand-maroon/95 backdrop-blur-md text-white shadow-xl transition-all"
-      style={{ padding: 0, margin: 0, width: '100vw' }}
+      className="sticky top-0 z-50 w-full border-b border-brand-gold/20 bg-brand-maroon/95 backdrop-blur-md text-white shadow-xl transition-all"
     >
-      <div className="w-full m-0 p-0 px-0 mx-0">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top utility bar */}
-        <div className="flex h-9 sm:h-10 items-center justify-between border-b border-white/10 text-xs text-brand-saffron gap-1.5 sm:gap-2 overflow-hidden w-full m-0 p-0 px-0">
+        <div className="flex h-9 sm:h-10 items-center justify-between border-b border-white/10 text-xs text-brand-saffron gap-1.5 sm:gap-2 overflow-hidden w-full">
           {/* Sacred chant greeting */}
           <div className="flex items-center gap-1 sm:gap-1.5 font-medium min-w-0 truncate">
             <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 animate-pulse text-brand-gold" />
