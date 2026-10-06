@@ -23,6 +23,7 @@ interface UpcomingFestivalCountdownProps {
   events: TempleEvent[];
   onNavigateToEvents?: () => void;
   onNavigateToSeva?: () => void;
+  onNavigateToPatrika?: () => void;
   onRsvp?: (eventId: string, devoteeName: string) => void;
 }
 
@@ -31,6 +32,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
   events,
   onNavigateToEvents,
   onNavigateToSeva,
+  onNavigateToPatrika,
   onRsvp,
 }) => {
   // Current time state updating every second
@@ -277,6 +279,16 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                 <span>✋</span>
                 <span>{lang === 'EN' ? 'Confirm Your Attendance' : 'उपस्थिती नोंदवा (RSVP)'}</span>
               </button>
+
+              {onNavigateToPatrika && (
+                <button
+                  onClick={onNavigateToPatrika}
+                  className="px-4 sm:px-5 py-2.5 rounded-xl bg-brand-gold hover:opacity-95 text-brand-maroon font-sans font-bold text-xs sm:text-sm border border-brand-gold shadow-lg hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>📜</span>
+                  <span>{lang === 'EN' ? 'Navratri Patrika 2026' : 'कार्यक्रम पत्रिका २०२६'}</span>
+                </button>
+              )}
 
               {onNavigateToSeva && (
                 <button

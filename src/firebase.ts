@@ -34,8 +34,15 @@ export interface FirestoreErrorInfo {
 }
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const isQuotaError = 
+    errorMessage.includes('Quota exceeded') || 
+    errorMessage.includes('resource-exhausted') ||
+    errorMessage.includes('Free daily read units per project') ||
+    errorMessage.includes('the client is offline');
+
   const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
+    error: errorMessage,
     authInfo: {
       userId: auth.currentUser?.uid,
       email: auth.currentUser?.email,
@@ -50,6 +57,21 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path
   };
+
+  if (isQuotaError) {
+    console.warn(
+      `Firestore Quota / Connectivity limit reached for path "${path}". ` +
+      `Quota resets daily next day at 00:00 UTC. ` +
+      `Upgrade or monitor quota at: https://console.firebase.google.com/project/${firebaseConfig.projectId}/firestore/databases/${firebaseConfig.firestoreDatabaseId}/data?openUpgradeDialog=true`
+    );
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('firestore-quota-exceeded', { 
+        detail: { path, message: errorMessage } 
+      }));
+    }
+    return;
+  }
+
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
 }

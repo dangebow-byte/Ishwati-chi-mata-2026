@@ -161,12 +161,12 @@ VALUES
 ),
 (
     'ev-2',
-    'श्री इश्वटीची शारदीय नवरात्र महोत्सव सोहळा',
-    'श्री इश्वटीची शारदीय नवरात्र महोत्सव सोहळा',
-    'श्री इश्वटीची मातेची ९ दिवसांची दैवी ऊर्जा. १,००८ तेलाच्या दिव्यांचा दीपोत्सव, गरबा नृत्य, अखंड जप, आणि महाप्रसाद वाटप.',
-    'श्री इश्वटीची मातेची ९ दिवसांची दैवी ऊर्जा. १,००८ तेलाच्या दिव्यांचा दीपोत्सव, गरबा नृत्य, अखंड जप, आणि महाप्रसाद वाटप.',
-    '2026-10-11',
-    'दररोज पहाटे ०४:०० ते रात्री ११:३०',
+    'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६',
+    'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६',
+    'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन, ११ ऑक्टोबर घटस्थापना ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
+    'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन, ११ ऑक्टोबर घटस्थापना ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
+    '2026-10-10',
+    '१० ऑक्टोबर ते २५ ऑक्टोबर २०२६',
     'उत्सव',
     1890,
     'https://images.unsplash.com/photo-1561361513-2d000a50f0db?auto=format&fit=crop&q=80&w=800'
@@ -233,7 +233,7 @@ CREATE TABLE IF NOT EXISTS navratri_patrika_schedule (
     date_str_en VARCHAR(128) NOT NULL,
     date_iso DATE NOT NULL,
     time_schedule VARCHAR(255) NOT NULL,
-    category VARCHAR(64) NOT NULL,
+    category VARCHAR(64) NOT NULL CHECK (category IN ('pooja', 'devotional', 'cultural', 'havan', 'visarjan', 'auction')),
     event_details_mr TEXT NOT NULL,
     event_details_en TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -241,21 +241,35 @@ CREATE TABLE IF NOT EXISTS navratri_patrika_schedule (
 
 CREATE INDEX IF NOT EXISTS idx_patrika_schedule_date 
     ON navratri_patrika_schedule (date_iso ASC);
+CREATE INDEX IF NOT EXISTS idx_patrika_schedule_day 
+    ON navratri_patrika_schedule (day_number ASC);
+CREATE INDEX IF NOT EXISTS idx_patrika_category 
+    ON navratri_patrika_schedule (category);
 
--- Seed Data: Official Shardiya Navratri 2026 Patrika (श्री यंग इश्वटी नवरात्रौत्सव मंडळ रजि.)
+-- Seed Data: Official Shardiya Navratri 2026 Patrika (यंग इश्वटी नवरात्रौत्सव मंडळ)
 INSERT INTO navratri_patrika_schedule (id, day_number, day_name_mr, day_name_en, date_str_mr, date_str_en, date_iso, time_schedule, category, event_details_mr, event_details_en)
 VALUES
-('patrika-day-1', 1, 'रविवार', 'Sunday', '११ ऑक्टोबर २०२६', '11 Oct 2026', '2026-10-11', 'सकाळी ११.०० वा.', 'pooja', 'श्री देवीची प्रतिष्ठापना (घटस्थापना सोहळा)', 'Shree Devi Idol Consecration & Ghatasthapana Ceremony'),
-('patrika-day-2', 2, 'सोमवार', 'Monday', '१२ ऑक्टोबर २०२६', '12 Oct 2026', '2026-10-12', 'सायं. ०५.०० वा.', 'devotional', 'महिला भजन - स्वामी समर्थ महिला भजन मंडळ, अभ्युदयनगर, काळाचौकी, मुंबई - ४०० ०३३', 'Mahila Bhajan - Swami Samarth Mahila Bhajan Mandal, Abhyudayanagar, Kalachowki, Mumbai - 400 033'),
-('patrika-day-3', 3, 'मंगळवार', 'Tuesday', '१३ ऑक्टोबर २०२६', '13 Oct 2026', '2026-10-13', 'सायं. ६ ते रात्रौ. १० वा.', 'cultural', 'मैदानी स्पर्धा व सांस्कृतिक कार्यक्रम', 'Outdoor Sports Competitions & Cultural Programs'),
-('patrika-day-4', 4, 'बुधवार', 'Wednesday', '१४ ऑक्टोबर २०२६', '14 Oct 2026', '2026-10-14', 'सायं. ६ ते रात्रौ. १० वा.', 'cultural', 'सांस्कृतिक कार्यक्रम व बालकलाकार सादरीकरण', 'Grand Cultural Evening & Youth Talent Performances'),
-('patrika-day-5', 5, 'गुरुवार', 'Thursday', '१५ ऑक्टोबर २०२६', '15 Oct 2026', '2026-10-15', 'सायं. ६ ते रात्रौ. १० वा.', 'cultural', 'सांस्कृतिक कार्यक्रम व पारंपारिक लोकनृत्य', 'Traditional Folk Dance & Cultural Programs'),
-('patrika-day-6', 6, 'शुक्रवार', 'Friday', '१६ ऑक्टोबर २०२६', '16 Oct 2026', '2026-10-16', 'रात्रौ ९.०० वा.', 'devotional', 'देवीचा पावन गोंधळ व जागर सोहळा', 'Sacred Devi Gondhal & Divine Awakening Chants'),
-('patrika-day-7', 7, 'शनिवार', 'Saturday', '१७ ऑक्टोबर २०२६', '17 Oct 2026', '2026-10-17', 'रात्रौ ८.०० वा.', 'cultural', 'चला खेळ खेळूया अंताक्षरी (भव्य कौटुंबिक संगीत स्पर्धा)', 'Chala Khel Kheluya Antakshari (Grand Devotional Musical Game)'),
-('patrika-day-8', 8, 'रविवार', 'Sunday', '१८ ऑक्टोबर २०२६', '18 Oct 2026', '2026-10-18', 'रात्रौ ८.०० वा.', 'cultural', 'मैदानी स्पर्धा व सांस्कृतिक कार्यक्रम', 'Outdoor Sports Championship & Cultural Program'),
-('patrika-day-9', 9, 'सोमवार', 'Monday', '१९ ऑक्टोबर २०२६', '19 Oct 2026', '2026-10-19', 'दुपारी २.०० वा. व सायं. ७.०० वा.', 'havan', 'दुपारी २.०० वा. होम हवन | सायं. ७.०० वा. महाप्रसाद (भंडारा)', '02:00 PM Sacred Homa Havanam | 07:00 PM Community Mahaprasad Bhandara Feast'),
-('patrika-day-10', 10, 'मंगळवार', 'Tuesday', '२० ऑक्टोबर २०२६', '20 Oct 2026', '2026-10-20', 'सायं. ६ ते रात्रौ. १० वा.', 'cultural', 'मैदानी स्पर्धा (अंतिम फेरी व पारितोषिक सोहळा)', 'Sports Championships (Final Rounds & Awards)'),
-('patrika-day-11', 11, 'बुधवार', 'Wednesday', '२१ ऑक्टोबर २०२६', '21 Oct 2026', '2026-10-21', 'सायं ६.०० वा. व रात्रौ ९.०० वा.', 'cultural', 'सायं ६.०० वा. हळदी कुंकू समारंभ | रात्रौ ९.०० वा. दसरा संमेलन (सोने लुटणे) | रात्रौ ९.०० वा. दांडीया रास', '06:00 PM Haldi Kunku | 09:00 PM Dussehra Sammelan | 09:00 PM Dandiya Raas'),
-('patrika-day-12', 12, 'गुरुवार', 'Thursday', '२२ ऑक्टोबर २०२६', '22 Oct 2026', '2026-10-22', 'सकाळी ११.०० वा. व सायं. ६.०० वा.', 'visarjan', 'सकाळी ११.०० वा. देवीच्या साड्यांचा भव्य जाहीर लिलाव | सायं. ६.०० वा. श्री इश्वटी मातेची भव्य दिव्य विसर्जन मिरवणूक', '11:00 AM Devi Saree Auction | 06:00 PM Shree Ishwati Mata Grand Visarjan Procession'),
-('patrika-day-13', 13, 'रविवार', 'Sunday', '२५ ऑक्टोबर २०२६', '25 Oct 2026', '2026-10-25', 'सकाळी ११.०० वा.', 'auction', 'देवीच्या साड्यांचा भव्य जाहीर लिलाव (अंतिम सत्र)', 'Grand Public Auction of Consecrated Devi Sarees (Final Session)')
-ON CONFLICT (id) DO NOTHING;
+('patrika-day-1', 1, 'शनिवार', 'Saturday', '१०/१०/२०२६', '10/10/2026', '2026-10-10', 'संध्याकाळी ५.०० वाजता', 'pooja', 'श्री इश्वटी देवीचे आगमन | स्थळ : उदय खातू कारखाना (भालचंद्र मैदान)', 'Shree Ishwati Devi Grand Arrival (Aagman) | Venue: Uday Khatu Karkhana (Bhalchandra Maidan)'),
+('patrika-day-2', 2, 'रविवार', 'Sunday', '११/१०/२०२६', '11/10/2026', '2026-10-11', 'सकाळी ११.०० वा., सायं. ६.०० वा., ठीक ८.०० वा.', 'pooja', 'सकाळी ११.०० वा. देवीची घटस्थापना | सायं. ६.०० वा. सांस्कृतिक कार्यक्रम (भजन) - जीवन विद्या मिशन (उपासना यज्ञ) | ठीक ८.०० वा. खेळ खेळूया अंताक्षरीचा स्पर्धा सौजन्य संजय परब', '11:00 AM Devi Ghatasthapana | 06:00 PM Bhajan - Jeevan Vidya Mission (Upasana Yajna) | 08:00 PM Antakshari Competition courtesy Sanjay Parab'),
+('patrika-day-3', 3, 'सोमवार', 'Monday', '१२/१०/२०२६', '12/10/2026', '2026-10-12', 'संध्याकाळी ६.०० वाजता', 'devotional', 'सांस्कृतिक कार्यक्रम (भजन) - श्री स्वामी समर्थ महिला भजन मंडळ (अभ्युदयनगर)', 'Cultural Program (Bhajan) - Shree Swami Samarth Mahila Bhajan Mandal (Abhyudayanagar)'),
+('patrika-day-4', 4, 'मंगळवार', 'Tuesday', '१३/१०/२०२६', '13/10/2026', '2026-10-13', 'दुपारी २.३० वाजता', 'cultural', 'सांस्कृतिक कार्यक्रम - मैदानी स्पर्धा | अखिल भारतीय श्री स्वामी समर्थ आध्यात्मिक विकास मार्ग (काळाचौकी केंद्रातर्फे) दुर्गासप्तशती पाठ', 'Cultural Program - Sports Competition | Durga Saptashati Path by Akhil Bharatiya Shree Swami Samarth Adhyatmik Vikas Marg (Kalachowki Center)'),
+('patrika-day-5', 5, 'बुधवार', 'Wednesday', '१४/१०/२०२६', '14/10/2026', '2026-10-14', 'रात्री ८.०० वा. व सायं. ८.०० वा.', 'devotional', 'रात्री ८.०० वा. महाआरती ( बिल्डिंग नंबर ४१ अभ्युदयनगर ) | संध्याकाळी ८.०० वा. पाककला स्पर्धा', '08:00 PM Maha Aarti (Building No. 41, Abhyudayanagar) | 08:00 PM Pakkala Spardha (Culinary Competition)'),
+('patrika-day-6', 6, 'गुरुवार', 'Thursday', '१५/१०/२०२६', '15/10/2026', '2026-10-15', 'सायंकाळी ४.०० वा. व सायं. ७.०० वा.', 'pooja', 'सायंकाळी ४.०० वा. सत्यनारायण पूजा | संध्याकाळी ७.०० वा. भजन कार्यक्रम', '04:00 PM Satyanarayan Pooja | 07:00 PM Devotional Bhajan Program'),
+('patrika-day-7', 7, 'शुक्रवार', 'Friday', '१६/१०/२०२६', '16/10/2026', '2026-10-16', 'संध्याकाळी ७.०० वाजता', 'cultural', 'संगीत कार्यक्रम', 'Musical Orchestra & Devotional Songs Program'),
+('patrika-day-8', 8, 'शनिवार', 'Saturday', '१७/१०/२०२६', '17/10/2026', '2026-10-17', 'रात्री ९.०० वाजता', 'devotional', 'देवीच जागरण व गोंधळ', 'Devicha Jagran & Gondhal Sacred Ceremony'),
+('patrika-day-9', 9, 'रविवार', 'Sunday', '१८/१०/२०२६', '18/10/2026', '2026-10-18', 'दुपारी २.३० वाजता', 'havan', 'होमहवन व देवीचा महाप्रसाद (भंडारा)', 'Sacred Hom-Havan & Devi Mahaprasad (Grand Bhandara Feast)'),
+('patrika-day-10', 10, 'सोमवार', 'Monday', '१९/१०/२०२६', '19/10/2026', '2026-10-19', 'संध्याकाळी ८.०० वाजता', 'cultural', 'खेळ खेळू पैठणीचा', 'Khel Khelu Paithanicha (Grand Family Traditional Contest)'),
+('patrika-day-11', 11, 'मंगळवार', 'Tuesday', '२०/१०/२०२६', '20/10/2026', '2026-10-20', 'संध्याकाळी ८.०० वाजता', 'cultural', 'दसरा-सोने लुटण्याचा कार्यक्रम', 'Dussehra - Sone Lutnyacha Karyakram (Traditional Gold Leaf Greetings)'),
+('patrika-day-12', 12, 'बुधवार', 'Wednesday', '२१/१०/२०२६', '21/10/2026', '2026-10-21', 'संध्याकाळी ६.०० वाजता', 'visarjan', 'श्री इश्वटी मातेची भव्य-दिव्य मिरवणूक विसर्जन', 'Shree Ishwati Mata Grand Holy Visarjan Immersion Procession'),
+('patrika-day-13', 13, 'रविवार', 'Sunday', '२५/१०/२०२६', '25/10/2026', '2026-10-25', 'सकाळी ११.०० वाजता', 'auction', 'साडी लिलाव व कोजागिरी पौर्णिमा', 'Devi Saree Public Auction & Kojagiri Pournima Celebration')
+ON CONFLICT (id) DO UPDATE SET
+    day_number = EXCLUDED.day_number,
+    day_name_mr = EXCLUDED.day_name_mr,
+    day_name_en = EXCLUDED.day_name_en,
+    date_str_mr = EXCLUDED.date_str_mr,
+    date_str_en = EXCLUDED.date_str_en,
+    date_iso = EXCLUDED.date_iso,
+    time_schedule = EXCLUDED.time_schedule,
+    category = EXCLUDED.category,
+    event_details_mr = EXCLUDED.event_details_mr,
+    event_details_en = EXCLUDED.event_details_en;

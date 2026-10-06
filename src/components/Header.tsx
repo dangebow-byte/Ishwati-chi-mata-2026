@@ -94,6 +94,12 @@ export const Header: React.FC<HeaderProps> = ({
       desc: lang === 'EN' ? 'Festival calendar & RSVP presence' : 'उत्सव वेळापत्रक व उपस्थिती नोंदणी' 
     },
     { 
+      id: 'patrika', 
+      label: lang === 'EN' ? 'Navratri Patrika' : 'नवरात्र पत्रिका', 
+      icon: '📜', 
+      desc: lang === 'EN' ? 'Official 2026 9-Day Navratri Festival Program' : 'अधिकृत २०२६ नवरात्रौत्सव ९-दिवसीय कार्यक्रम पत्रिका' 
+    },
+    { 
       id: 'gallery', 
       label: t.nav_gallery, 
       icon: '🖼️', 

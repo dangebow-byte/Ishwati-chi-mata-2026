@@ -6,7 +6,7 @@
 import React from 'react';
 import deviMainWebp from '../assets/devotional/devi-mata-main.webp';
 import deviMobileWebp from '../assets/devotional/devi-mata-main-mobile.webp';
-import deviMainJpg from '../assets/devotional/devi-mata-main.jpg';
+import deviMainJpg from '../assets/devotional/devi-mata-main.jpeg';
 
 export type DeviAspectRatio = 'portrait' | 'square' | 'hero' | 'auto';
 

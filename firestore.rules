@@ -88,6 +88,19 @@ service cloud.firestore {
              data.data is map;
     }
 
+    function isValidPatrikaDay(data) {
+      return data.id is string && data.id.size() <= 64 &&
+             data.dayIndex is number &&
+             data.dayNameMr is string && data.dayNameMr.size() <= 64 &&
+             data.dayNameEn is string && data.dayNameEn.size() <= 64 &&
+             data.dateStrMr is string && data.dateStrMr.size() <= 128 &&
+             data.dateStrEn is string && data.dateStrEn.size() <= 128 &&
+             data.dateIso is string && data.dateIso.size() <= 20 &&
+             data.defaultTimeMr is string && data.defaultTimeMr.size() <= 100 &&
+             data.defaultTimeEn is string && data.defaultTimeEn.size() <= 100 &&
+             data.category is string && data.category.size() <= 50;
+    }
+
     // --- COLLECTION GATES ---
 
     // 1. ANNOUNCEMENTS
@@ -137,6 +150,14 @@ service cloud.firestore {
       allow create: if isAdmin() && isValidSiteContent(request.resource.data) && isValidId(contentId);
       allow update: if isAdmin() && isValidSiteContent(request.resource.data) && isValidId(contentId);
       allow delete: if isAdmin() && isValidId(contentId);
+    }
+
+    // 7. NAVRATRI PATRIKA (Festival Calendar)
+    match /navratri_patrika/{patrikaId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidPatrikaDay(request.resource.data) && isValidId(patrikaId);
+      allow update: if isAdmin() && isValidPatrikaDay(request.resource.data) && isValidId(patrikaId);
+      allow delete: if isAdmin() && isValidId(patrikaId);
     }
   }
 }

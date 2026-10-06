@@ -94,6 +94,24 @@
         "data": { "type": "object" }
       },
       "required": ["id", "contentKey", "data"]
+    },
+    "NavratriPatrikaDay": {
+      "title": "NavratriPatrikaDay",
+      "description": "Authentic 9-Day Navratri Festival Schedule program item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "dayIndex": { "type": "number" },
+        "dayNameMr": { "type": "string" },
+        "dayNameEn": { "type": "string" },
+        "dateStrMr": { "type": "string" },
+        "dateStrEn": { "type": "string" },
+        "dateIso": { "type": "string" },
+        "defaultTimeMr": { "type": "string" },
+        "defaultTimeEn": { "type": "string" },
+        "category": { "type": "string" }
+      },
+      "required": ["id", "dayIndex", "dayNameMr", "dayNameEn", "dateStrMr", "dateStrEn", "dateIso", "defaultTimeMr", "defaultTimeEn", "category"]
     }
   },
   "firestore": {
@@ -120,6 +138,10 @@
     "/site_content/{contentId}": {
       "schema": "SiteContent",
       "description": "Site content dynamic variables for CMS"
+    },
+    "/navratri_patrika/{patrikaId}": {
+      "schema": "NavratriPatrikaDay",
+      "description": "Navratri Patrika day schedule programs"
     }
   }
 }

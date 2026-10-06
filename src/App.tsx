@@ -45,13 +45,14 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
 
-  // Unified State from Firestore & Auth
+  // Unified State from Firestore & Auth - initialized with authentic defaults to survive quota exhaustion
   const [siteContent, setSiteContent] = useState(DEFAULT_SITE_CONTENT);
-  const [events, setEvents] = useState<TempleEvent[]>([]);
-  const [experiences, setExperiences] = useState<DevoteeExperience[]>([]);
+  const [events, setEvents] = useState<TempleEvent[]>(INITIAL_EVENTS);
+  const [experiences, setExperiences] = useState<DevoteeExperience[]>(INITIAL_TESTIMONIALS);
   const [bookings, setBookings] = useState<DigitalSevaBooking[]>([]);
   const [donations, setDonations] = useState<DonationRecord[]>([]);
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>(INITIAL_ANNOUNCEMENTS);
+  const [quotaWarning, setQuotaWarning] = useState<string | null>(null);
   
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -66,9 +67,12 @@ export default function App() {
   });
   const [claimsHistory, setClaimsHistory] = useState<{ id: string; title: string; date: string }[]>([]);
 
-  // Function to seed database on first mount if empty
+  // Function to seed database on first mount if empty - guarded against redundant quota consumption
   const seedDatabaseIfNeeded = async () => {
     try {
+      if (localStorage.getItem('mandal_seeded_v1') === 'true') {
+        return;
+      }
       const siteContentCheck = await getDocs(collection(db, 'site_content'));
       if (siteContentCheck.empty) {
         console.log('Database empty! Seeding default entries to Firestore...');
@@ -100,13 +104,20 @@ export default function App() {
 
         console.log('Firestore seed complete!');
       }
+      localStorage.setItem('mandal_seeded_v1', 'true');
     } catch (e) {
       console.warn('Silent seeding error (mostly rules/sandbox permissions checks):', e);
     }
   };
 
-  // Setup Firestore real-time onSnapshot sync
+  // Setup Firestore real-time onSnapshot sync & quota listener
   useEffect(() => {
+    const handleQuotaNotification = (e: Event) => {
+      const customEvt = e as CustomEvent;
+      setQuotaWarning(customEvt.detail?.message || 'Daily free read quota reached');
+    };
+    window.addEventListener('firestore-quota-exceeded', handleQuotaNotification);
+
     seedDatabaseIfNeeded();
 
     const unsubContent = onSnapshot(collection(db, 'site_content'), (snapshot) => {
@@ -137,10 +148,16 @@ export default function App() {
       const list: TempleEvent[] = [];
       snapshot.forEach(docSnap => {
         const evtData = cleanDevanagariSpelling(docSnap.data() as TempleEvent);
-        // Fix for ev-2 if previously stored in Firestore as 2026-10-12
-        if (evtData.id === 'ev-2' && evtData.date === '2026-10-12') {
-          evtData.date = '2026-10-11';
-          setDoc(doc(db, 'events', 'ev-2'), { date: '2026-10-11' }, { merge: true }).catch(() => {});
+        // Sync ev-2 date with official festival schedule start date (2026-10-10)
+        if (evtData.id === 'ev-2' && (evtData.date === '2026-10-12' || evtData.date === '2026-10-11')) {
+          evtData.date = '2026-10-10';
+          evtData.title = 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६';
+          evtData.titleMarathi = 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६';
+          setDoc(doc(db, 'events', 'ev-2'), { 
+            date: '2026-10-10',
+            title: evtData.title,
+            titleMarathi: evtData.titleMarathi
+          }, { merge: true }).catch(() => {});
         }
         list.push(evtData);
       });
@@ -175,6 +192,7 @@ export default function App() {
     }
 
     return () => {
+      window.removeEventListener('firestore-quota-exceeded', handleQuotaNotification);
       unsubContent();
       unsubAnn();
       unsubEvt();
@@ -542,6 +560,26 @@ export default function App() {
         logoUrl={logoImg}
       />
 
+      {/* Resilient Quota Notification Banner */}
+      {quotaWarning && (
+        <div className="w-full bg-amber-950/90 border-b border-amber-500/40 text-amber-200 text-xs py-2 px-4 flex items-center justify-between gap-3 z-40 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="text-base">ℹ️</span>
+            <span>
+              {lang === 'EN'
+                ? 'Daily free read quota reached for today. Running in high-performance cached mode with full live access. Quota automatically resets tomorrow.'
+                : 'दैनिक मोफत मर्यादा पूर्ण झाल्यामुळे स्थानिक सुरक्षित डेटा वापरला जात आहे. सर्व दर्शन, सेवा व देणगी वैशिष्ट्ये सुरळीत सुरू आहेत.'}
+            </span>
+          </div>
+          <button
+            onClick={() => setQuotaWarning(null)}
+            className="text-amber-300 hover:text-white px-2 py-0.5 rounded text-xs font-bold cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* HERO SECTION / BANNER CANVAS */}
       {activeTab === 'home' && (
         <section 
@@ -566,7 +604,7 @@ export default function App() {
           <div className="hidden 2xl:flex absolute left-8 top-1/2 -translate-y-1/2 flex-col items-center gap-8 opacity-50 z-20 pointer-events-none">
             <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent"></div>
             <span className="uppercase tracking-[0.4em] text-[10px] text-[#D4AF37] font-semibold font-mono" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
-              {lang === 'EN' ? 'Established 1976' : 'स्थापना १९७६'}
+              {lang === 'EN' ? 'Established 1974' : 'स्थापना १९७४'}
             </span>
             <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent"></div>
           </div>
@@ -680,6 +718,7 @@ export default function App() {
               events={events.length > 0 ? events : INITIAL_EVENTS}
               onNavigateToEvents={() => setActiveTab('events')}
               onNavigateToSeva={() => setActiveTab('seva')}
+              onNavigateToPatrika={() => setActiveTab('patrika')}
               onRsvp={handleRsvpEvent}
             />
 
@@ -747,6 +786,10 @@ export default function App() {
               alert(`Awesome RSVP Registered under name: ${name}. Welcome to the local mandir!`);
             }}
           />
+        )}
+
+        {activeTab === 'patrika' && (
+          <NavratriPatrikaSection lang={lang} />
         )}
 
         {activeTab === 'gallery' && (
@@ -818,8 +861,8 @@ export default function App() {
             </div>
             <p className="text-gray-300 leading-normal">
               {lang === 'EN' 
-                ? 'Registered non-profit public organization establishing social unity, moral spirituality, and cultural pride since 1976.' 
-                : '१९७६ पासून कार्यरत अधिकृत धर्मादाय ट्रस्ट. समाजकार्य आणि शुद्ध भक्ती परंपरा जोपासणारे महाराष्ट्रातील अग्रगण्य मंडळ.'}
+                ? 'Registered non-profit public organization establishing social unity, moral spirituality, and cultural pride since 1974.' 
+                : '१९७४ पासून कार्यरत अधिकृत धर्मादाय ट्रस्ट. समाजकार्य आणि शुद्ध भक्ती परंपरा जोपासणारे महाराष्ट्रातील अग्रगण्य मंडळ.'}
             </p>
           </div>
 
@@ -836,6 +879,7 @@ export default function App() {
           <div className="space-y-2">
             <h5 className="font-bold text-white font-sans tracking-widest uppercase text-xs">{lang === 'EN' ? 'Holy Calendars' : 'अधिकृत उत्सव'}</h5>
             <ul className="space-y-1.5 text-gray-300">
+              <li><button onClick={() => setActiveTab('patrika')} className="hover:text-brand-saffron text-left cursor-pointer font-bold text-brand-gold">{lang === 'EN' ? '📜 Navratri Patrika 2026' : '📜 नवरात्र कार्यक्रम पत्रिका २०२६'}</button></li>
               <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Navratri Mahotsav</button></li>
               <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Ashadhi Ekadashi</button></li>
               <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Gudi Padwa Shobha Yatra</button></li>

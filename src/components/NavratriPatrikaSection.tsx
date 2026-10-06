@@ -14,6 +14,7 @@ import {
   Award, 
   Users, 
   CheckCircle2, 
+  MapPin,
   ChevronRight,
   Filter
 } from 'lucide-react';
@@ -51,7 +52,8 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
         day.dateStrEn.toLowerCase().includes(q) ||
         day.events.some(e => 
           e.titleMr.toLowerCase().includes(q) || 
-          e.titleEn.toLowerCase().includes(q)
+          e.titleEn.toLowerCase().includes(q) ||
+          (e.venueMr && e.venueMr.toLowerCase().includes(q))
         );
 
       return matchesFilter && matchesSearch;
@@ -71,46 +73,66 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
       <div className="absolute top-0 right-0 w-72 h-72 bg-radial from-brand-gold/15 via-transparent to-transparent pointer-events-none -z-0" />
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-radial from-brand-red/20 via-transparent to-transparent pointer-events-none -z-0" />
 
-      {/* Top Header Card mimicking the Authentic Patrika */}
-      <div className="relative z-10 border-b-2 border-brand-gold/30 pb-6 mb-6 text-center space-y-3">
+      {/* Top Header Card mimicking the Authentic Published Patrika */}
+      <div className="relative z-10 border-b-2 border-brand-gold/30 pb-6 mb-6 text-center space-y-3.5">
         
-        {/* Sacred Trishul & Devasthan Invocation */}
-        <div className="flex items-center justify-center gap-3">
-          <span className="text-xl sm:text-2xl text-brand-gold animate-pulse">🔱</span>
-          <span className="font-sans font-black text-brand-gold text-base sm:text-xl tracking-widest drop-shadow-[0_0_12px_rgba(212,175,55,0.7)]">
-            ॥ श्री इश्वटीची माता ॥
-          </span>
-          <span className="text-xl sm:text-2xl text-brand-gold animate-pulse">🔱</span>
+        {/* Top Badges Bar: Year 53, Est. 1974 & Holy Invocation */}
+        <div className="flex flex-wrap items-center justify-between gap-2 max-w-4xl mx-auto px-1 sm:px-4">
+          
+          {/* 53rd Year Emblem Badge */}
+          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-900 to-indigo-950 border-2 border-blue-400 text-white px-3 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-lg">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-blue-200">
+              {lang === 'EN' ? 'Year' : 'वर्ष'}
+            </span>
+            <span className="font-sans font-black text-sm sm:text-base text-yellow-300">
+              {lang === 'EN' ? MANDAL_PATRIKA_METADATA.yearLabelEn : MANDAL_PATRIKA_METADATA.yearLabelMr}
+            </span>
+          </div>
+
+          {/* Sacred Devasthan Invocation */}
+          <div className="flex items-center justify-center gap-2 select-none">
+            <span className="text-sm sm:text-lg text-brand-gold animate-pulse">🔱</span>
+            <span className="font-sans font-black text-brand-gold text-xs sm:text-base tracking-widest drop-shadow-[0_0_10px_rgba(212,175,55,0.7)]">
+              {lang === 'EN' ? MANDAL_PATRIKA_METADATA.invocationEn : MANDAL_PATRIKA_METADATA.invocationMr}
+            </span>
+            <span className="text-sm sm:text-lg text-brand-gold animate-pulse">🔱</span>
+          </div>
+
+          {/* Establishment Year 1974 Badge */}
+          <div className="flex items-center gap-2 bg-gradient-to-r from-red-950 to-brand-maroon border border-brand-gold/40 text-brand-gold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full shadow">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-gray-300">
+              {lang === 'EN' ? 'Est.' : 'स्थापना'}
+            </span>
+            <span className="font-sans font-bold text-xs sm:text-sm text-brand-gold">
+              {lang === 'EN' ? MANDAL_PATRIKA_METADATA.establishmentYearEn : MANDAL_PATRIKA_METADATA.establishmentYearMr}
+            </span>
+          </div>
+
         </div>
 
         {/* Official Mandal Title */}
-        <div className="space-y-1">
-          <h2 className="font-sans font-black text-2xl sm:text-4xl lg:text-5xl text-white tracking-wide drop-shadow-md">
+        <div className="space-y-1 pt-1">
+          <h2 className="font-sans font-black text-2xl sm:text-4xl lg:text-5xl text-white tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
             {lang === 'EN' ? MANDAL_PATRIKA_METADATA.mandalNameEn : MANDAL_PATRIKA_METADATA.mandalNameMr}
           </h2>
-          <p className="text-xs sm:text-sm text-gray-300 font-sans tracking-wide">
-            {lang === 'EN' ? MANDAL_PATRIKA_METADATA.regNumberEn : MANDAL_PATRIKA_METADATA.regNumberMr} •{' '}
-            <strong className="text-brand-saffron font-sans font-bold">
-              {lang === 'EN' ? MANDAL_PATRIKA_METADATA.yearLabelEn : MANDAL_PATRIKA_METADATA.yearLabelMr}
-            </strong>
-          </p>
+          <div className="h-0.5 w-32 sm:w-48 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
         </div>
 
-        {/* Golden Commemorative Banner Title */}
-        <div className="pt-2 flex justify-center">
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-gradient-to-r from-brand-maroon via-red-950 to-brand-maroon border-2 border-brand-gold shadow-[0_0_20px_rgba(212,175,55,0.5)]">
-            <span className="text-lg">🪔</span>
-            <h3 className="font-sans font-black text-base sm:text-2xl text-brand-gold uppercase tracking-wider">
+        {/* Traditional Ornamental Ribbon Title */}
+        <div className="pt-1 flex justify-center">
+          <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 rounded-2xl bg-gradient-to-r from-brand-maroon via-red-900 to-brand-maroon border-2 border-brand-gold shadow-[0_0_24px_rgba(212,175,55,0.6)]">
+            <span className="text-base sm:text-xl">🪔</span>
+            <h3 className="font-sans font-black text-sm sm:text-xl md:text-2xl text-yellow-300 uppercase tracking-wider drop-shadow-sm">
               {lang === 'EN' ? MANDAL_PATRIKA_METADATA.titleEn : MANDAL_PATRIKA_METADATA.titleMr}
             </h3>
-            <span className="text-lg">🪔</span>
+            <span className="text-base sm:text-xl">🪔</span>
           </div>
         </div>
 
-        <p className="text-xs sm:text-sm text-brand-saffron font-medium max-w-3xl mx-auto pt-1 font-sans">
+        <p className="text-xs sm:text-sm text-gray-200 font-medium max-w-3xl mx-auto pt-1 font-sans">
           {lang === 'EN'
-            ? 'Official 9-Day Festival Calendar for Shardiya Navratri 2026 • 11 October to 25 October 2026'
-            : 'शारदीय नवरात्रौत्सव २०२६ चे अधिकृत ९ दिवसांचे सविस्तर व पावन कार्यक्रम वेळापत्रक • ११ ऑक्टोबर ते २५ ऑक्टोबर २०२६'}
+            ? 'Official Festival Calendar for Shardiya Navratri 2026 • 10 October to 25 October 2026'
+            : 'शारदीय नवरात्रौत्सव २०२६ चे अधिकृत सविस्तर कार्यक्रम वेळापत्रक • १० ऑक्टोबर ते २५ ऑक्टोबर २०२६'}
         </p>
 
         {/* Action Bar: Filters, Search, Print */}
@@ -126,7 +148,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                   : 'bg-black/50 text-gray-300 hover:text-white border border-white/10'
               }`}
             >
-              {lang === 'EN' ? 'All Days (13 Events)' : 'सर्व दिवस (१३ कार्यक्रम)'}
+              {lang === 'EN' ? 'All (13 Events)' : 'सर्व (१३ दिवस)'}
             </button>
             <button
               onClick={() => setActiveFilter('pooja')}
@@ -136,17 +158,17 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                   : 'bg-black/50 text-gray-300 hover:text-white border border-white/10'
               }`}
             >
-              {lang === 'EN' ? 'Ghatasthapana & Pooja' : 'प्रतिष्ठापना व पूजा'}
+              {lang === 'EN' ? 'Aagman & Pooja' : 'आगमन व पूजा'}
             </button>
             <button
-              onClick={() => setActiveFilter('havan')}
+              onClick={() => setActiveFilter('devotional')}
               className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
-                activeFilter === 'havan'
+                activeFilter === 'devotional'
                   ? 'bg-brand-gold text-brand-maroon shadow-md border border-brand-gold'
                   : 'bg-black/50 text-gray-300 hover:text-white border border-white/10'
               }`}
             >
-              {lang === 'EN' ? 'Havan & Bhandara' : 'होम हवन व महाप्रसाद'}
+              {lang === 'EN' ? 'Bhajan, Aarti & Gondhal' : 'भजन, आरती व गोंधळ'}
             </button>
             <button
               onClick={() => setActiveFilter('cultural')}
@@ -156,17 +178,37 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                   : 'bg-black/50 text-gray-300 hover:text-white border border-white/10'
               }`}
             >
-              {lang === 'EN' ? 'Cultural & Dandiya' : 'सांस्कृतिक व दांडीया'}
+              {lang === 'EN' ? 'Cultural & Contests' : 'सांस्कृतिक व स्पर्धा'}
             </button>
             <button
-              onClick={() => setActiveFilter('visarjan')}
+              onClick={() => setActiveFilter('havan')}
               className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
-                activeFilter === 'visarjan' || activeFilter === 'auction'
+                activeFilter === 'havan'
                   ? 'bg-brand-gold text-brand-maroon shadow-md border border-brand-gold'
                   : 'bg-black/50 text-gray-300 hover:text-white border border-white/10'
               }`}
             >
-              {lang === 'EN' ? 'Visarjan & Auction' : 'विसर्जन व लिलाव'}
+              {lang === 'EN' ? 'Hom-Havan & Bhandara' : 'होमहवन व महाप्रसाद'}
+            </button>
+            <button
+              onClick={() => setActiveFilter('visarjan')}
+              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
+                activeFilter === 'visarjan'
+                  ? 'bg-brand-gold text-brand-maroon shadow-md border border-brand-gold'
+                  : 'bg-black/50 text-gray-300 hover:text-white border border-white/10'
+              }`}
+            >
+              {lang === 'EN' ? 'Visarjan Procession' : 'विसर्जन मिरवणूक'}
+            </button>
+            <button
+              onClick={() => setActiveFilter('auction')}
+              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
+                activeFilter === 'auction'
+                  ? 'bg-brand-gold text-brand-maroon shadow-md border border-brand-gold'
+                  : 'bg-black/50 text-gray-300 hover:text-white border border-white/10'
+              }`}
+            >
+              {lang === 'EN' ? 'Saree Auction' : 'साडी लिलाव'}
             </button>
           </div>
 
@@ -197,20 +239,20 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
 
       </div>
 
-      {/* DESKTOP & TABLET VIEW: Authentic Traditional Patrika Table */}
+      {/* DESKTOP & TABLET VIEW: Authentic Traditional Patrika Table matching Pamphlet layout */}
       <div className="hidden md:block w-full overflow-x-auto rounded-2xl border-2 border-brand-gold/40 shadow-2xl bg-black/70">
         <table className="w-full text-left border-collapse min-w-[760px]">
           
-          {/* Table Header */}
-          <thead className="bg-[#380202] text-brand-gold border-b-2 border-brand-gold/50 font-sans text-sm uppercase tracking-wider">
+          {/* Table Header: वार | दिनांक | वेळ | कार्यक्रम */}
+          <thead className="bg-[#1b4488] text-white border-b-2 border-brand-gold/50 font-sans text-sm uppercase tracking-wider">
             <tr>
-              <th className="py-3.5 px-4 w-[14%] border-r border-white/10 text-center font-black">
+              <th className="py-3.5 px-4 w-[14%] border-r border-white/15 text-center font-black">
                 {lang === 'EN' ? 'Day (वार)' : 'वार'}
               </th>
-              <th className="py-3.5 px-4 w-[18%] border-r border-white/10 text-center font-black">
+              <th className="py-3.5 px-4 w-[16%] border-r border-white/15 text-center font-black">
                 {lang === 'EN' ? 'Date (दिनांक)' : 'दिनांक'}
               </th>
-              <th className="py-3.5 px-4 w-[22%] border-r border-white/10 text-center font-black">
+              <th className="py-3.5 px-4 w-[24%] border-r border-white/15 text-center font-black">
                 {lang === 'EN' ? 'Time (वेळ)' : 'वेळ'}
               </th>
               <th className="py-3.5 px-5 w-[46%] font-black">
@@ -236,7 +278,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
               return (
                 <tr key={day.id} className={rowClass}>
                   
-                  {/* Column 1: Day */}
+                  {/* Column 1: वार (Day) */}
                   <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-sans">
                     <span className="font-bold text-sm text-white block">
                       {lang === 'EN' ? day.dayNameEn : day.dayNameMr}
@@ -246,13 +288,10 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                     </span>
                   </td>
 
-                  {/* Column 2: Date */}
+                  {/* Column 2: दिनांक (Date) */}
                   <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-sans">
                     <span className="text-sm font-bold text-brand-saffron block">
                       {lang === 'EN' ? day.dateStrEn : day.dateStrMr}
-                    </span>
-                    <span className="text-[10px] text-gray-400 font-mono">
-                      २०२६ (2026)
                     </span>
                     {isToday && (
                       <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-red-600 text-white font-mono text-[9px] font-bold animate-pulse">
@@ -261,7 +300,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                     )}
                   </td>
 
-                  {/* Column 3: Time */}
+                  {/* Column 3: वेळ (Time) */}
                   <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-sans">
                     {day.events.length > 1 ? (
                       <div className="space-y-1.5">
@@ -280,18 +319,24 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                     )}
                   </td>
 
-                  {/* Column 4: Program Details */}
+                  {/* Column 4: कार्यक्रम (Program Details) */}
                   <td className="py-3.5 px-5 align-middle font-sans">
                     <div className="space-y-2">
                       {day.events.map((evt, eIdx) => (
                         <div key={eIdx} className="flex items-start gap-2">
                           <span className="text-brand-gold mt-0.5 text-xs">🪔</span>
-                          <div className="flex-1">
+                          <div className="flex-1 space-y-0.5">
                             <span className={`text-xs sm:text-sm font-bold leading-snug block ${
                               evt.highlight ? 'text-brand-gold drop-shadow-sm' : 'text-white'
                             }`}>
                               {lang === 'EN' ? evt.titleEn : evt.titleMr}
                             </span>
+                            {evt.venueMr && (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-sans font-semibold text-brand-saffron bg-black/60 px-2 py-0.5 rounded border border-brand-gold/30">
+                                <MapPin className="h-3 w-3 text-brand-gold shrink-0" />
+                                <span>{lang === 'EN' ? (evt.venueEn || evt.venueMr) : evt.venueMr}</span>
+                              </span>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -361,6 +406,12 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                     }`}>
                       {lang === 'EN' ? evt.titleEn : evt.titleMr}
                     </p>
+                    {evt.venueMr && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-sans font-semibold text-brand-saffron bg-black/60 px-2 py-0.5 rounded border border-brand-gold/30 mt-1">
+                        <MapPin className="h-3 w-3 text-brand-gold shrink-0" />
+                        <span>{lang === 'EN' ? (evt.venueEn || evt.venueMr) : evt.venueMr}</span>
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -370,11 +421,11 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
         })}
       </div>
 
-      {/* Special Notice Banner (विशेष सूचना) from Physical Patrika */}
+      {/* Special Notice Banner (विशेष सूचना) from Authentic Printed Pamphlet */}
       <div className="mt-6 p-4 rounded-2xl bg-gradient-to-r from-brand-maroon/80 via-black to-brand-maroon/80 border-2 border-brand-gold/40 shadow-xl space-y-1.5 text-center font-sans">
         <h4 className="font-bold text-brand-gold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2">
           <span>🔔</span>
-          <span>{lang === 'EN' ? 'Mandatory Guidelines & Special Notice' : 'विशेष सूचना'}</span>
+          <span>{lang === 'EN' ? 'Special Notice' : 'विशेष सूचना'}</span>
           <span>🔔</span>
         </h4>
         <p className="text-xs sm:text-sm text-gray-200 leading-relaxed max-w-4xl mx-auto">
@@ -382,7 +433,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
         </p>
       </div>
 
-      {/* Executive Committee Officers Desk (कार्यकारी मंडळ) */}
+      {/* Executive Committee Officers Desk (कार्यकारी मंडळ पदाधिकारी) */}
       <div className="mt-6 pt-5 border-t border-brand-gold/25 font-sans">
         <h5 className="text-xs text-brand-gold uppercase tracking-widest text-center font-bold mb-4">
           ॥ {lang === 'EN' ? 'Executive Committee Officers' : 'कार्यकारी मंडळ पदाधिकारी'} ॥
