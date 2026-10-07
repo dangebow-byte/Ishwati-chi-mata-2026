@@ -25,12 +25,14 @@ import { UserProfileDashboard } from './components/UserProfileDashboard';
 import { AdminPanel } from './components/AdminPanel';
 import { ContactSection } from './components/ContactSection';
 
-import { Sparkles, Play, Flame, Award, HelpCircle } from 'lucide-react';
+import { Sparkles, Play, Flame, Award, HelpCircle, Maximize2, X } from 'lucide-react';
 import { SiteLogo } from './components/SiteLogo';
 import { DeviImage } from './components/DeviImage';
+import { SacredDarshanZoomViewer } from './components/SacredDarshanZoomViewer';
 import { HeroAudioPlayer } from './components/HeroAudioPlayer';
 import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdown';
 import { NavratriPatrikaSection } from './components/NavratriPatrikaSection';
+import { GlobalAudioController } from './components/GlobalAudioController';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
@@ -66,6 +68,8 @@ export default function App() {
     totalDonation: 0
   });
   const [claimsHistory, setClaimsHistory] = useState<{ id: string; title: string; date: string }[]>([]);
+  const [isFullDarshanOpen, setIsFullDarshanOpen] = useState(false);
+  const [flowerShowerCount, setFlowerShowerCount] = useState(0);
 
   // Function to seed database on first mount if empty - guarded against redundant quota consumption
   const seedDatabaseIfNeeded = async () => {
@@ -582,129 +586,163 @@ export default function App() {
         </div>
       )}
 
-      {/* HERO SECTION / BANNER CANVAS */}
+      {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}
       {activeTab === 'home' && (
         <section 
-          className="relative w-full min-h-[460px] sm:min-h-[540px] lg:min-h-[600px] overflow-hidden border-b border-brand-gold/15 bg-black flex flex-col items-center justify-center"
+          className="relative w-full overflow-hidden border-b border-brand-gold/25 bg-gradient-to-b from-[#240101] via-[#380303] to-[#200101] text-white py-6 sm:py-8 lg:py-10"
         >
-          {/* Main Visual Altar background */}
-          <div className="absolute inset-0 z-0 overflow-hidden">
-            <DeviImage 
-              aspectRatio="auto"
-              objectFit="cover"
-              objectPosition="center 10%"
-              priority
-              className="w-full h-full opacity-65 brightness-95 saturate-[1.1] scale-100 transform transform-gpu overflow-hidden"
-              imageClassName="w-full h-full"
-            />
-            {/* Soft Royal gradients */}
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-maroon via-black/40 to-transparent pointer-events-none" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_20%,rgba(13,1,1,0.85)_100%)] pointer-events-none" />
+          {/* Subtle Ambient Sanctum Background Glow & Motifs */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+            <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-radial from-brand-gold/15 via-brand-saffron/5 to-transparent blur-3xl opacity-60" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,153,51,0.09)_0%,transparent_70%)]" />
           </div>
 
-          {/* Side decorative vertical text/rules - Visible only on ultra-wide 2xl screens to avoid collision */}
-          <div className="hidden 2xl:flex absolute left-8 top-1/2 -translate-y-1/2 flex-col items-center gap-8 opacity-50 z-20 pointer-events-none">
-            <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent"></div>
-            <span className="uppercase tracking-[0.4em] text-[10px] text-[#D4AF37] font-semibold font-mono" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
-              {lang === 'EN' ? 'Established 1974' : 'स्थापना १९७४'}
-            </span>
-            <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent"></div>
-          </div>
-
-          {/* Side quick status panels - Visible only on ultra-wide 2xl screens to avoid collision */}
-          <div className="hidden 2xl:flex absolute right-8 top-1/2 -translate-y-1/2 flex-col gap-5 z-20 w-48 text-left">
-            <div className="p-4 bg-[#4A0404]/75 border-l-2 border-[#FF9933] backdrop-blur-md rounded-r shadow-xl relative">
-              <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* Top Traditional Invocation Line */}
+            <div className="flex items-center justify-center gap-2 text-center mb-4 sm:mb-5 select-none">
+              <span className="text-brand-gold text-sm sm:text-base animate-pulse">🕉️</span>
+              <span className="font-sans font-bold text-xs sm:text-sm md:text-base text-brand-gold tracking-widest drop-shadow-[0_0_12px_rgba(212,175,55,0.7)] uppercase">
+                {lang === 'EN' ? '|| Shree Kulswamini Ishwatichi Mata Prasanna ||' : '॥ ॐ श्री कुलस्वामिनी इश्वटीची माता प्रसन्न ॥'}
               </span>
-              <p className="text-[10px] uppercase text-[#FF9933] font-mono tracking-wider mb-1">
-                {lang === 'EN' ? 'Live Viewers' : 'थेट दर्शनार्थी'}
-              </p>
-              <p className="text-xl font-black font-sans text-white">12,482</p>
+              <span className="text-brand-gold text-sm sm:text-base animate-pulse">🕉️</span>
             </div>
-            <div className="p-4 bg-[#4A0404]/75 border-l-2 border-[#D4AF37] backdrop-blur-md rounded-r shadow-xl">
-              <p className="text-[10px] uppercase text-[#D4AF37] font-mono tracking-wider mb-1">
-                {lang === 'EN' ? 'Next Aarti' : 'पुढील आरती'}
-              </p>
-              <p className="text-xl font-black font-sans text-white">07:30 PM</p>
-            </div>
-          </div>
 
-          {/* MAIN CONTENT WRAPPER: Generous responsive horizontal padding preventing content from touching edges */}
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 relative z-10 text-center space-y-5 sm:space-y-6">
-            
-            {/* Traditional Sacred Glowing Devi Mata Darshan & Akhand Jyot Diya */}
-            <div className="flex justify-center items-center gap-2.5 sm:gap-4 select-none">
-              <span className="text-base sm:text-2xl text-brand-gold opacity-90 animate-pulse">✨</span>
-              <div className="relative group">
-                <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 rounded-full border-2 sm:border-3 border-brand-gold shadow-[0_0_24px_rgba(255,153,51,0.85)] overflow-hidden bg-black/80 flex items-center justify-center p-0.5 transition-transform duration-300 group-hover:scale-105">
-                  <DeviImage 
-                    aspectRatio="square" 
-                    objectFit="cover"
-                    objectPosition="center 10%"
-                    priority
-                    className="w-full h-full rounded-full" 
-                    imageClassName="w-full h-full"
-                  />
-                </div>
-                <div className="absolute -bottom-2 -right-1 animate-diya-flicker text-xl sm:text-2xl drop-shadow-[0_0_12px_rgba(255,153,51,0.95)]">
-                  🪔
+            {/* Responsive Grid: Sacred Idol Column (Left) + Sacred Information & Action Matrix (Right) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-center">
+              
+              {/* SACRED IDOL SHOWCASE (Devi Mata Full Sacred Idol View - 100% Uncut) */}
+              <div className="lg:col-span-5 xl:col-span-5 flex flex-col items-center justify-center">
+                <div 
+                  onClick={() => setIsFullDarshanOpen(true)}
+                  className="relative group w-full max-w-[340px] xs:max-w-[380px] sm:max-w-[420px] lg:max-w-none rounded-2xl p-2 sm:p-2.5 bg-gradient-to-b from-[#4A0404]/90 via-black/85 to-[#300202]/95 border-2 sm:border-3 border-brand-gold/75 ring-2 ring-brand-gold/25 shadow-[0_0_35px_rgba(255,153,51,0.45)] backdrop-blur-md cursor-pointer transition-all duration-300 hover:scale-[1.015] hover:shadow-[0_0_45px_rgba(255,153,51,0.7)]"
+                  title={lang === 'EN' ? 'Click to view full sacred idol in high-definition' : 'संपूर्ण दिव्य दर्शन मोठ्या आकारात पाहण्यासाठी क्लिक करा'}
+                >
+                  {/* Sacred Top Arch Header */}
+                  <div className="flex items-center justify-between px-3 py-1.5 mb-1.5 bg-brand-maroon/80 border border-brand-gold/40 rounded-lg text-center">
+                    <span className="text-xs text-brand-saffron animate-pulse">✨</span>
+                    <span className="text-[11px] sm:text-xs font-sans font-black text-brand-gold tracking-wider">
+                      {lang === 'EN' ? 'Shree Ishwatichi Mata Sanctum' : 'श्री इश्वटीची माता अधिकृत स्वयंभू दर्शन'}
+                    </span>
+                    <span className="text-xs text-brand-saffron animate-pulse">✨</span>
+                  </div>
+
+                  {/* Complete, Full Portrait Idol Container - Uncut on all devices */}
+                  <div className="relative w-full flex items-center justify-center overflow-hidden rounded-xl bg-black/70 py-1">
+                    <DeviImage 
+                      aspectRatio="auto"
+                      objectFit="contain"
+                      objectPosition="center center"
+                      priority
+                      className="w-full h-auto max-h-[380px] xs:max-h-[440px] sm:max-h-[500px] md:max-h-[540px] lg:max-h-[560px] xl:max-h-[600px] flex items-center justify-center"
+                      imageClassName="w-auto h-auto max-h-[380px] xs:max-h-[440px] sm:max-h-[500px] md:max-h-[540px] lg:max-h-[560px] xl:max-h-[600px] object-contain mx-auto transition-transform duration-700 group-hover:scale-[1.03] drop-shadow-[0_8px_25px_rgba(0,0,0,0.9)]"
+                    />
+
+                    {/* Divine Diya flickering at bottom corner */}
+                    <div className="absolute bottom-2 right-2 animate-diya-flicker text-2xl sm:text-3xl select-none drop-shadow-[0_0_15px_rgba(255,153,51,0.9)] z-20">
+                      🪔
+                    </div>
+
+                    {/* Interactive "Full View" Badge Overlay */}
+                    <div className="absolute top-2 right-2 z-20 bg-black/75 hover:bg-black/90 text-brand-gold border border-brand-gold/50 text-[10px] sm:text-xs font-sans font-bold px-2 py-1 rounded-md shadow-md backdrop-blur-sm flex items-center gap-1 opacity-90 group-hover:opacity-100 transition-opacity">
+                      <Maximize2 className="h-3 w-3" />
+                      <span>{lang === 'EN' ? 'Full View' : 'संपूर्ण दर्शन'}</span>
+                    </div>
+                  </div>
+
+                  {/* Sacred footer banner of the frame */}
+                  <div className="mt-2 pt-1.5 border-t border-brand-gold/25 flex items-center justify-between text-[10px] sm:text-[11px] text-gray-300 px-1">
+                    <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping inline-block" />
+                      {lang === 'EN' ? 'Live Darshan Open' : 'थेट दर्शन सुरू आहे'}
+                    </span>
+                    <span className="text-brand-gold font-mono font-bold">
+                      {lang === 'EN' ? 'Est. 1974 • 53rd Year' : 'स्थापना १९७४ • ५३ वे वर्ष'}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <span className="text-base sm:text-2xl text-brand-gold opacity-90 animate-pulse">✨</span>
+
+              {/* TEMPLE INFORMATION & ACTION MATRIX (Right / Side Column) */}
+              <div className="lg:col-span-7 xl:col-span-7 text-center lg:text-left space-y-4 sm:space-y-5">
+                
+                {/* Header Titles */}
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-gold/15 border border-brand-gold/30 text-brand-gold text-[11px] sm:text-xs font-sans font-bold">
+                    <Sparkles className="h-3.5 w-3.5 text-brand-saffron animate-pulse" />
+                    <span>{lang === 'EN' ? '53rd Year Celebration • Est. 1974' : '५३ वे वर्ष शारदीय नवरात्रौत्सव • स्थापना १९७४'}</span>
+                  </div>
+
+                  <h1 className="font-sans text-2xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] tracking-tight leading-tight">
+                    {cleanDevanagariSpelling(lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata Devasthan Mandal') : (siteContent.welcome?.titleMR || 'श्री इश्वटीची माता देवस्थान मंडळ'))}
+                  </h1>
+
+                  <p className="font-sans text-xs sm:text-base lg:text-lg font-extrabold text-brand-saffron tracking-wide uppercase drop-shadow-[0_0_12px_rgba(212,175,55,0.4)]">
+                    {cleanDevanagariSpelling(lang === 'EN' ? (siteContent.welcome?.subtitleEN || 'Faith • Devotion • Tradition • Service') : (siteContent.welcome?.subtitleMR || 'श्रद्धा • भक्ती • परंपरा • सेवा'))}
+                  </p>
+
+                  <div className="h-0.5 sm:h-1 w-20 sm:w-28 mx-auto lg:mx-0 bg-gradient-to-r from-brand-gold via-brand-saffron to-transparent" />
+
+                  <p className="text-xs sm:text-sm md:text-base text-gray-200 font-sans max-w-2xl leading-relaxed drop-shadow">
+                    {cleanDevanagariSpelling(lang === 'EN'
+                      ? (siteContent.welcome?.descEN || 'Welcome to the official digital portal of Shree Ishwatichi Mata Devasthan Mandal. Experience 24/7 live darshan from home and contribute to our community welfare initiatives.')
+                      : (siteContent.welcome?.descMR || 'श्री इश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल दालनात आपले सहर्ष स्वागत. मातेच्या संपूर्ण दर्शनाचा घरबसल्या लाभ घ्या आणि सेवा उपक्रमांत सहभागी व्हा.'))}
+                  </p>
+                </div>
+
+                {/* Status indicator strip */}
+                <div className="p-3 sm:p-3.5 bg-black/50 border border-brand-gold/30 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                    </span>
+                    <span className="font-sans font-bold text-gray-200">
+                      {lang === 'EN' ? 'Sanctum Status: Live Darshan Open' : 'गाभारा दर्शन: थेट प्रक्षेपण सुरू'}
+                    </span>
+                  </div>
+                  <div className="text-brand-gold font-sans font-bold">
+                    {lang === 'EN' ? 'Daily Aarti: 07:30 PM' : 'दैनिक महाआरती: सायं. ०७:३०'}
+                  </div>
+                </div>
+
+                {/* Quick Action Button Portals - Full-width responsive 4-column matrix with comfortable gaps and padding */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-1">
+                  <button 
+                    onClick={() => setActiveTab('darshan')}
+                    className="w-full min-h-[48px] px-3 py-2.5 rounded-xl font-sans font-bold text-xs sm:text-sm bg-brand-red text-white border-2 border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-lg cursor-pointer flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95"
+                  >
+                    <span className="text-base shrink-0">🎥</span> 
+                    <span className="font-sans leading-tight text-center">{t.hero_btn1}</span>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('seva')}
+                    className="w-full min-h-[48px] px-3 py-2.5 rounded-xl font-sans font-bold text-xs sm:text-sm bg-brand-maroon text-brand-gold border-2 border-brand-gold hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-lg cursor-pointer flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95"
+                  >
+                    <span className="text-base shrink-0">🕯️</span> 
+                    <span className="font-sans leading-tight text-center">{t.hero_btn2}</span>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('donation')}
+                    className="w-full min-h-[48px] px-3 py-2.5 rounded-xl font-sans font-bold text-xs sm:text-sm bg-brand-gold text-brand-maroon hover:opacity-95 transition-all shadow-lg cursor-pointer flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95"
+                  >
+                    <span className="text-base shrink-0">💝</span> 
+                    <span className="font-sans leading-tight text-center">{t.hero_btn3}</span>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('patrika')}
+                    className="w-full min-h-[48px] px-3 py-2.5 rounded-xl font-sans font-bold text-xs sm:text-sm bg-amber-900/80 text-brand-gold border-2 border-brand-gold/70 hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-lg cursor-pointer flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95"
+                  >
+                    <span className="text-base shrink-0">📜</span> 
+                    <span className="font-sans leading-tight text-center">{lang === 'EN' ? 'Karyakram Patrika' : 'कार्यक्रम पत्रिका'}</span>
+                  </button>
+                </div>
+
+                {/* Hero Aarti Web Audio Player */}
+                <HeroAudioPlayer lang={lang} />
+
+              </div>
+
             </div>
-
-            <div className="space-y-2 sm:space-y-3 w-full">
-              <h1 className="font-sans text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold sm:font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] sm:drop-shadow-[0_0_25px_rgba(255,153,51,0.85)] hover:scale-[1.01] transition-transform duration-500 tracking-normal leading-tight">
-                {cleanDevanagariSpelling(lang === 'EN' ? (siteContent.welcome?.titleEN || 'Shree Ishwatichi Mata (श्री इश्वटीची)') : (siteContent.welcome?.titleMR || 'श्री इश्वटीची माता'))}
-              </h1>
-              <p className="font-sans text-xs sm:text-lg lg:text-xl font-extrabold text-[#FF9933] tracking-wide uppercase drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] leading-relaxed">
-                {cleanDevanagariSpelling(lang === 'EN' ? (siteContent.welcome?.subtitleEN || 'Faith • Devotion • Tradition • Service') : (siteContent.welcome?.subtitleMR || 'श्रद्धा • भक्ती • परंपरा • सेवा'))}
-              </p>
-              <div className="h-0.5 sm:h-1 w-20 sm:w-28 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
-              <p className="text-xs sm:text-sm md:text-base text-gray-200 font-sans max-w-4xl mx-auto leading-relaxed drop-shadow line-clamp-3 sm:line-clamp-none px-2">
-                {cleanDevanagariSpelling(lang === 'EN'
-                  ? (siteContent.welcome?.descEN || 'Welcome to the official digital portal of Shree Ishwatichi Mata Devasthan Mandal. Experience live darshan from home and contribute to our community welfare initiatives.')
-                  : (siteContent.welcome?.descMR || 'श्री इश्वटीची माता देवस्थान मंडळाच्या अधिकृत डिजिटल कक्षात भाविकांचे स्वागत. घरबसल्या लाईव्ह पूजेचा आनंद घ्या आणि समाजोपयोगी उपक्रमांत भाग घ्या.'))}
-              </p>
-            </div>
-
-            {/* Quick Action Button Portals - Full-width responsive 4-column matrix with comfortable gaps and padding */}
-            <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 lg:gap-4 pt-3 sm:pt-4">
-              <button 
-                onClick={() => setActiveTab('darshan')}
-                className="w-full min-h-[48px] sm:min-h-[54px] px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-brand-red text-white border-2 border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
-              >
-                <span className="text-base sm:text-xl shrink-0">🎥</span> 
-                <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn1}</span>
-              </button>
-              <button 
-                onClick={() => setActiveTab('seva')}
-                className="w-full min-h-[48px] sm:min-h-[54px] px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-brand-maroon text-brand-gold border-2 border-brand-gold hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
-              >
-                <span className="text-base sm:text-xl shrink-0">🕯️</span> 
-                <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn2}</span>
-              </button>
-              <button 
-                onClick={() => setActiveTab('donation')}
-                className="w-full min-h-[48px] sm:min-h-[54px] px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-brand-gold text-brand-maroon hover:opacity-95 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
-              >
-                <span className="text-base sm:text-xl shrink-0">💝</span> 
-                <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn3}</span>
-              </button>
-              <button 
-                onClick={() => setActiveTab('testimonials')}
-                className="w-full min-h-[48px] sm:min-h-[54px] px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm lg:text-base bg-black/70 text-white border-2 border-white/20 hover:bg-white/20 transition-all shadow-xl cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-[1.02] active:scale-95"
-              >
-                <span className="text-base sm:text-xl shrink-0">📝</span> 
-                <span className="font-sans leading-tight text-center sm:text-left">{t.hero_btn4}</span>
-              </button>
-            </div>
-
-            {/* Background Devotional Web Audio Player (Aarti vs Silence) */}
-            <HeroAudioPlayer lang={lang} />
-
           </div>
         </section>
       )}
@@ -982,6 +1020,104 @@ export default function App() {
           </button>
         </div>
       </nav>
+
+      {/* GLOBAL HIGH-FIDELITY AUDIO CONTROLLER */}
+      <GlobalAudioController 
+        lang={lang} 
+        onNavigateToDarshan={() => {
+          setActiveTab('darshan');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+
+      {/* FULL-SCREEN IMMERSIVE SACRED DARSHAN MODAL */}
+      {isFullDarshanOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Close button */}
+          <button 
+            onClick={() => setIsFullDarshanOpen(false)}
+            className="absolute top-4 right-4 z-50 bg-brand-maroon/90 text-brand-gold hover:text-white border border-brand-gold/60 p-2 sm:p-2.5 rounded-full cursor-pointer shadow-2xl hover:scale-110 transition-transform"
+            aria-label="Close full darshan"
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          {/* Floating Flower shower elements when clicked */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span 
+                key={`flower-${i}-${flowerShowerCount}`}
+                className="absolute animate-flower-1 text-2xl select-none"
+                style={{
+                  left: `${(i * 6.5 + 4) % 95}%`,
+                  top: `-${(i * 18) % 100}px`,
+                  animationDuration: `${3.5 + (i % 4)}s`,
+                  animationDelay: `${(i * 0.25) % 2}s`
+                }}
+              >
+                {i % 2 === 0 ? '🌸' : '🌺'}
+              </span>
+            ))}
+          </div>
+
+          <div className="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center text-center space-y-3 sm:space-y-4 my-auto py-4">
+            
+            {/* Sacred Title */}
+            <div className="space-y-1">
+              <span className="text-xs sm:text-sm text-brand-saffron font-bold font-sans">
+                ॥ ॐ श्री कुलस्वामिनी इश्वटीची माता प्रसन्न ॥
+              </span>
+              <h3 className="text-lg sm:text-2xl font-black text-brand-gold font-sans">
+                {lang === 'EN' ? 'Shree Ishwatichi Mata • Complete Sacred Sanctum Darshan' : 'श्री इश्वटीची माता • संपूर्ण पावन गाभारा दर्शन'}
+              </h3>
+            </div>
+
+            {/* Sacred Image container with Pinch-to-Zoom, Fine Details Inspection & Overlays */}
+            <SacredDarshanZoomViewer 
+              lang={lang} 
+              alt={lang === 'EN' ? 'Shree Ishwatichi Mata Official Sacred Idol' : 'श्री इश्वटीची माता अधिकृत स्वयंभू दर्शन मूर्ती'}
+            />
+
+            {/* Devotional Shloka */}
+            <p className="text-xs sm:text-sm text-brand-gold font-serif italic max-w-xl px-4 leading-relaxed">
+              "सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके । शरण्ये त्र्यंबके गौरी नारायणि नमोऽस्तु ते ॥"
+            </p>
+
+            {/* Action buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              <button
+                onClick={() => setFlowerShowerCount(prev => prev + 1)}
+                className="px-4 py-2 bg-brand-maroon text-brand-gold border border-brand-gold/60 rounded-xl hover:bg-brand-gold hover:text-brand-maroon text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95"
+              >
+                <span>🌸</span>
+                <span>{lang === 'EN' ? 'Offer Flower Shower (पुष्पवृष्टी)' : 'पुष्पवृष्टी अर्पण करा'}</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  aartiAudioEngine.playAarti();
+                }}
+                className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold rounded-xl hover:bg-brand-saffron text-xs sm:text-sm transition-all shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95"
+              >
+                <span>🔔</span>
+                <span>{lang === 'EN' ? 'Play Aarti (आरती सुरू करा)' : 'आरती सुरू करा'}</span>
+              </button>
+
+              <button
+                onClick={() => setIsFullDarshanOpen(false)}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer"
+              >
+                {lang === 'EN' ? 'Close' : 'बंद करा'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );

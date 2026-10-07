@@ -8,6 +8,7 @@ import {
   Play, 
   Pause, 
   Volume2, 
+  VolumeX,
   Users, 
   Flame, 
   Music, 
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 import { TRANSLATIONS } from '../data';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
+import { templeSoundboardEngine, SACRED_MANTRAS } from '../utils/templeSoundboardEngine';
 import { DeviImage } from './DeviImage';
 
 interface LiveDarshanSectionProps {
@@ -150,13 +152,21 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'morning' | 'afternoon' | 'evening'>('all');
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
 
-  // Web Audio state
-  const [isPlayingChant, setIsPlayingChant] = useState(false);
-  const [oscillatorPlaying, setOscillatorPlaying] = useState<string | null>(null);
+  // Web Audio & Temple Soundboard Engine state
+  const [soundboardState, setSoundboardState] = useState(() => templeSoundboardEngine.getState());
+  const [selectedMantraId, setSelectedMantraId] = useState('omkar');
   const [isAartiAudioActive, setIsAartiAudioActive] = useState(() => aartiAudioEngine.getIsPlaying());
-  
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const audioIntervalRef = useRef<number | null>(null);
+
+  // Sync with global temple soundboard engine
+  useEffect(() => {
+    const unsub = templeSoundboardEngine.onStateChange(state => {
+      setSoundboardState(state);
+    });
+    return () => {
+      unsub();
+      templeSoundboardEngine.stopMantraChant();
+    };
+  }, []);
 
   // Sync with global Aarti audio engine
   useEffect(() => {
@@ -212,125 +222,33 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
     return () => clearInterval(timeInterval);
   }, []);
 
-  // Synth generators for local interactive audio
-  const initAudio = () => {
-    if (!audioCtxRef.current) {
-      // @ts-ignore
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioContextClass) {
-        audioCtxRef.current = new AudioContextClass();
-      }
-    }
-    if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume();
-    }
-  };
-
+  // Professional Temple Soundboard Handlers
   const playShankhnaad = () => {
-    try {
-      initAudio();
-      const ctx = audioCtxRef.current;
-      if (!ctx) return;
-
-      const gain = ctx.createGain();
-      gain.connect(ctx.destination);
-      gain.gain.setValueAtTime(0.01, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.5);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 4.0);
-
-      const osc1 = ctx.createOscillator();
-      osc1.type = 'sawtooth';
-      osc1.frequency.value = 150;
-      
-      const osc2 = ctx.createOscillator();
-      osc2.type = 'triangle';
-      osc2.frequency.setValueAtTime(151, ctx.currentTime);
-      osc2.frequency.linearRampToValueAtTime(155, ctx.currentTime + 2);
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 450;
-
-      osc1.connect(filter);
-      osc2.connect(filter);
-      filter.connect(gain);
-
-      osc1.start();
-      osc2.start();
-
-      osc1.stop(ctx.currentTime + 4.0);
-      osc2.stop(ctx.currentTime + 4.0);
-
-      setOscillatorPlaying('shankh');
-      setTimeout(() => setOscillatorPlaying(null), 3500);
-    } catch (e) {
-      console.warn(e);
-    }
+    templeSoundboardEngine.playShankhnaad();
   };
 
   const toggleOMChantLoop = () => {
-    try {
-      initAudio();
-      const ctx = audioCtxRef.current;
-      if (!ctx) return;
-
-      if (isPlayingChant) {
-        if (audioIntervalRef.current) {
-          window.clearInterval(audioIntervalRef.current);
-          audioIntervalRef.current = null;
-        }
-        setIsPlayingChant(false);
-        return;
-      }
-
-      setIsPlayingChant(true);
-
-      const playChantBeat = () => {
-        const gainNode = ctx.createGain();
-        gainNode.connect(ctx.destination);
-        gainNode.gain.setValueAtTime(0.001, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.4);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.8);
-
-        const oscNode = ctx.createOscillator();
-        oscNode.type = 'sine';
-        oscNode.frequency.value = 136.1;
-
-        const overtone = ctx.createOscillator();
-        overtone.type = 'sine';
-        overtone.frequency.value = 272.2;
-
-        const bandpass = ctx.createBiquadFilter();
-        bandpass.type = 'bandpass';
-        bandpass.frequency.value = 200;
-
-        oscNode.connect(bandpass);
-        overtone.connect(bandpass);
-        bandpass.connect(gainNode);
-
-        oscNode.start();
-        overtone.start();
-
-        oscNode.stop(ctx.currentTime + 1.8);
-        overtone.stop(ctx.currentTime + 1.8);
-      };
-
-      playChantBeat();
-      const interval = window.setInterval(playChantBeat, 2000);
-      audioIntervalRef.current = interval;
-
-    } catch (err) {
-      console.error(err);
+    if (soundboardState.isMantraPlaying) {
+      templeSoundboardEngine.stopMantraChant();
+    } else {
+      templeSoundboardEngine.startMantraChant(selectedMantraId);
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (audioIntervalRef.current) {
-        clearInterval(audioIntervalRef.current);
-      }
-    };
-  }, []);
+  const handleSelectMantra = (id: string) => {
+    setSelectedMantraId(id);
+    if (soundboardState.isMantraPlaying) {
+      templeSoundboardEngine.startMantraChant(id);
+    }
+  };
+
+  const toggleBackgroundAmbiance = () => {
+    templeSoundboardEngine.toggleBackgroundAmbiance();
+  };
+
+  const toggleMute = () => {
+    templeSoundboardEngine.toggleMute();
+  };
 
   // Compute status and timings dynamically based on client clock
   const aartiStatusList = useMemo(() => {
@@ -518,21 +436,27 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
 
             {/* Video or Image source */}
             {videoFeeds[activeCam].isLive ? (
-              <div className="h-full w-full relative flex items-center justify-center bg-black overflow-hidden">
-                {/* DeviImage Component with object-fit cover, full height, and parent container overflow clipping */}
+              <div className="h-full w-full relative flex items-center justify-center bg-[#150101] overflow-hidden">
+                {/* Atmospheric sanctum ambient glow background */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-30 scale-110 pointer-events-none"
+                  style={{ backgroundImage: `url(${heroImagePath})` }}
+                />
+
+                {/* DeviImage Component with object-fit contain ensuring full uncut sacred idol darshan */}
                 <DeviImage
                   src={heroImagePath}
                   alt="Shree Ishwatichi Mata Darshan Chamber Live"
                   aspectRatio="auto"
-                  objectFit="cover"
-                  objectPosition="center 12%"
+                  objectFit="contain"
+                  objectPosition="center center"
                   priority
-                  className="w-full h-full overflow-hidden"
-                  imageClassName="w-full h-full transition-transform duration-1000 group-hover:scale-105"
+                  className="w-full h-full relative z-[1] flex items-center justify-center p-1 sm:p-2"
+                  imageClassName="max-h-full max-w-full object-contain mx-auto drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] transition-transform duration-1000 group-hover:scale-105"
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none z-[2]" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.6)_100%)] pointer-events-none z-[2]" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_30%,rgba(0,0,0,0.6)_100%)] pointer-events-none z-[2]" />
                 <div className="absolute top-0 left-0 w-full h-[1px] bg-brand-gold/30 animate-pulse pointer-events-none z-[2]" />
                 
                 {/* Sacred watermark badge */}
@@ -602,72 +526,189 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
         <div className="col-span-1 lg:col-span-4 space-y-4">
           
           {/* Audio Chants Generator Card */}
-          <div className="bg-gradient-to-br from-brand-maroon/80 via-black to-brand-maroon/90 border-2 border-brand-gold/30 rounded-2xl p-5 shadow-2xl space-y-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-brand-gold/10 rounded-bl-full pointer-events-none" />
+          <div className="bg-gradient-to-br from-brand-maroon/85 via-black to-brand-maroon/95 border-2 border-brand-gold/35 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3.5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-brand-gold/10 rounded-bl-full pointer-events-none" />
             
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Disc className={`h-5 w-5 text-brand-gold ${oscillatorPlaying || isPlayingChant ? 'animate-spin' : ''}`} />
+                <Disc className={`h-5 w-5 text-brand-gold ${soundboardState.isShankhPlaying || soundboardState.isMantraPlaying ? 'animate-spin' : ''}`} />
                 <h3 className="text-base sm:text-lg font-sans font-black text-brand-gold">
                   {lang === 'EN' ? 'Temple Soundboard' : 'पवित्र ध्वनी (Soundboard)'}
                 </h3>
               </div>
-              <span className="text-[10px] font-mono bg-black/60 text-brand-saffron px-2 py-0.5 rounded border border-brand-gold/20">
-                Acoustic
+              <span className="text-[10px] font-mono bg-black/60 text-brand-saffron px-2 py-0.5 rounded border border-brand-gold/30 flex items-center gap-1 font-bold">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                {lang === 'EN' ? 'Acoustic & Voice' : 'स्वर व नाद'}
               </span>
             </div>
 
             <p className="text-[11px] text-gray-300 leading-relaxed font-sans">
               {lang === 'EN' 
-                ? 'Synthesize authentic conch shell (Shankh), and 136Hz Omkar resonance in your home.' 
-                : 'देवीच्या पूजेचा अनुभव घरात मिळवण्यासाठी थेट शंख आणि ॐकार जप ध्वनी निर्मिती करा.'}
+                ? 'Authentic temple conch shell (Shankh) blow and continuous vocal Vedic mantra chanting with 136.1Hz tanpura resonance.' 
+                : 'मंदिरातील पवित्र शंखनाद आणि प्रत्यक्ष स्वरयुक्त अखंड ॐकार व वैदिक मंत्र जप श्रवण करा.'}
             </p>
 
-            {/* Synthesizer buttons */}
-            <div className="space-y-2 pt-1 font-sans">
+            {/* Synthesizer & Voice action controls */}
+            <div className="space-y-2.5 pt-1 font-sans">
               
-              {/* Shankh Sound */}
+              {/* Shankh Sound (पवित्र शंखनाद) */}
               <button
                 onClick={playShankhnaad}
                 className={`w-full py-2.5 px-3 rounded-xl border flex items-center justify-between text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95 ${
-                  oscillatorPlaying === 'shankh'
-                    ? 'bg-brand-saffron text-brand-maroon border-brand-saffron scale-102'
-                    : 'bg-black/50 text-brand-saffron border-brand-saffron/30 hover:bg-brand-saffron/15'
+                  soundboardState.isShankhPlaying
+                    ? 'bg-gradient-to-r from-amber-600 to-brand-saffron text-brand-maroon border-brand-gold ring-2 ring-brand-gold/50 shadow-[0_0_15px_rgba(255,153,51,0.6)]'
+                    : 'bg-black/60 text-brand-saffron border-brand-saffron/40 hover:bg-brand-saffron/15 hover:border-brand-saffron'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Volume2 className={`h-4 w-4 ${oscillatorPlaying === 'shankh' ? 'animate-pulse text-brand-maroon' : 'text-brand-gold'}`} />
-                  <span>{lang === 'EN' ? 'Blow Sacrosanct Shankh' : 'पवित्र शंखनाद करा'}</span>
+                  <Volume2 className={`h-4 w-4 ${soundboardState.isShankhPlaying ? 'animate-pulse text-brand-maroon' : 'text-brand-gold'}`} />
+                  <span>
+                    {soundboardState.isShankhPlaying
+                      ? (lang === 'EN' ? 'Resonant Shankhnaad Resonating...' : 'पवित्र शंखनाद सुरू आहे... 📯')
+                      : (lang === 'EN' ? 'Blow Sacred Shankh (Conch)' : 'पवित्र शंखनाद करा')}
+                  </span>
                 </div>
-                <span className="text-[10px] opacity-80 font-mono">3.5s 📯</span>
+                <span className="text-[10px] opacity-90 font-mono font-bold">4.2s 📯</span>
               </button>
 
-              {/* OM Chant Loop */}
+              {/* Mantra Voice & Drone Selector Tabs */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] text-gray-400 font-sans">
+                  <span>{lang === 'EN' ? 'Select Vedic Mantra:' : 'मंत्र निवडा:'}</span>
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
+                    <span>🎙️</span>
+                    <span>{lang === 'EN' ? 'Voice Chanting' : 'प्रत्यक्ष स्वर जप'}</span>
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {SACRED_MANTRAS.map((mantra) => {
+                    const isSelected = selectedMantraId === mantra.id;
+                    return (
+                      <button
+                        key={mantra.id}
+                        onClick={() => handleSelectMantra(mantra.id)}
+                        className={`px-2 py-1.5 rounded-lg text-[10px] font-sans font-bold border transition-all text-left truncate cursor-pointer ${
+                          isSelected
+                            ? 'bg-amber-950/90 text-brand-gold border-brand-gold shadow-sm'
+                            : 'bg-black/40 text-gray-400 border-white/10 hover:text-white hover:border-white/20'
+                        }`}
+                        title={lang === 'EN' ? mantra.nameEN : mantra.nameMR}
+                      >
+                        <span className="truncate">{lang === 'EN' ? mantra.nameEN : mantra.nameMR}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Mantra Play/Pause Toggle with Real Voice */}
               <button
                 onClick={toggleOMChantLoop}
                 className={`w-full py-2.5 px-3 rounded-xl border flex items-center justify-between text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95 ${
-                  isPlayingChant
-                    ? 'bg-green-600 text-white border-green-500 shadow-green-900/50'
-                    : 'bg-black/50 text-green-400 border-green-500/30 hover:bg-green-500/15'
+                  soundboardState.isMantraPlaying
+                    ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white border-green-400 shadow-green-900/60 ring-2 ring-emerald-400/50'
+                    : 'bg-black/60 text-green-400 border-green-500/40 hover:bg-green-500/15 hover:border-green-400'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {isPlayingChant ? <Pause className="h-4 w-4 text-white" /> : <Play className="h-4 w-4 text-green-400 animate-pulse" />}
-                  <span>{lang === 'EN' ? 'Continuous OM Dhuni Loop' : 'मंत्र: अखंड ॐकार जप सुरू करा'}</span>
+                  {soundboardState.isMantraPlaying ? (
+                    <Pause className="h-4 w-4 text-white" />
+                  ) : (
+                    <Play className="h-4 w-4 text-green-400 animate-pulse" />
+                  )}
+                  <span>
+                    {soundboardState.isMantraPlaying
+                      ? (lang === 'EN' ? 'Voice Chanting Active • Tap to Pause' : 'मंत्र स्वर जप सुरू आहे • थांबवा')
+                      : (lang === 'EN' ? 'Start Sacred Vocal Mantra Loop' : 'मंत्र: स्वरयुक्त अखंड जप सुरू करा')}
+                  </span>
                 </div>
-                <span className="text-[10px] opacity-80 font-mono">136Hz 🧘</span>
+                <span className="text-[10px] opacity-90 font-mono font-bold">136.1Hz 🧘</span>
               </button>
+
+              {/* Active Chanted Text Display */}
+              {soundboardState.isMantraPlaying && (
+                <div className="p-2 rounded-lg bg-black/75 border border-emerald-500/40 text-center animate-fadeIn space-y-1">
+                  <div className="text-[10px] text-emerald-400 font-mono tracking-wider flex items-center justify-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span>{lang === 'EN' ? 'NOW CHANTING' : 'सध्या उच्चारित मंत्र'}</span>
+                  </div>
+                  <p className="text-xs sm:text-sm font-sans font-black text-brand-gold leading-tight drop-shadow">
+                    {SACRED_MANTRAS.find(m => m.id === selectedMantraId)?.chantTextMR}
+                  </p>
+                </div>
+              )}
+
+              {/* Continuous Devotional Background Soundscape Toggle */}
+              <button
+                onClick={toggleBackgroundAmbiance}
+                className={`w-full py-2 px-3 rounded-xl border flex items-center justify-between text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 ${
+                  soundboardState.isBackgroundAmbiance
+                    ? 'bg-amber-950/80 text-brand-gold border-brand-gold ring-1 ring-brand-gold/60 shadow-[0_0_12px_rgba(255,153,51,0.4)]'
+                    : 'bg-black/50 text-gray-300 border-white/10 hover:border-brand-gold/40 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className={`h-3.5 w-3.5 ${soundboardState.isBackgroundAmbiance ? 'text-brand-saffron animate-spin' : 'text-gray-400'}`} />
+                  <span>
+                    {soundboardState.isBackgroundAmbiance
+                      ? (lang === 'EN' ? 'Background Soundscape Active (अखंड ध्वनी)' : 'अखंड पावन ध्यान ध्वनी सुरू आहे')
+                      : (lang === 'EN' ? 'Continuous Ambiance (अखंड ध्यान ध्वनी)' : 'अखंड पार्श्वभूमी ध्वनी (तंबोरा व घंटानाद)')}
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-brand-saffron font-bold">
+                  {soundboardState.isBackgroundAmbiance ? 'ON 🕉️' : 'OFF'}
+                </span>
+              </button>
+
+              {/* Accessible Volume Control & Mute Button */}
+              <div className="flex items-center justify-between gap-2.5 pt-1.5 pb-0.5 text-[10px] text-gray-300">
+                <button
+                  onClick={toggleMute}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/60 border border-brand-gold/30 hover:border-brand-gold text-brand-gold hover:text-white transition-all cursor-pointer"
+                  title={soundboardState.isMuted ? (lang === 'EN' ? 'Unmute' : 'आवाज सुरू करा') : (lang === 'EN' ? 'Mute' : 'म्यूट करा')}
+                >
+                  {soundboardState.isMuted || soundboardState.volume === 0 ? (
+                    <VolumeX className="h-3.5 w-3.5 text-red-400" />
+                  ) : (
+                    <Volume2 className="h-3.5 w-3.5 text-brand-saffron" />
+                  )}
+                  <span className="font-mono text-[9px] font-bold">
+                    {soundboardState.isMuted ? (lang === 'EN' ? 'MUTED' : 'म्यूट') : (lang === 'EN' ? 'VOL' : 'आवाज')}
+                  </span>
+                </button>
+
+                <div className="flex items-center gap-2 flex-1 max-w-[190px]">
+                  <input
+                    type="range"
+                    min="0"
+                    max="1.0"
+                    step="0.05"
+                    value={soundboardState.isMuted ? 0 : soundboardState.volume}
+                    onChange={(e) => templeSoundboardEngine.setVolume(parseFloat(e.target.value))}
+                    className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-gold"
+                    aria-label="Soundboard Master Volume"
+                  />
+                  <span className="font-mono text-brand-gold text-[10px] w-9 text-right font-bold">
+                    {soundboardState.isMuted ? '0%' : `${Math.round(soundboardState.volume * 100)}%`}
+                  </span>
+                </div>
+              </div>
 
             </div>
 
             {/* Bouncing visual wave bars when audio is playing */}
-            {(isPlayingChant || oscillatorPlaying) && (
-              <div className="flex items-end justify-center gap-1.5 h-6 pt-1 animate-pulse">
-                <span className="inline-block w-1.5 rounded-t bg-brand-gold h-4 animate-bounce" style={{ animationDelay: '0.1s' }} />
-                <span className="inline-block w-1.5 rounded-t bg-brand-saffron h-6 animate-bounce" style={{ animationDelay: '0.3s' }} />
-                <span className="inline-block w-1.5 rounded-t bg-green-400 h-2 animate-bounce" style={{ animationDelay: '0.5s' }} />
-                <span className="inline-block w-1.5 rounded-t bg-brand-saffron h-5 animate-bounce" style={{ animationDelay: '0.2s' }} />
-                <span className="inline-block w-1.5 rounded-t bg-brand-gold h-3 animate-bounce" style={{ animationDelay: '0.4s' }} />
+            {(soundboardState.isMantraPlaying || soundboardState.isShankhPlaying || soundboardState.isBackgroundAmbiance) && (
+              <div className="flex items-end justify-center gap-1.5 h-6 pt-1">
+                {[0.4, 0.7, 1.0, 0.8, 0.5, 0.9, 0.6].map((multiplier, idx) => {
+                  const barHeight = Math.max(4, Math.round((soundboardState.audioLevel || 0.3) * multiplier * 24));
+                  return (
+                    <span 
+                      key={idx}
+                      className="inline-block w-1.5 rounded-t bg-gradient-to-t from-brand-maroon via-brand-gold to-brand-saffron transition-all duration-75"
+                      style={{ height: `${barHeight}px` }}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>

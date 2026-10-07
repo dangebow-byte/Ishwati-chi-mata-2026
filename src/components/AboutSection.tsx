@@ -81,9 +81,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
               aspectRatio="portrait"
               withFrame
               withAura
-              objectFit="cover"
-              className="h-full w-auto aspect-[854/1280] overflow-hidden"
-              imageClassName="w-full h-full object-cover object-center"
+              objectFit="contain"
+              className="h-full w-auto aspect-[1023/1537] overflow-hidden bg-black/60"
+              imageClassName="w-auto h-full max-h-full object-contain object-center drop-shadow-md"
             />
           </div>
           <div className="space-y-2">
@@ -95,8 +95,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
             </h3>
             <p className="text-xs text-gray-300 leading-relaxed">
               {lang === 'EN'
-                ? 'Original consecrated idol venerated continuously since 1976 under the spiritual guardianship of Shree Ishwatichi Mata Mandal.'
-                : '१९७६ पासून भक्तांच्या अखंड सेवेत असलेली श्री इश्वटीची मातेची स्वयंभू पाषाण मूर्ती आणि अधिकृत बोधचिन्ह.'}
+                ? 'Original consecrated idol venerated continuously since 1974 under the spiritual guardianship of Shree Ishwatichi Mata Mandal.'
+                : '१९७४ पासून भक्तांच्या अखंड सेवेत असलेली श्री इश्वटीची मातेची स्वयंभू पाषाण मूर्ती आणि अधिकृत बोधचिन्ह.'}
             </p>
           </div>
         </div>

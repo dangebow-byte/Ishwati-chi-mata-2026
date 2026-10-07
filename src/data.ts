@@ -134,7 +134,7 @@ export const INITIAL_TESTIMONIALS: DevoteeExperience[] = [
 
 export const TIMELINE_MILESTONES = [
   {
-    year: '१९७६',
+    year: '१९७४',
     title: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळाची स्थापना',
     titleMarathi: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळाची स्थापना',
     description: 'स्थानिक तरुणांद्वारे छोट्या लाकडी देव्हाऱ्यात अत्यंत साधेपणाने श्री ईश्वटीची मातेची स्थापना व उत्सवाला सुरुवात.',
@@ -276,7 +276,7 @@ export const TRANSLATIONS = {
     aarti_timings: 'Daily Aarti Schedule',
     countdown_festival: 'Sharad Navratri 2026 Countdown',
     mandal_history: 'Faith History & Milestones',
-    mandal_history_desc: 'A divine journey starting from a humble altar in 1976 and leading major social welfare initiatives.',
+    mandal_history_desc: 'A divine journey starting from a humble altar in 1974 and leading major social welfare initiatives.',
     live_darshan_stream: 'Live Darshan Facility & Channels',
     live_darshan_desc: 'Live 24-hour transmission of Shree Ishwatichi Mata for devotees worldwide. Morning rituals and grand aartis live.',
     digital_seva_title: 'Online Puja, Aarti & Prasad Bookings',
@@ -312,7 +312,7 @@ export const TRANSLATIONS = {
     aarti_timings: 'आरती वेळापत्रक',
     countdown_festival: 'शारदीय नवरात्र २०२६ उलटी गिनती',
     mandal_history: 'श्रद्धेचा इतिहास आणि टप्पे',
-    mandal_history_desc: '१९७६ मधील साध्या देव्हाऱ्यापासून सुरू झालेली दैवी वाटचाल आणि मंडळाचे सामाजिक उपक्रम.',
+    mandal_history_desc: '१९७४ मधील साध्या देव्हाऱ्यापासून सुरू झालेली दैवी वाटचाल आणि मंडळाचे सामाजिक उपक्रम.',
     live_darshan_stream: 'थेट दर्शन सुविधा आणि चॅनेल',
     live_darshan_desc: 'जगभरातील भाविकांसाठी श्री ईश्वटीची मातेचे थेट २४ तास प्रक्षेपण. सकाळचे विधी आणि महाआरती लाईव्ह.',
     digital_seva_title: 'ऑनलाइन पूजा-आरती व प्रसाद नावनोंदणी',
@@ -376,7 +376,7 @@ export const DEFAULT_SITE_CONTENT = {
   },
   milestones: [
     {
-      year: '१९७६',
+      year: '१९७४',
       title: 'Shree Ishwatichi Mandal Foundation',
       titleMarathi: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळाची स्थापना',
       description: 'Simple wooden altar introduced by local energetic youth which marked the beginning of community devotion.',

@@ -209,15 +209,35 @@ export const Header: React.FC<HeaderProps> = ({
               <strong>{streak}🔥</strong>
             </button>
 
-            {/* Language Selection */}
-            <button
+            {/* Polished Smooth Transition Language Toggle Switch */}
+            <div 
               onClick={handleLangToggle}
-              className="flex items-center gap-0.5 sm:gap-1 text-brand-gold bg-black/40 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-brand-gold/20 hover:bg-black/60 transition-all cursor-pointer text-[9px] sm:text-[10px] font-bold shrink-0"
-              title={lang === 'EN' ? 'मराठीमध्ये बदला' : 'Switch to English'}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleLangToggle(); } }}
+              className="relative inline-flex items-center h-6 sm:h-7 p-0.5 bg-black/60 hover:bg-black/80 border border-brand-gold/40 hover:border-brand-gold/70 rounded-full cursor-pointer select-none transition-all shadow-inner shrink-0 group active:scale-95"
+              title={lang === 'EN' ? 'मराठीमध्ये बदला (Switch to Marathi)' : 'Switch to English (इंग्रजीत बदला)'}
+              aria-label={`Language toggle: current ${lang === 'EN' ? 'English' : 'Marathi'}`}
             >
-              <Languages className="h-3 w-3 text-brand-gold shrink-0" />
-              <span>{lang === 'EN' ? 'MR' : 'EN'}</span>
-            </button>
+              {/* Sliding Gold Indicator Pill */}
+              <div 
+                className={`absolute top-0.5 bottom-0.5 w-[30px] sm:w-[36px] rounded-full bg-gradient-to-r from-brand-gold to-brand-saffron shadow-[0_0_10px_rgba(255,153,51,0.5)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                  lang === 'MR' ? 'left-[32px] sm:left-[38px]' : 'left-0.5'
+                }`} 
+              />
+              
+              <span className={`relative z-10 w-[30px] sm:w-[36px] text-center text-[9px] sm:text-[10px] font-bold transition-colors duration-200 flex items-center justify-center ${
+                lang === 'EN' ? 'text-brand-maroon font-black' : 'text-gray-300 group-hover:text-white'
+              }`}>
+                EN
+              </span>
+              
+              <span className={`relative z-10 w-[30px] sm:w-[36px] text-center text-[9px] sm:text-[10px] font-bold transition-colors duration-200 flex items-center justify-center ${
+                lang === 'MR' ? 'text-brand-maroon font-black' : 'text-gray-300 group-hover:text-white'
+              }`}>
+                मराठी
+              </span>
+            </div>
 
             {/* Google Authentication */}
             {user ? (
@@ -285,7 +305,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs md:text-sm text-brand-saffron tracking-wide font-sans font-medium mt-0.5 leading-normal truncate">
-                {lang === 'EN' ? 'Shree Ishwatichi Mata Devasthan Trust • Estd 1976' : t.subtitle}
+                {lang === 'EN' ? 'Shree Ishwatichi Mata Devasthan Trust • Estd 1974' : t.subtitle}
               </p>
             </div>
           </div>
@@ -397,13 +417,42 @@ export const Header: React.FC<HeaderProps> = ({
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white cursor-pointer"
-                aria-label="Close menu"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Mobile Drawer Smooth Animated Language Toggle */}
+                <div 
+                  onClick={handleLangToggle}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleLangToggle(); } }}
+                  className="relative inline-flex items-center h-6 p-0.5 bg-black/70 border border-brand-gold/40 rounded-full cursor-pointer select-none transition-all shadow-inner shrink-0 group active:scale-95"
+                  title={lang === 'EN' ? 'मराठीमध्ये बदला' : 'Switch to English'}
+                  aria-label={`Language toggle: current ${lang === 'EN' ? 'English' : 'Marathi'}`}
+                >
+                  <div 
+                    className={`absolute top-0.5 bottom-0.5 w-[28px] rounded-full bg-gradient-to-r from-brand-gold to-brand-saffron shadow-[0_0_8px_rgba(255,153,51,0.5)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                      lang === 'MR' ? 'left-[30px]' : 'left-0.5'
+                    }`} 
+                  />
+                  <span className={`relative z-10 w-[28px] text-center text-[9px] font-bold transition-colors duration-200 flex items-center justify-center ${
+                    lang === 'EN' ? 'text-brand-maroon font-black' : 'text-gray-300'
+                  }`}>
+                    EN
+                  </span>
+                  <span className={`relative z-10 w-[28px] text-center text-[9px] font-bold transition-colors duration-200 flex items-center justify-center ${
+                    lang === 'MR' ? 'text-brand-maroon font-black' : 'text-gray-300'
+                  }`}>
+                    मराठी
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white cursor-pointer"
+                  aria-label="Close menu"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             {/* Quick Actions Bar inside mobile drawer */}

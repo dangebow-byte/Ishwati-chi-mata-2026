@@ -40,19 +40,19 @@ export const DeviImage: React.FC<DeviImageProps> = ({
 }) => {
   const aspectClass =
     aspectRatio === 'portrait'
-      ? 'aspect-[854/1280] h-full'
+      ? 'aspect-[1023/1537]'
       : aspectRatio === 'square'
-      ? 'aspect-square h-full'
+      ? 'aspect-square'
       : aspectRatio === 'hero'
       ? 'aspect-[16/9] md:aspect-[21/9]'
-      : 'h-full w-full';
+      : 'w-full h-full';
 
   const frameClass = withFrame
-    ? 'rounded-2xl border-4 border-brand-gold/60 ring-2 ring-brand-gold/25 shadow-2xl p-1 bg-black/60'
+    ? 'rounded-2xl border-2 sm:border-4 border-brand-gold/70 ring-2 ring-brand-gold/30 shadow-2xl p-1 bg-black/60'
     : '';
 
   const auraClass = withAura
-    ? 'drop-shadow-[0_0_25px_rgba(255,153,51,0.65)]'
+    ? 'drop-shadow-[0_0_30px_rgba(255,153,51,0.7)]'
     : '';
 
   // Select optimal source
@@ -67,11 +67,11 @@ export const DeviImage: React.FC<DeviImageProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden flex items-center justify-center bg-black/40 ${aspectClass} ${frameClass} ${auraClass} ${
+      className={`relative overflow-hidden flex items-center justify-center ${aspectClass} ${frameClass} ${auraClass} ${
         onClick ? 'cursor-pointer hover:scale-[1.01] transition-transform' : ''
       } ${className}`}
     >
-      <picture className="w-full h-full block overflow-hidden relative z-[1]">
+      <picture className="w-full h-full flex items-center justify-center overflow-hidden relative z-[1]">
         {/* Mobile optimized WebP if not explicitly overridden by custom src */}
         {!src && (
           <source
@@ -98,10 +98,12 @@ export const DeviImage: React.FC<DeviImageProps> = ({
               setImageError(true);
             }
           }}
-          className={`w-full h-full transition-all duration-500 ${imageClassName}`}
+          className={`transition-all duration-500 ${imageClassName}`}
           style={{ 
             objectFit: objectFit || 'cover',
-            objectPosition: objectPosition || (objectFit === 'cover' ? 'center 15%' : 'center center')
+            objectPosition: objectPosition || (objectFit === 'cover' ? 'center 15%' : 'center center'),
+            maxWidth: '100%',
+            maxHeight: '100%'
           }}
           referrerPolicy="no-referrer"
         />
