@@ -20,7 +20,10 @@ import {
   CheckCircle2, 
   Timer,
   ChevronRight,
-  Filter
+  Filter,
+  Youtube,
+  ExternalLink,
+  X
 } from 'lucide-react';
 import { TRANSLATIONS } from '../data';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
@@ -156,6 +159,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
   const [soundboardState, setSoundboardState] = useState(() => templeSoundboardEngine.getState());
   const [selectedMantraId, setSelectedMantraId] = useState('omkar');
   const [isAartiAudioActive, setIsAartiAudioActive] = useState(() => aartiAudioEngine.getIsPlaying());
+  const [showAshtamiAartiModal, setShowAshtamiAartiModal] = useState(false);
 
   // Sync with global temple soundboard engine
   useEffect(() => {
@@ -746,6 +750,52 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
       {/* Dynamic, Scrollable Vertical Table for Daily Aarti Timings in Marathi & English */}
       <div className="bg-gradient-to-b from-[#1f0202] via-black to-[#1a0101] rounded-2xl border-2 border-brand-gold/30 p-4 sm:p-6 shadow-2xl space-y-5">
         
+        {/* Special Navratri Featured Maha Aarti: Ashtami (YouTube: 28TJIom9GFw) */}
+        <div className="rounded-xl p-3 sm:p-4 bg-gradient-to-r from-red-950/80 via-black to-brand-maroon/80 border-2 border-brand-gold/60 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-red-600 to-amber-600 flex items-center justify-center text-xl sm:text-2xl shadow-md shrink-0">
+              🪔
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-mono font-bold bg-red-600 text-white px-2 py-0.5 rounded-full uppercase">
+                  Featured Maha Aarti
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-brand-gold">
+                  {lang === 'EN' ? 'Ashtami • Dharmaveer' : 'अष्टमी • धर्मवीर महाआरती'}
+                </span>
+                <span className="text-[11px] text-gray-300">
+                  {lang === 'EN' ? 'Adarsh Shinde' : 'गायक: आदर्श शिंदे'}
+                </span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-gray-300 font-sans mt-0.5">
+                {lang === 'EN'
+                  ? 'Devotional Durga hymn & high-energy Aarti from Dharmaveer. Click to stream official music & video.'
+                  : 'चित्रपट धर्मवीर मधील लोकप्रिय व पावन दुर्गा महाआरती. थेट ऑडिओ व व्हिडिओ ऐकण्यासाठी प्ले करा.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
+            <button
+              onClick={() => setShowAshtamiAartiModal(true)}
+              className="px-3.5 py-2 bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-sans font-black text-xs rounded-xl shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <Play className="h-3.5 w-3.5 fill-current" />
+              <span>{lang === 'EN' ? 'Play Ashtami Aarti' : 'अष्टमी आरती सुरू करा'}</span>
+            </button>
+            <a
+              href="https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-xl bg-black/60 hover:bg-black/80 border border-brand-gold/40 text-red-500 hover:text-white transition-colors cursor-pointer"
+              title="Open YouTube"
+            >
+              <Youtube className="h-4 w-4 fill-current" />
+            </a>
+          </div>
+        </div>
+
         {/* Table Title, Real-Time Clock & Dynamic Filter Bar */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-brand-gold/20 pb-4">
           <div>
@@ -1140,6 +1190,79 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
         </div>
 
       </div>
+
+      {/* Ashtami Maha Aarti Modal Player */}
+      {showAshtamiAartiModal && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="relative w-full max-w-3xl bg-gradient-to-b from-[#2a0101] via-black to-[#200101] border-2 border-brand-gold/70 rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto">
+            {/* Close button */}
+            <button
+              onClick={() => setShowAshtamiAartiModal(false)}
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 bg-brand-maroon text-brand-gold hover:text-white border border-brand-gold/50 p-2 rounded-full cursor-pointer hover:scale-110 transition-transform"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 border-b border-brand-gold/30 pb-3 pr-10">
+              <span className="text-2xl">🪔</span>
+              <div>
+                <h3 className="font-sans font-black text-base sm:text-xl text-brand-gold">
+                  {lang === 'EN' ? 'Ashtami - Dharmaveer Durga Maha Aarti' : 'अष्टमी - धर्मवीर दुर्गा महाआरती'}
+                </h3>
+                <p className="text-xs text-brand-saffron font-sans">
+                  {lang === 'EN'
+                    ? 'Singer: Adarsh Shinde • Music: Chinar - Mahesh • Zee Music Marathi'
+                    : 'गायक: आदर्श शिंदे • संगीत: चिनार - महेश • झी म्युझिक मराठी'}
+                </p>
+              </div>
+            </div>
+
+            {/* Responsive 16:9 YouTube Player Frame */}
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden border-2 border-brand-gold/50 shadow-2xl bg-black">
+              <iframe
+                src="https://www.youtube-nocookie.com/embed/28TJIom9GFw?autoplay=1&enablejsapi=1&rel=0"
+                title="Ashtami - Dharmaveer Maha Aarti | Adarsh Shinde"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+
+            {/* Devotional Shloka and Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-white/10 text-xs text-gray-300">
+              <span className="text-brand-gold font-sans italic">
+                "दुर्गे दुर्घट भारी तुजविण संसारी । अनाथनाथे अंबे करुणा विस्तारी ॥"
+              </span>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-500/40 font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Youtube className="h-4 w-4 fill-current" />
+                  <span>YouTube</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+
+                <button
+                  onClick={() => setShowAshtamiAartiModal(false)}
+                  className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-colors cursor-pointer"
+                >
+                  {lang === 'EN' ? 'Close' : 'बंद करा'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </section>
   );
