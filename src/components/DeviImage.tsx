@@ -40,7 +40,7 @@ export const DeviImage: React.FC<DeviImageProps> = ({
 }) => {
   const aspectClass =
     aspectRatio === 'portrait'
-      ? 'aspect-[1023/1537]'
+      ? 'aspect-[854/1280]'
       : aspectRatio === 'square'
       ? 'aspect-square'
       : aspectRatio === 'hero'

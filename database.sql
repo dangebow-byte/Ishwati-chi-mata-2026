@@ -163,10 +163,10 @@ VALUES
     'ev-2',
     'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६',
     'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६',
-    'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन, ११ ऑक्टोबर घटस्थापना ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
-    'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन, ११ ऑक्टोबर घटस्थापना ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
-    '2026-10-10',
-    '१० ऑक्टोबर ते २५ ऑक्टोबर २०२६',
+    'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन सोहळा (सायं ०५:००), ११ ऑक्टोबर घटस्थापना (मध्यरात्र १२:०० AM IST पर्वकाळ / स. ११:०० पूजा) ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
+    'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन सोहळा (सायं ०५:००), ११ ऑक्टोबर घटस्थापना (मध्यरात्र १२:०० AM IST पर्वकाळ / स. ११:०० पूजा) ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
+    '2026-10-11',
+    '१० ऑक्टोबर आगमन (सायं ०५:००) | ११ ऑक्टोबर घटस्थापना (१२:०० AM IST) ते २५ ऑक्टोबर २०२६',
     'उत्सव',
     1890,
     'https://images.unsplash.com/photo-1561361513-2d000a50f0db?auto=format&fit=crop&q=80&w=800'
@@ -273,3 +273,55 @@ ON CONFLICT (id) DO UPDATE SET
     category = EXCLUDED.category,
     event_details_mr = EXCLUDED.event_details_mr,
     event_details_en = EXCLUDED.event_details_en;
+
+-- --------------------------------------------------------------------
+-- 9. Table: gallery_videos
+-- Sacred Instagram Video Reels & holy festival footage (Add / Edit / Delete supported)
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS gallery_videos (
+    id VARCHAR(64) PRIMARY KEY,
+    reel_url TEXT NOT NULL,
+    embed_url TEXT NOT NULL,
+    title_mr VARCHAR(500) NOT NULL,
+    title_en VARCHAR(500),
+    description_mr TEXT,
+    description_en TEXT,
+    author_handle VARCHAR(100) DEFAULT '@ishwatichi_mata',
+    established_year VARCHAR(20) DEFAULT '१९७४',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_gallery_videos_created 
+    ON gallery_videos (created_at DESC);
+
+-- Seed Data: Official Instagram Reel (Est. 1974)
+INSERT INTO gallery_videos (id, reel_url, embed_url, title_mr, title_en, description_mr, description_en, author_handle, established_year)
+VALUES (
+    'reel-official-navratri-1974',
+    'https://www.instagram.com/reel/Cx0sn8AoN7l/?stkn=MTAzcXJldTZpdm15ag==',
+    'https://www.instagram.com/reel/Cx0sn8AoN7l/embed',
+    'यंग ईश्र्वती नवरात्रौत्सव मंडळ || ईश्र्वतीची माता || परंपरा उत्सवाची स्थापना: १९७४',
+    'Shree Young Ishwati Navratrotsav Mandal || Ishwatichi Mata || Tradition of Celebration (Est. 1974)',
+    'मंडळाचा अधिकृत इंस्टाग्राम व्हिडिओ रील - श्री ईश्वटीची माता परंपरा, भव्य मिरवणूक आणि भक्तिमय दर्शन.',
+    'Official holy Instagram video reel featuring Shree Ishwatichi Mata grand festival traditions and divine blessings.',
+    '@ishwatichi_mata',
+    '१९७४'
+)
+ON CONFLICT (id) DO UPDATE SET
+    reel_url = EXCLUDED.reel_url,
+    embed_url = EXCLUDED.embed_url,
+    title_mr = EXCLUDED.title_mr,
+    title_en = EXCLUDED.title_en,
+    description_mr = EXCLUDED.description_mr,
+    description_en = EXCLUDED.description_en,
+    updated_at = CURRENT_TIMESTAMP;
+
+-- Sample CRUD SQL Operations for Reference:
+-- Add:
+-- INSERT INTO gallery_videos (id, reel_url, embed_url, title_mr, title_en, description_mr, description_en) VALUES (...);
+-- Edit:
+-- UPDATE gallery_videos SET title_mr = :title_mr, title_en = :title_en, description_mr = :desc_mr, updated_at = CURRENT_TIMESTAMP WHERE id = :id;
+-- Delete:
+-- DELETE FROM gallery_videos WHERE id = :id AND id != 'reel-official-navratri-1974';
+

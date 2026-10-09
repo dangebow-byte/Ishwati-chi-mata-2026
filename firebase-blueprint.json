@@ -112,6 +112,24 @@
         "category": { "type": "string" }
       },
       "required": ["id", "dayIndex", "dayNameMr", "dayNameEn", "dateStrMr", "dateStrEn", "dateIso", "defaultTimeMr", "defaultTimeEn", "category"]
+    },
+    "GalleryVideo": {
+      "title": "GalleryVideo",
+      "description": "Devotional Instagram video reels and clips for the sacred gallery",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "reelUrl": { "type": "string" },
+        "embedUrl": { "type": "string" },
+        "titleEN": { "type": "string" },
+        "titleMR": { "type": "string" },
+        "descriptionEN": { "type": "string" },
+        "descriptionMR": { "type": "string" },
+        "authorHandle": { "type": "string" },
+        "establishedYear": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "reelUrl", "embedUrl", "titleMR"]
     }
   },
   "firestore": {
@@ -142,6 +160,10 @@
     "/navratri_patrika/{patrikaId}": {
       "schema": "NavratriPatrikaDay",
       "description": "Navratri Patrika day schedule programs"
+    },
+    "/gallery_videos/{videoId}": {
+      "schema": "GalleryVideo",
+      "description": "Devotional Instagram reels and videos in gallery"
     }
   }
 }

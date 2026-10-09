@@ -152,13 +152,15 @@ export default function App() {
       const list: TempleEvent[] = [];
       snapshot.forEach(docSnap => {
         const evtData = cleanDevanagariSpelling(docSnap.data() as TempleEvent);
-        // Sync ev-2 date with official festival schedule start date (2026-10-10)
-        if (evtData.id === 'ev-2' && (evtData.date === '2026-10-12' || evtData.date === '2026-10-11')) {
-          evtData.date = '2026-10-10';
+        // Sync ev-2 date with official Ghatsthapana date (2026-10-11 12:00 AM IST) & Devi Agaman Sohala (2026-10-10)
+        if (evtData.id === 'ev-2' && (evtData.date === '2026-10-12' || evtData.date === '2026-10-10')) {
+          evtData.date = '2026-10-11';
+          evtData.time = '१० ऑक्टोबर आगमन (सायं ०५:००) | ११ ऑक्टोबर घटस्थापना (१२:०० AM IST) ते २५ ऑक्टोबर २०२६';
           evtData.title = 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६';
           evtData.titleMarathi = 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६';
           setDoc(doc(db, 'events', 'ev-2'), { 
-            date: '2026-10-10',
+            date: '2026-10-11',
+            time: evtData.time,
             title: evtData.title,
             titleMarathi: evtData.titleMarathi
           }, { merge: true }).catch(() => {});

@@ -101,6 +101,18 @@ service cloud.firestore {
              data.category is string && data.category.size() <= 50;
     }
 
+    function isValidGalleryVideo(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.reelUrl is string && data.reelUrl.size() <= 1000 &&
+             data.embedUrl is string && data.embedUrl.size() <= 1000 &&
+             data.titleMR is string && data.titleMR.size() <= 500 &&
+             (!('titleEN' in data) || (data.titleEN is string && data.titleEN.size() <= 500)) &&
+             (!('descriptionMR' in data) || (data.descriptionMR is string && data.descriptionMR.size() <= 2000)) &&
+             (!('descriptionEN' in data) || (data.descriptionEN is string && data.descriptionEN.size() <= 2000)) &&
+             (!('authorHandle' in data) || (data.authorHandle is string && data.authorHandle.size() <= 100)) &&
+             (!('establishedYear' in data) || (data.establishedYear is string && data.establishedYear.size() <= 20));
+    }
+
     // --- COLLECTION GATES ---
 
     // 1. ANNOUNCEMENTS
@@ -158,6 +170,14 @@ service cloud.firestore {
       allow create: if isAdmin() && isValidPatrikaDay(request.resource.data) && isValidId(patrikaId);
       allow update: if isAdmin() && isValidPatrikaDay(request.resource.data) && isValidId(patrikaId);
       allow delete: if isAdmin() && isValidId(patrikaId);
+    }
+
+    // 8. GALLERY VIDEOS (Instagram Reels & Holy Videos)
+    match /gallery_videos/{videoId} {
+      allow read: if true;
+      allow create: if isValidGalleryVideo(request.resource.data) && isValidId(videoId);
+      allow update: if (isAdmin() || isValidGalleryVideo(request.resource.data)) && isValidId(videoId);
+      allow delete: if (isAdmin() || isValidId(videoId));
     }
   }
 }

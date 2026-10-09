@@ -7,6 +7,13 @@ import { DevoteeExperience, TempleEvent, Announcement } from './types';
 import heroImg from './assets/devotional/devi-mata-main.webp';
 import sanctumHeroImg from './assets/images/ishwati_mata_darshan_widescreen_1790944258044.jpg';
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
+import authenticIdolImg from './assets/images/ishwati_mata_authentic_idol_1790944241343.jpg';
+import sanctumGrandImg from './assets/images/ishwati_mata_sanctum_hero_1790943891454.jpg';
+import alankritaDarshanImg from './assets/images/ishwati_mata_darshan_1790695775224.jpg';
+import navratriDarshanImg from './assets/devotional/devi-mata-main-2025.jpg';
+import mandalEmblemImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
+
+export { logoImg };
 
 export const INITIAL_EVENTS: TempleEvent[] = [
   {
@@ -25,10 +32,10 @@ export const INITIAL_EVENTS: TempleEvent[] = [
     id: 'ev-2',
     title: 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६',
     titleMarathi: 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६',
-    description: 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन, ११ ऑक्टोबर घटस्थापना ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
-    descriptionMarathi: 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन, ११ ऑक्टोबर घटस्थापना ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
-    date: '2026-10-10', // Starting Saturday, 10 October 2026 with Devi Aagman
-    time: '१० ऑक्टोबर ते २५ ऑक्टोबर २०२६',
+    description: 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन सोहळा (सायं ०५:००), ११ ऑक्टोबर घटस्थापना (मध्यरात्र १२:०० AM IST पर्वकाळ / स. ११:०० पूजा) ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
+    descriptionMarathi: 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा २०२६ (स्थापना १९७४). १० ऑक्टोबर आगमन सोहळा (सायं ०५:००), ११ ऑक्टोबर घटस्थापना (मध्यरात्र १२:०० AM IST पर्वकाळ / स. ११:०० पूजा) ते २५ ऑक्टोबर कोजागिरी व साडी लिलाव.',
+    date: '2026-10-11', // Ghatasthapana 11 October 2026 (12:00 AM IST), preceded by Devi Agaman Sohala on 10 October 2026 (05:00 PM IST)
+    time: '१० ऑक्टोबर आगमन (सायं ०५:००) | ११ ऑक्टोबर घटस्थापना (१२:०० AM IST) ते २५ ऑक्टोबर २०२६',
     category: 'उत्सव',
     rsvpCount: 1890,
     image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0db?auto=format&fit=crop&q=80&w=800'
@@ -179,74 +186,95 @@ export const GALLERY_ITEMS = [
     url: heroImg
   },
   {
+    id: 'gal-authentic-idol',
+    category: 'Mata Darshan',
+    title: 'श्री ईश्वटीची माता मूळ सुवर्ण अलंकारित पावन मूर्ती',
+    titleMarathi: 'श्री ईश्वटीची माता मूळ सुवर्ण अलंकारित पावन मूर्ती',
+    url: authenticIdolImg
+  },
+  {
     id: 'gal-sanctum-altar',
     category: 'Mata Darshan',
-    title: 'श्री ईश्वटीची माता गर्भगृह व राजसिंहासन दर्शन',
-    titleMarathi: 'श्री ईश्वटीची माता गर्भगृह व राजसिंहासन दर्शन',
+    title: 'श्री ईश्वटीची माता मुख्य गर्भगृह व राजसिंहासन दर्शन',
+    titleMarathi: 'श्री ईश्वटीची माता मुख्य गर्भगृह व राजसिंहासन दर्शन',
     url: sanctumHeroImg
   },
   {
-    id: 'gal-official-logo',
+    id: 'gal-sanctum-grand',
+    category: 'Decorations',
+    title: 'श्री ईश्वटीची माता भव्य सुवर्ण मखर व गर्भगृह राजसिंहासन',
+    titleMarathi: 'श्री ईश्वटीची माता भव्य सुवर्ण मखर व गर्भगृह राजसिंहासन',
+    url: sanctumGrandImg
+  },
+  {
+    id: 'gal-alankrita-darshan',
     category: 'Mata Darshan',
+    title: 'श्री ईश्वटीची प्रातः अभिषेक व महापूजा अलंकार दर्शन',
+    titleMarathi: 'श्री ईश्वटीची प्रातः अभिषेक व महापूजा अलंकार दर्शन',
+    url: alankritaDarshanImg
+  },
+  {
+    id: 'gal-navratri-utsav',
+    category: 'Festivals',
+    title: 'श्री ईश्वटीची शारदीय नवरात्रौत्सव पावन दर्शन २०२५-२०२६',
+    titleMarathi: 'श्री ईश्वटीची शारदीय नवरात्रौत्सव पावन दर्शन २०२५-२०२६',
+    url: navratriDarshanImg
+  },
+  {
+    id: 'gal-official-logo',
+    category: 'Decorations',
     title: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ अधिकृत राजमुद्रा बोधचिन्ह',
     titleMarathi: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ अधिकृत राजमुद्रा बोधचिन्ह',
     url: logoImg
   },
   {
-    id: 'gal-1',
-    category: 'Mata Darshan',
-    title: 'श्री ईश्वटीची माता राजराजेश्वरी रूप',
-    titleMarathi: 'श्री ईश्वटीची माता राजराजेश्वरी रूप',
-    url: 'https://images.unsplash.com/photo-1608976328267-e673d3ec06ce?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'gal-2',
-    category: 'Mata Darshan',
-    title: 'श्री ईश्वटीची प्रातः अभिषेक व अलंकार पूजा',
-    titleMarathi: 'श्री ईश्वटीची प्रातः अभिषेक व अलंकार पूजा',
-    url: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'gal-3',
+    id: 'gal-mandal-emblem',
     category: 'Festivals',
-    title: 'श्री ईश्वटीची शारदीय नवरात्र चंडी हवन व दीपोत्सव',
-    titleMarathi: 'श्री ईश्वटीची शारदीय नवरात्र चंडी हवन व दीपोत्सव',
-    url: 'https://images.unsplash.com/photo-1621245366437-0ea87295aafe?auto=format&fit=crop&q=80&w=800'
+    title: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ सुवर्ण प्रतीक व गौरव मुद्रा',
+    titleMarathi: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ सुवर्ण प्रतीक व गौरव मुद्रा',
+    url: mandalEmblemImg
   },
   {
-    id: 'gal-4',
-    category: 'Festivals',
-    title: 'श्री ईश्वटीची वार्षिक शोभायात्रा व पालखी सोहळा',
-    titleMarathi: 'श्री ईश्वटीची वार्षिक शोभायात्रा व पालखी सोहळा',
-    url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0db?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'gal-5',
-    category: 'Decorations',
-    title: 'श्री ईश्वटीची पर्यावरणपूरक फुलांचा मखर देखावा',
-    titleMarathi: 'श्री ईश्वटीची पर्यावरणपूरक फुलांचा मखर देखावा',
-    url: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'gal-6',
-    category: 'Decorations',
-    title: 'श्री ईश्वटीची मनमोहक विद्युत रोषणाई व दीपोत्सव',
-    titleMarathi: 'श्री ईश्वटीची मनमोहक विद्युत रोषणाई व दीपोत्सव',
-    url: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'gal-7',
+    id: 'gal-community-health',
     category: 'Community Service',
     title: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ: मोफत आरोग्य व नेत्र तपासणी शिबीर',
     titleMarathi: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ: मोफत आरोग्य व नेत्र तपासणी शिबीर',
     url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800'
   },
   {
-    id: 'gal-8',
+    id: 'gal-community-annadaan',
     category: 'Community Service',
-    title: 'श्री ईश्वटीची महाप्रसाद वाटप व अन्नदान उपक्रम',
-    titleMarathi: 'श्री ईश्वटीची महाप्रसाद वाटप व अन्नदान उपक्रम',
+    title: 'श्री ईश्वटीची महाप्रसाद वाटप व अन्नदान सेवा उपक्रम',
+    titleMarathi: 'श्री ईश्वटीची महाप्रसाद वाटप व अन्नदान सेवा उपक्रम',
     url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=800'
+  }
+];
+
+export interface GalleryVideoReel {
+  id: string;
+  reelUrl: string;
+  embedUrl: string;
+  titleEN: string;
+  titleMR: string;
+  descriptionEN: string;
+  descriptionMR: string;
+  authorHandle: string;
+  establishedYear: string;
+  date?: string;
+}
+
+export const OFFICIAL_INSTAGRAM_REELS: GalleryVideoReel[] = [
+  {
+    id: 'reel-official-navratri-1974',
+    reelUrl: 'https://www.instagram.com/reel/Cx0sn8AoN7l/?stkn=MTAzcXJldTZpdm15ag==',
+    embedUrl: 'https://www.instagram.com/reel/Cx0sn8AoN7l/embed',
+    titleEN: 'Shree Young Ishwati Navratrotsav Mandal || Ishwatichi Mata || Tradition of Celebration (Est. 1974)',
+    titleMR: 'यंग ईश्र्वती नवरात्रौत्सव मंडळ || ईश्र्वतीची माता || परंपरा उत्सवाची स्थापना: १९७४',
+    descriptionEN: 'Official holy Instagram video reel featuring Shree Ishwatichi Mata grand festival traditions and divine blessings.',
+    descriptionMR: 'मंडळाचा अधिकृत इंस्टाग्राम व्हिडिओ रील - श्री ईश्वटीची माता परंपरा, भव्य मिरवणूक आणि भक्तिमय दर्शन.',
+    authorHandle: '@ishwatichi_mata',
+    establishedYear: '१९७४',
+    date: '30 September 2023'
   }
 ];
 
@@ -274,7 +302,7 @@ export const TRANSLATIONS = {
     hero_btn3: 'Contribute Now',
     hero_btn4: 'Post Your Story',
     aarti_timings: 'Daily Aarti Schedule',
-    countdown_festival: 'Sharad Navratri 2026 Countdown',
+    countdown_festival: 'Ghatasthapana Countdown (11 Oct, 12:00 AM IST)',
     mandal_history: 'Faith History & Milestones',
     mandal_history_desc: 'A divine journey starting from a humble altar in 1974 and leading major social welfare initiatives.',
     live_darshan_stream: 'Live Darshan Facility & Channels',
@@ -310,7 +338,7 @@ export const TRANSLATIONS = {
     hero_btn3: 'देणगी जमा करा',
     hero_btn4: 'भक्तांचे अनुभव फॉर्म',
     aarti_timings: 'आरती वेळापत्रक',
-    countdown_festival: 'शारदीय नवरात्र २०२६ उलटी गिनती',
+    countdown_festival: 'घटस्थापना उलटी गणना (११ ऑक्टोबर, १२:०० AM IST)',
     mandal_history: 'श्रद्धेचा इतिहास आणि टप्पे',
     mandal_history_desc: '१९७४ मधील साध्या देव्हाऱ्यापासून सुरू झालेली दैवी वाटचाल आणि मंडळाचे सामाजिक उपक्रम.',
     live_darshan_stream: 'थेट दर्शन सुविधा आणि चॅनेल',

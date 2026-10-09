@@ -27,6 +27,18 @@ interface UpcomingFestivalCountdownProps {
   onRsvp?: (eventId: string, devoteeName: string) => void;
 }
 
+// Sacred 2026 Navratri Festival Milestones in Indian Standard Time (IST • UTC+05:30)
+export const NAVRATRI_2026_SCHEDULE = {
+  // 10 October 2026 05:00 PM IST (Devi Agaman Sohala)
+  DEVI_AGAMAN_IST: '2026-10-10T17:00:00+05:30',
+  // 11 October 2026 12:00 AM IST (Midnight - Ghatasthapana auspicious period start)
+  GHATASTHAPANA_MIDNIGHT_IST: '2026-10-11T00:00:00+05:30',
+  // 11 October 2026 11:00 AM IST (Ghatasthapana Mahapooja)
+  GHATASTHAPANA_POOJA_IST: '2026-10-11T11:00:00+05:30',
+  // 25 October 2026 23:59:59 IST (Kojagiri & Saree Auction Mahotsav conclusion)
+  FESTIVAL_END_IST: '2026-10-25T23:59:59+05:30',
+};
+
 export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps> = ({
   lang,
   events,
@@ -38,6 +50,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
   // Current time state updating every second
   const [now, setNow] = useState<Date>(() => new Date());
   const [selectedFestivalIndex, setSelectedFestivalIndex] = useState<number>(0);
+  const [milestoneTarget, setMilestoneTarget] = useState<'ghatasthapana' | 'agaman'>('ghatasthapana');
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
   const [rsvpName, setRsvpName] = useState('');
   const [rsvpPhone, setRsvpPhone] = useState('');
@@ -86,14 +99,32 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
 
   const currentFestival = upcomingFestivals[selectedFestivalIndex] || upcomingFestivals[0] || null;
 
+  const isNavratriFestival = useMemo(() => {
+    if (!currentFestival) return false;
+    return currentFestival.id === 'ev-2' || (currentFestival.title && currentFestival.title.includes('नवरात्र'));
+  }, [currentFestival]);
+
   // Calculate live countdown to festival
   const countdown = useMemo(() => {
     if (!currentFestival) {
       return { days: 0, hours: 0, minutes: 0, seconds: 0, isLive: false, hasPassed: false };
     }
 
-    const festivalStart = new Date(currentFestival.date + 'T04:00:00').getTime();
-    const festivalEnd = new Date(currentFestival.date + 'T23:59:59').getTime();
+    let festivalStart: number;
+    let festivalEnd: number;
+
+    if (isNavratriFestival) {
+      // 11 October 2026 12:00 AM IST for Ghatasthapana (Default)
+      // 10 October 2026 05:00 PM IST for Devi Agaman Sohala
+      festivalStart = milestoneTarget === 'ghatasthapana'
+        ? new Date(NAVRATRI_2026_SCHEDULE.GHATASTHAPANA_MIDNIGHT_IST).getTime()
+        : new Date(NAVRATRI_2026_SCHEDULE.DEVI_AGAMAN_IST).getTime();
+      festivalEnd = new Date(NAVRATRI_2026_SCHEDULE.FESTIVAL_END_IST).getTime();
+    } else {
+      festivalStart = new Date(currentFestival.date + 'T04:00:00+05:30').getTime();
+      festivalEnd = new Date(currentFestival.date + 'T23:59:59+05:30').getTime();
+    }
+
     const currentMs = now.getTime();
 
     // Check if festival is ongoing today
@@ -113,11 +144,17 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
     return { days, hours, minutes, seconds, isLive: false, hasPassed: false };
-  }, [currentFestival, now]);
+  }, [currentFestival, isNavratriFestival, milestoneTarget, now]);
 
   // Format festival date nicely in Marathi & English
   const formattedDate = useMemo(() => {
     if (!currentFestival) return { en: '', mr: '' };
+    if (isNavratriFestival) {
+      return {
+        en: '10 Oct Devi Agaman (05:00 PM) • 11 Oct Ghatasthapana (12:00 AM IST) to 25 Oct 2026',
+        mr: '१० ऑक्टोबर आगमन (सायं ०५:००) • ११ ऑक्टोबर घटस्थापना (१२:०० AM IST) ते २५ ऑक्टोबर २०२६'
+      };
+    }
     try {
       const d = new Date(currentFestival.date + 'T00:00:00');
       const en = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
@@ -140,7 +177,7 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
     } catch {
       return { en: currentFestival.date, mr: currentFestival.date };
     }
-  }, [currentFestival]);
+  }, [currentFestival, isNavratriFestival]);
 
   const handleRsvpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -252,6 +289,89 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
               {lang === 'EN' ? currentFestival.description : currentFestival.descriptionMarathi}
             </p>
 
+            {/* Sacred Milestones Interactive Strip for Navratri (Ghatasthapana & Devi Agaman) */}
+            {isNavratriFestival && (
+              <div className="bg-black/60 border border-brand-gold/35 rounded-2xl p-3 sm:p-4 space-y-2.5 backdrop-blur-sm">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-[11px] sm:text-xs font-sans font-black text-brand-gold uppercase tracking-wider flex items-center gap-1.5">
+                    <span>🪔</span>
+                    <span>{lang === 'EN' ? 'Sacred Navratri Milestones (IST Time)' : 'पावन नवरात्र पर्वकाळ व आगमन सोहळा (IST वेळ)'}</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-brand-saffron bg-brand-maroon/70 px-2.5 py-0.5 rounded-full border border-brand-gold/30">
+                    IST • UTC+05:30
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* Milestone 1: Ghatasthapana (Default Target - 11 Oct 12:00 AM IST) */}
+                  <button
+                    type="button"
+                    onClick={() => setMilestoneTarget('ghatasthapana')}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      milestoneTarget === 'ghatasthapana'
+                        ? 'bg-gradient-to-r from-brand-maroon via-[#5a0505] to-[#3a0202] border-brand-gold shadow-[0_0_15px_rgba(212,175,55,0.4)] ring-1 ring-brand-gold/50'
+                        : 'bg-black/40 border-white/10 hover:border-brand-gold/40 text-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-brand-gold flex items-center gap-1.5">
+                        <span>🪔</span>
+                        <span>{lang === 'EN' ? 'Ghatasthapana' : 'घटस्थापना (पर्वकाळ)'}</span>
+                      </span>
+                      {milestoneTarget === 'ghatasthapana' ? (
+                        <span className="text-[9px] bg-brand-gold text-brand-maroon px-2 py-0.5 rounded-full font-black uppercase shadow">
+                          {lang === 'EN' ? 'Active Timer' : 'उलटी गणना सुरू'}
+                        </span>
+                      ) : (
+                        <span className="text-[9px] text-gray-400 hover:text-white">
+                          {lang === 'EN' ? 'Click to view' : 'पाहण्यासाठी क्लिक करा'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs font-sans font-bold text-white mt-1">
+                      {lang === 'EN' ? 'Sunday, 11 Oct • 12:00 AM IST' : 'रविवार, ११ ऑक्टोबर • १२:०० AM IST'}
+                    </div>
+                    <div className="text-[10px] text-gray-300 leading-tight mt-0.5">
+                      {lang === 'EN' ? 'Midnight auspicious start & 11:00 AM Pooja' : 'मध्यरात्र पर्वकाळ प्रारंभ व स. ११:०० वा. पूजा'}
+                    </div>
+                  </button>
+
+                  {/* Milestone 2: Devi Agaman Sohala (10 Oct 05:00 PM IST) */}
+                  <button
+                    type="button"
+                    onClick={() => setMilestoneTarget('agaman')}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      milestoneTarget === 'agaman'
+                        ? 'bg-gradient-to-r from-brand-maroon via-[#5a0505] to-[#3a0202] border-brand-gold shadow-[0_0_15px_rgba(212,175,55,0.4)] ring-1 ring-brand-gold/50'
+                        : 'bg-black/40 border-white/10 hover:border-brand-gold/40 text-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-brand-saffron flex items-center gap-1.5">
+                        <span>🌺</span>
+                        <span>{lang === 'EN' ? 'Devi Agaman Sohala' : 'श्री देवी आगमन सोहळा'}</span>
+                      </span>
+                      {milestoneTarget === 'agaman' ? (
+                        <span className="text-[9px] bg-brand-saffron text-brand-maroon px-2 py-0.5 rounded-full font-black uppercase shadow">
+                          {lang === 'EN' ? 'Active Timer' : 'उलटी गणना सुरू'}
+                        </span>
+                      ) : (
+                        <span className="text-[9px] text-gray-400 hover:text-white">
+                          {lang === 'EN' ? 'Click to view' : 'पाहण्यासाठी क्लिक करा'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs font-sans font-bold text-white mt-1">
+                      {lang === 'EN' ? 'Saturday, 10 Oct • 05:00 PM IST' : 'शनिवार, १० ऑक्टोबर • सायं ०५:०० PM IST'}
+                    </div>
+                    <div className="text-[10px] text-gray-300 leading-tight mt-0.5">
+                      {lang === 'EN' ? 'Uday Khatu Karkhana (Bhalchandra Maidan)' : 'उदय खातू कारखाना (भालचंद्र मैदान)'}
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Devotees RSVP counter & Live badges */}
             <div className="flex items-center gap-3 pt-1 flex-wrap">
               <div className="flex items-center gap-2 bg-black/60 border border-green-500/30 px-3 py-1.5 rounded-xl text-xs">
@@ -341,7 +461,15 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                 
                 <div className="flex items-center justify-center gap-1.5 text-brand-saffron text-xs font-sans font-bold uppercase tracking-wider">
                   <Sparkles className="h-3.5 w-3.5 text-brand-gold animate-spin" />
-                  <span>{lang === 'EN' ? 'Countdown to Auspicious Day' : 'महोत्सव शुभारंभ उलटी गणना'}</span>
+                  <span>
+                    {isNavratriFestival ? (
+                      milestoneTarget === 'ghatasthapana'
+                        ? (lang === 'EN' ? 'Countdown to Ghatasthapana (11 Oct, 12:00 AM IST)' : 'घटस्थापना उलटी गणना (११ ऑक्टोबर, १२:०० AM IST)')
+                        : (lang === 'EN' ? 'Countdown to Devi Agaman (10 Oct, 05:00 PM IST)' : 'देवी आगमन सोहळा उलटी गणना (१० ऑक्टोबर, सायं ०५:०० IST)')
+                    ) : (
+                      lang === 'EN' ? 'Countdown to Auspicious Day' : 'महोत्सव शुभारंभ उलटी गणना'
+                    )}
+                  </span>
                 </div>
 
                 {/* 4 Counter Boxes: Days, Hours, Minutes, Seconds */}
@@ -390,12 +518,16 @@ export const UpcomingFestivalCountdown: React.FC<UpcomingFestivalCountdownProps>
                 </div>
 
                 {/* Subtitle helper */}
-                <div className="text-[11px] text-gray-300 font-sans flex items-center justify-center gap-1.5 pt-1">
+                <div className="text-[11px] text-gray-300 font-sans flex items-center justify-center gap-1.5 pt-1 text-center">
                   <span>🚩</span>
                   <span>
-                    {lang === 'EN' 
-                      ? 'Live countdown synchronized with Indian Standard Time (IST)' 
-                      : 'भारतीय प्रमाणवेळेनुसार थेट उलटी गणना अद्ययावत'}
+                    {isNavratriFestival
+                      ? (lang === 'EN'
+                          ? 'Synchronized with Indian Standard Time (IST • UTC+05:30): 11 October 12:00 AM Midnight (Ghatasthapana)'
+                          : 'भारतीय प्रमाणवेळ (IST • UTC+05:30) अचूक वेळ: ११ ऑक्टोबर मध्यरात्र १२:०० AM (घटस्थापना पर्वकाळ)')
+                      : (lang === 'EN'
+                          ? 'Live countdown synchronized with Indian Standard Time (IST • UTC+05:30)'
+                          : 'भारतीय प्रमाणवेळेनुसार (IST) थेट उलटी गणना अद्ययावत')}
                   </span>
                 </div>
 

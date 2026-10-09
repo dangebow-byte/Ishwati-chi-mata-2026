@@ -201,9 +201,10 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
     return () => clearInterval(viewerInterval);
   }, []);
 
-  // Real-time calculation for Navratri Countdown (starting Sunday 2026-10-11)
+  // Real-time calculation for Navratri Ghatasthapana Countdown (11 October 2026 at 12:00 AM IST)
   useEffect(() => {
-    const festivalDate = new Date('2026-10-11T00:00:00Z').getTime();
+    // 11 October 2026 12:00 AM IST (Indian Standard Time, UTC+05:30)
+    const festivalDate = new Date('2026-10-11T00:00:00+05:30').getTime();
 
     const timeInterval = setInterval(() => {
       const now = new Date().getTime();
@@ -220,7 +221,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
       const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-      setCountdownText(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      setCountdownText(`${days}d ${hours}h ${minutes}m ${seconds}s (IST)`);
     }, 1000);
 
     return () => clearInterval(timeInterval);
