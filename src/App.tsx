@@ -33,6 +33,7 @@ import { HeroAudioPlayer } from './components/HeroAudioPlayer';
 import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdown';
 import { NavratriPatrikaSection } from './components/NavratriPatrikaSection';
 import { AgamanBanner } from './components/AgamanBanner';
+import { InteractiveDiya } from './components/InteractiveDiya';
 import { GlobalAudioController } from './components/GlobalAudioController';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
 
@@ -648,10 +649,14 @@ export default function App() {
                       imageClassName="w-auto h-auto max-h-[380px] xs:max-h-[440px] sm:max-h-[500px] md:max-h-[540px] lg:max-h-[560px] xl:max-h-[600px] object-contain mx-auto transition-transform duration-700 group-hover:scale-[1.03] drop-shadow-[0_8px_25px_rgba(0,0,0,0.9)]"
                     />
 
-                    {/* Divine Diya flickering at bottom corner */}
-                    <div className="absolute bottom-2 right-2 animate-diya-flicker text-2xl sm:text-3xl select-none drop-shadow-[0_0_15px_rgba(255,153,51,0.9)] z-20">
-                      🪔
-                    </div>
+                    {/* Interactive 'Light a Diya' Divine Lamp Feature (Pinned at Bottom-Right Corner) */}
+                    <InteractiveDiya 
+                      lang={lang}
+                      userProfile={userProfile}
+                      onUpdateProfile={handleUpdateProfile}
+                      onAddHistoryLog={(log) => updateHistoryState([log, ...claimsHistory])}
+                      variant="sanctum-floating"
+                    />
 
                     {/* Interactive "Full View" Badge Overlay */}
                     <div className="absolute top-2 right-2 z-20 bg-black/75 hover:bg-black/90 text-brand-gold border border-brand-gold/50 text-[10px] sm:text-xs font-sans font-bold px-2 py-1 rounded-md shadow-md backdrop-blur-sm flex items-center gap-1 opacity-90 group-hover:opacity-100 transition-opacity">
@@ -747,6 +752,15 @@ export default function App() {
                     <span className="font-sans leading-tight text-center">{lang === 'EN' ? 'Karyakram Patrika' : 'कार्यक्रम पत्रिका'}</span>
                   </button>
                 </div>
+
+                {/* Interactive 'Light a Diya' Feature Card in Hero Section */}
+                <InteractiveDiya 
+                  lang={lang}
+                  userProfile={userProfile}
+                  onUpdateProfile={handleUpdateProfile}
+                  onAddHistoryLog={(log) => updateHistoryState([log, ...claimsHistory])}
+                  variant="action-card"
+                />
 
                 {/* Hero Aarti Web Audio Player */}
                 <HeroAudioPlayer lang={lang} />
