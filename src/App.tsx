@@ -32,6 +32,7 @@ import { SacredDarshanZoomViewer } from './components/SacredDarshanZoomViewer';
 import { HeroAudioPlayer } from './components/HeroAudioPlayer';
 import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdown';
 import { NavratriPatrikaSection } from './components/NavratriPatrikaSection';
+import { AgamanBanner } from './components/AgamanBanner';
 import { GlobalAudioController } from './components/GlobalAudioController';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
 
@@ -588,6 +589,14 @@ export default function App() {
         </div>
       )}
 
+      {/* Special Festive Agaman Sohala Celebration Banner - Displayed below Menu Bar and before Main Mata Idol */}
+      {activeTab === 'home' && (
+        <AgamanBanner 
+          lang={lang} 
+          onViewDetails={() => setActiveTab('events')} 
+        />
+      )}
+
       {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}
       {activeTab === 'home' && (
         <section 
@@ -616,7 +625,7 @@ export default function App() {
               <div className="lg:col-span-5 xl:col-span-5 flex flex-col items-center justify-center">
                 <div 
                   onClick={() => setIsFullDarshanOpen(true)}
-                  className="relative group w-full max-w-[340px] xs:max-w-[380px] sm:max-w-[420px] lg:max-w-none rounded-2xl p-2 sm:p-2.5 bg-gradient-to-b from-[#4A0404]/90 via-black/85 to-[#300202]/95 border-2 sm:border-3 border-brand-gold/75 ring-2 ring-brand-gold/25 shadow-[0_0_35px_rgba(255,153,51,0.45)] backdrop-blur-md cursor-pointer transition-all duration-300 hover:scale-[1.015] hover:shadow-[0_0_45px_rgba(255,153,51,0.7)]"
+                  className="relative group w-full max-w-[340px] xs:max-w-[380px] sm:max-w-[420px] lg:max-w-none rounded-2xl mt-[-10px] sm:mt-0 pt-2 p-2 sm:p-2.5 bg-gradient-to-b from-[#4A0404]/90 via-black/85 to-[#300202]/95 border-2 sm:border-3 border-brand-gold/75 ring-2 ring-brand-gold/25 shadow-[0_0_35px_rgba(255,153,51,0.45)] backdrop-blur-md cursor-pointer transition-all duration-300 hover:scale-[1.015] hover:shadow-[0_0_45px_rgba(255,153,51,0.7)]"
                   title={lang === 'EN' ? 'Click to view full sacred idol in high-definition' : 'संपूर्ण दिव्य दर्शन मोठ्या आकारात पाहण्यासाठी क्लिक करा'}
                 >
                   {/* Sacred Top Arch Header */}
