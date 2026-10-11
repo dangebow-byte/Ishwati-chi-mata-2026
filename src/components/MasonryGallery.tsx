@@ -778,12 +778,16 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                   onClick={() => handleOpenLightbox(item)}
                   className="flex flex-col rounded-2xl overflow-hidden border border-brand-gold/30 bg-gradient-to-b from-brand-maroon/20 via-black/60 to-black/90 shadow-xl hover:shadow-2xl hover:border-brand-gold/80 transition-all duration-300 group cursor-pointer"
                 >
-                  {/* Photo Container with aspect ratio */}
-                  <div className="relative aspect-[4/5] w-full overflow-hidden bg-black/80 flex items-center justify-center">
+                  {/* Photo / Banner Container with responsive aspect ratio preserving full graphics */}
+                  <div className={`relative w-full overflow-hidden bg-black/90 flex items-center justify-center ${
+                    item.id === 'gal-agaman-banner-2026' ? 'aspect-[16/10] sm:aspect-[16/9]' : 'aspect-[4/5]'
+                  }`}>
                     <img
                       src={item.url}
                       alt={item.title}
-                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                      className={`w-full h-full transition-transform duration-700 group-hover:scale-105 ${
+                        item.id === 'gal-agaman-banner-2026' ? 'object-contain object-center' : 'object-cover object-center'
+                      }`}
                       loading="lazy"
                       referrerPolicy="no-referrer"
                     />

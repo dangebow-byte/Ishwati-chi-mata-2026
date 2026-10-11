@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Flame, Sparkles, CheckCircle2 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { calculateDevoteeCheckIn, getTodayDateString } from '../utils/streakEngine';
 
 interface InteractiveDiyaProps {
   lang: 'EN' | 'MR';
@@ -14,7 +15,7 @@ interface InteractiveDiyaProps {
  * Interactive 'Light a Diya' component
  * Allows devotees to light a digital sacred lamp (🪔) in front of Shree Ishwatichi Mata,
  * triggering an authentic glowing flame animation, golden particle burst, sacred temple chime,
- * and incrementing their daily devotee streak & check-in milestone.
+ * and accurately updating their daily devotee streak & check-in milestone.
  */
 export const InteractiveDiya: React.FC<InteractiveDiyaProps> = ({
   lang,
@@ -23,7 +24,7 @@ export const InteractiveDiya: React.FC<InteractiveDiyaProps> = ({
   onAddHistoryLog,
   variant = 'sanctum-floating'
 }) => {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getTodayDateString();
   const [isLit, setIsLit] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showGlowBurst, setShowGlowBurst] = useState(false);
@@ -92,54 +93,38 @@ export const InteractiveDiya: React.FC<InteractiveDiyaProps> = ({
       setIsAnimating(false);
     }, 1200);
 
-    // Save persistent diya status
+    // Save persistent diya status for today
     setIsLit(true);
     try {
       localStorage.setItem('ishwatichi_last_diya_date', todayStr);
     } catch {}
 
-    const alreadyCheckedInToday = userProfile.lastPrayerDate === todayStr;
+    // Calculate accurate check-in and consecutive daily streak
+    const checkInResult = calculateDevoteeCheckIn(userProfile);
 
-    if (!alreadyCheckedInToday) {
-      const newStreak = userProfile.streakCount + 1;
-      const milestones = [...userProfile.milestonesReached];
-
-      if (newStreak === 3) {
-        milestones.push({
-          id: 'mil-3',
-          title: 'Nitya Dharmee Badge (Regular Practitioner)',
-          date: todayStr
-        });
-      } else if (newStreak === 5) {
-        milestones.push({
-          id: 'mil-5',
-          title: 'Ananya Upasak Badge (Deeply Devoted)',
-          date: todayStr
-        });
-      }
-
+    if (!checkInResult.alreadyCheckedIn) {
       onUpdateProfile({
-        streakCount: newStreak,
-        lastPrayerDate: todayStr,
-        milestonesReached: milestones
+        streakCount: checkInResult.newStreak,
+        lastPrayerDate: checkInResult.todayStr,
+        milestonesReached: checkInResult.newMilestones
       });
 
       onAddHistoryLog({
         id: 'diya-' + Date.now(),
-        title: `🪔 Lit Divine Sanctum Lamp (Devotee Streak Day ${newStreak})`,
-        date: todayStr
+        title: `🪔 Lit Divine Sanctum Lamp (Devotee Streak Day ${checkInResult.newStreak})`,
+        date: checkInResult.todayStr
       });
 
       setToastMessage(
         lang === 'EN'
-          ? `✨ Divine Lamp Lit! Your devotion streak is now 🔥 ${newStreak} Days!`
-          : `✨ दीप प्रज्वलित झाला! आपले भक्ती गुण सातत्य आता 🔥 ${newStreak} दिवस झाले!`
+          ? `✨ Divine Lamp Lit! Your devotion streak is now 🔥 ${checkInResult.newStreak} Day${checkInResult.newStreak > 1 ? 's' : ''}!`
+          : `✨ दीप प्रज्वलित झाला! आपले भक्ती गुण सातत्य आता 🔥 ${checkInResult.newStreak} दिवस झाले!`
       );
     } else {
       setToastMessage(
         lang === 'EN'
-          ? `🪔 May Goddess Shree Ishwatichi Mata bless you with peace and auspiciousness! (Streak: 🔥 ${userProfile.streakCount} Days)`
-          : `🪔 श्री इश्वटीची मातेचा कृपाप्रसाद आपल्या पाठीशी सदैव राहो! (भक्ती सातत्य: 🔥 ${userProfile.streakCount} दिवस)`
+          ? `🪔 Divine Lamp is glowing! Today's darshan is active (Streak: 🔥 ${checkInResult.newStreak} Day${checkInResult.newStreak > 1 ? 's' : ''})`
+          : `🪔 मातेचा पवित्र दीप प्रज्वलित आहे! आजचे दर्शन सक्रिय आहे (भक्ती सातत्य: 🔥 ${checkInResult.newStreak} दिवस)`
       );
     }
 

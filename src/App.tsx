@@ -32,7 +32,6 @@ import { SacredDarshanZoomViewer } from './components/SacredDarshanZoomViewer';
 import { HeroAudioPlayer } from './components/HeroAudioPlayer';
 import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdown';
 import { NavratriPatrikaSection } from './components/NavratriPatrikaSection';
-import { AgamanBanner } from './components/AgamanBanner';
 import { InteractiveDiya } from './components/InteractiveDiya';
 import { GlobalAudioController } from './components/GlobalAudioController';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
@@ -42,6 +41,13 @@ import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 import heroImg from './assets/devotional/devi-mata-main.webp';
 
 import { cleanDevanagariSpelling } from './utils/spellingSanitizer';
+import { 
+  calculateDevoteeCheckIn, 
+  getTodayDateString, 
+  getDayDifference,
+  getActiveDevoteeStreak,
+  sanitizeDevoteeProfile
+} from './utils/streakEngine';
 export { cleanDevanagariSpelling };
 
 export default function App() {
@@ -59,15 +65,23 @@ export default function App() {
   const [quotaWarning, setQuotaWarning] = useState<string | null>(null);
   
   const [user, setUser] = useState<any>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile>({
-    name: 'Sanjay Deshpande',
-    phone: '+91 94825 00000',
-    email: 'dsanjay@spiritual.in',
-    gotra: 'Bharadwaj',
-    streakCount: 2,
-    lastPrayerDate: '2026-06-06',
-    milestonesReached: [{ id: 'mil-0', title: 'First Holy Connection', date: '2026-06-05' }],
-    totalDonation: 0
+  const [userProfile, setUserProfile] = useState<UserProfile>(() => {
+    try {
+      const stored = localStorage.getItem('ishwatichi_profile') || localStorage.getItem('ishawati_profile');
+      if (stored) {
+        return sanitizeDevoteeProfile(JSON.parse(stored));
+      }
+    } catch {}
+    return {
+      name: 'Sanjay Deshpande',
+      phone: '+91 94825 00000',
+      email: 'dsanjay@spiritual.in',
+      gotra: 'Bharadwaj',
+      streakCount: 0,
+      lastPrayerDate: '',
+      milestonesReached: [],
+      totalDonation: 0
+    };
   });
   const [claimsHistory, setClaimsHistory] = useState<{ id: string; title: string; date: string }[]>([]);
   const [isFullDarshanOpen, setIsFullDarshanOpen] = useState(false);
@@ -191,7 +205,9 @@ export default function App() {
     // LocalStorage fallback for profile & checking timeline tracking locally
     try {
       const storedProfile = localStorage.getItem('ishwatichi_profile') || localStorage.getItem('ishawati_profile');
-      if (storedProfile) setUserProfile(JSON.parse(storedProfile));
+      if (storedProfile) {
+        setUserProfile(sanitizeDevoteeProfile(JSON.parse(storedProfile)));
+      }
 
       const storedHistory = localStorage.getItem('ishwatichi_history') || localStorage.getItem('ishawati_history');
       if (storedHistory) setClaimsHistory(JSON.parse(storedHistory));
@@ -482,38 +498,20 @@ export default function App() {
 
   // Daily Devotion Claim streak engine check
   const handleClaimDailyCheckIn = () => {
-    const todayStr = new Date().toISOString().split('T')[0];
-    
-    if (userProfile.lastPrayerDate === todayStr) {
+    const checkInResult = calculateDevoteeCheckIn(userProfile);
+
+    if (checkInResult.alreadyCheckedIn) {
       alert(lang === 'EN' 
-        ? '🙏 Your daily devotion check-in is already accounted for today! Check in tomorrow to increase your streak.' 
-        : '🙏 आजचे दपदर्शन गुण आधीच नोंदवले गेले आहेत. उद्या पुन्हा भेट देऊन सातत्य टिकवून ठेवा.');
+        ? `🙏 Your daily devotion check-in is already accounted for today! (Streak: 🔥 ${checkInResult.newStreak} Day${checkInResult.newStreak > 1 ? 's' : ''}). Check in tomorrow to increase your streak.` 
+        : `🙏 आजचे दर्शन गुण आधीच नोंदवले गेले आहेत! (भक्ती सातत्य: 🔥 ${checkInResult.newStreak} दिवस). उद्या पुन्हा भेट देऊन सातत्य वाढवा.`);
       return;
-    }
-
-    const newStreak = userProfile.streakCount + 1;
-    let milestones = [...userProfile.milestonesReached];
-
-    // Check benchmarks and assign milestone badges dynamically
-    if (newStreak === 3) {
-      milestones.push({
-        id: 'mil-3',
-        title: 'Nitya Dharmee Badge (Regular Practitioner)',
-        date: todayStr
-      });
-    } else if (newStreak === 5) {
-      milestones.push({
-        id: 'mil-5',
-        title: 'Ananya Upasak Badge (Deeply Devoted)',
-        date: todayStr
-      });
     }
 
     const updatedProfile: UserProfile = {
       ...userProfile,
-      streakCount: newStreak,
-      lastPrayerDate: todayStr,
-      milestonesReached: milestones
+      streakCount: checkInResult.newStreak,
+      lastPrayerDate: checkInResult.todayStr,
+      milestonesReached: checkInResult.newMilestones
     };
     updateProfileState(updatedProfile);
 
@@ -521,14 +519,14 @@ export default function App() {
     const logId = 'lg-' + Math.floor(Math.random() * 10000);
     const newLog = {
       id: logId,
-      title: `Checked In: Completed Day ${newStreak} Darshan`,
-      date: todayStr
+      title: `Checked In: Completed Day ${checkInResult.newStreak} Darshan`,
+      date: checkInResult.todayStr
     };
     updateHistoryState([newLog, ...claimsHistory]);
 
     alert(lang === 'EN' 
-      ? `🎉 Jai Mata Di! Daily check-in successful. Your devotion streak is now 🔥 ${newStreak} Days!` 
-      : `🎉 विजयाभव! आजचे दर्शन यशस्वी नोंदले गेले. तुमची भक्ती गुण सातत्य आता 🔥 ${newStreak} दिवस झाले आहे!`);
+      ? `🎉 Jai Mata Di! Daily check-in successful. Your devotion streak is now 🔥 ${checkInResult.newStreak} Day${checkInResult.newStreak > 1 ? 's' : ''}!` 
+      : `🎉 विजयाभव! आजचे दर्शन यशस्वी नोंदले गेले. तुमची भक्ती गुण सातत्य आता 🔥 ${checkInResult.newStreak} दिवस झाले आहे!`);
   };
 
   // Add 25 streak boost points for Digital Seva
@@ -588,14 +586,6 @@ export default function App() {
             </button>
           </div>
         </div>
-      )}
-
-      {/* Special Festive Agaman Sohala Celebration Banner - Displayed below Menu Bar and before Main Mata Idol */}
-      {activeTab === 'home' && (
-        <AgamanBanner 
-          lang={lang} 
-          onViewDetails={() => setActiveTab('events')} 
-        />
       )}
 
       {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}

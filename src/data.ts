@@ -12,8 +12,9 @@ import sanctumGrandImg from './assets/images/ishwati_mata_sanctum_hero_179094389
 import alankritaDarshanImg from './assets/images/ishwati_mata_darshan_1790695775224.jpg';
 import navratriDarshanImg from './assets/devotional/devi-mata-main-2025.jpg';
 import mandalEmblemImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
+import agamanBannerImg from './assets/images/agaman_banner_initial_with_real_devi_1791626201136.jpg';
 
-export { logoImg };
+export { logoImg, agamanBannerImg };
 
 export const INITIAL_EVENTS: TempleEvent[] = [
   {
@@ -178,6 +179,13 @@ export const TIMELINE_MILESTONES = [
 ];
 
 export const GALLERY_ITEMS = [
+  {
+    id: 'gal-agaman-banner-2026',
+    category: 'Festivals',
+    title: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव बॅनर',
+    titleMarathi: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव बॅनर',
+    url: agamanBannerImg
+  },
   {
     id: 'gal-official-mata',
     category: 'Mata Darshan',
