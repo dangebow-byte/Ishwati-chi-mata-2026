@@ -71,4 +71,5 @@ export interface UserProfile {
   lastPrayerDate: string; // YYYY-MM-DD
   milestonesReached: { id: string; title: string; date: string }[];
   totalDonation: number;
+  navratriThemeDay?: number | 'auto'; // Day 1 to 9 or 'auto'
 }

@@ -8,6 +8,7 @@ import { Sunset, Languages, Moon, Sun, ShieldAlert, Award, Sparkles, Volume2, Vo
 import { TRANSLATIONS } from '../data';
 import { SiteLogo } from './SiteLogo';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
+import { NavratriColorTheme } from '../utils/navratriColorTheme';
 
 interface HeaderProps {
   lang: 'EN' | 'MR';
@@ -21,6 +22,7 @@ interface HeaderProps {
   onLogin: () => void;
   onLogout: () => void;
   logoUrl?: string;
+  navratriTheme?: NavratriColorTheme;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -34,7 +36,8 @@ export const Header: React.FC<HeaderProps> = ({
   user,
   onLogin,
   onLogout,
-  logoUrl
+  logoUrl,
+  navratriTheme
 }) => {
   const t = TRANSLATIONS[lang];
   const [isAudioPlaying, setIsAudioPlaying] = useState(() => aartiAudioEngine.getIsPlaying());
@@ -201,13 +204,30 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Devotion Streak Indicator */}
             <button 
               onClick={() => handleSelectTab('profile')} 
-              className="flex items-center gap-1 rounded-full bg-black/40 px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs text-brand-gold border border-brand-gold/30 hover:border-brand-saffron transition-all shrink-0"
+              className="flex items-center gap-1 rounded-full bg-black/40 px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs text-brand-gold border border-brand-gold/30 hover:border-brand-saffron transition-all shrink-0 cursor-pointer"
               title="Your Prayer Streak counter! Click to claim rewards"
             >
               <Award className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-brand-saffron shrink-0" />
               <span className="hidden md:inline">{lang === 'EN' ? 'Streak' : 'सातत्य'}: </span>
               <strong>{streak}🔥</strong>
             </button>
+
+            {/* Navratri Sacred Color Day Badge */}
+            {navratriTheme && (
+              <button 
+                onClick={() => handleSelectTab('profile')} 
+                className="hidden xs:flex items-center gap-1.5 rounded-full bg-black/40 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs text-white border border-brand-gold/30 hover:border-brand-saffron transition-all shrink-0 cursor-pointer"
+                title={lang === 'EN' ? `Active Navratri Color: ${navratriTheme.nameEn} (${navratriTheme.colorNameEn}) - Click to manage in Profile` : `नवरात्र रंग: ${navratriTheme.nameMr} (${navratriTheme.colorNameMr}) - बदलण्यासाठी प्रोफाईल उघडा`}
+              >
+                <span 
+                  className="w-2.5 h-2.5 rounded-full border border-white/40 shadow-sm shrink-0" 
+                  style={{ backgroundColor: navratriTheme.swatchHex }} 
+                />
+                <span className="font-sans font-bold text-brand-gold">
+                  {lang === 'EN' ? navratriTheme.colorNameEn.split(' ')[0] : navratriTheme.colorNameMr.split(' ')[0]}
+                </span>
+              </button>
+            )}
 
             {/* Polished Smooth Transition Language Toggle Switch */}
             <div 

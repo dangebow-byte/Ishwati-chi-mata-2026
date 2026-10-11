@@ -1,0 +1,253 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+export interface NavratriColorTheme {
+  dayIndex: number; // 1 to 9
+  dateStr: string;
+  nameMr: string;
+  nameEn: string;
+  colorNameMr: string;
+  colorNameEn: string;
+  goddessFormMr: string;
+  goddessFormEn: string;
+  swatchHex: string;
+  hexPrimary: string;
+  hexSecondary: string;
+  hexGradient: string;
+  accentGold: string;
+  descriptionMr: string;
+  descriptionEn: string;
+  blessingMr?: string;
+  blessingEn?: string;
+}
+
+/**
+ * Official 9 Sacred Colors of Sharad Navratri 2026 (9 Days, 9 Colours, 9 Blessings):
+ * Day 1: 11th Oct 2026 - Maa Shailputri - Orange (Warmth, energy and brightness)
+ * Day 2: 12th Oct 2026 - Maa Brahmacharini - White (Purity, peace and simplicity)
+ * Day 3: 13th Oct 2026 - Maa Chandraghanta - Red (Passion, love and raw strength)
+ * Day 4: 14th Oct 2026 - Maa Kushmada - Royal Blue (Depth, richness, and divine calm)
+ * Day 5: 15th Oct 2026 - Maa Skandamata - Yellow (Joy, optimism and brightness)
+ * Day 6: 16th Oct 2026 - Maa Katyayani - Green (Growth, nature and new beginnings)
+ * Day 7: 17th Oct 2026 - Maa Kalaratri - Grey (Quiet strength and balance)
+ * Day 8: 18th Oct 2026 - Maa Mahagauri - Purple (Ambition, dignity, and spiritual fulfilments)
+ * Day 9: 19th Oct 2026 - Maa Siddhidatri - Peacock Green (Individuality, freshness and compassion)
+ */
+export const NAVRATRI_9_COLORS: NavratriColorTheme[] = [
+  {
+    dayIndex: 1,
+    dateStr: '2026-10-11',
+    nameMr: 'दिवस १ (प्रतिपदा)',
+    nameEn: 'Day 1 (Pratipada)',
+    colorNameMr: 'नारंगी (भगवा / केशरी)',
+    colorNameEn: 'Orange',
+    goddessFormMr: 'माँ शैलपुत्री',
+    goddessFormEn: 'Maa Shailputri',
+    swatchHex: '#EA580C',
+    hexPrimary: '#3D1702',
+    hexSecondary: '#C2410C',
+    hexGradient: 'from-[#260E01] via-[#521E06] to-[#170601]',
+    accentGold: '#FB923C',
+    descriptionMr: 'उबदारपणा, ऊर्जा आणि उज्वल तेज (Warmth, energy and brightness).',
+    descriptionEn: 'Warmth, energy and brightness.',
+    blessingMr: 'उबदारपणा, ऊर्जा आणि उज्वल चैतन्य',
+    blessingEn: 'Warmth, energy and brightness'
+  },
+  {
+    dayIndex: 2,
+    dateStr: '2026-10-12',
+    nameMr: 'दिवस २ (द्वितीया)',
+    nameEn: 'Day 2 (Dwitiya)',
+    colorNameMr: 'पांढरा (श्वेत)',
+    colorNameEn: 'White',
+    goddessFormMr: 'माँ ब्रह्मचारिणी',
+    goddessFormEn: 'Maa Brahmacharini',
+    swatchHex: '#F8FAFC',
+    hexPrimary: '#1E242B',
+    hexSecondary: '#3B4252',
+    hexGradient: 'from-[#14181F] via-[#242B35] to-[#0F1318]',
+    accentGold: '#E2E8F0',
+    descriptionMr: 'पवित्रता, शांतता आणि साधेपणा (Purity, peace and simplicity).',
+    descriptionEn: 'Purity, peace and simplicity.',
+    blessingMr: 'पवित्रता, शांतता आणि साधेपणा',
+    blessingEn: 'Purity, peace and simplicity'
+  },
+  {
+    dayIndex: 3,
+    dateStr: '2026-10-13',
+    nameMr: 'दिवस ३ (तृतीया)',
+    nameEn: 'Day 3 (Tritiya)',
+    colorNameMr: 'लाल (रक्तवर्ण)',
+    colorNameEn: 'Red',
+    goddessFormMr: 'माँ चंद्रघंटा',
+    goddessFormEn: 'Maa Chandraghanta',
+    swatchHex: '#DC2626',
+    hexPrimary: '#4A0404',
+    hexSecondary: '#8B0000',
+    hexGradient: 'from-[#3A0204] via-[#5B0508] to-[#250102]',
+    accentGold: '#FFD700',
+    descriptionMr: 'भक्ती-प्रेम, समर्पण आणि अदम्य शक्ती (Passion, love and raw strength).',
+    descriptionEn: 'Passion, love and raw strength.',
+    blessingMr: 'भक्ती-प्रेम आणि अदम्य शक्ती',
+    blessingEn: 'Passion, love and raw strength'
+  },
+  {
+    dayIndex: 4,
+    dateStr: '2026-10-14',
+    nameMr: 'दिवस ४ (चतुर्थी)',
+    nameEn: 'Day 4 (Chaturthi)',
+    colorNameMr: 'रॉयल ब्लू (राजेशाही निळा)',
+    colorNameEn: 'Royal Blue',
+    goddessFormMr: 'माँ कुष्मांडा',
+    goddessFormEn: 'Maa Kushmada',
+    swatchHex: '#1D4ED8',
+    hexPrimary: '#0A192F',
+    hexSecondary: '#1E3A8A',
+    hexGradient: 'from-[#071326] via-[#102A54] to-[#040B17]',
+    accentGold: '#FBBF24',
+    descriptionMr: 'अथांग खोली, समृद्धी आणि दिव्य शांतता (Depth, richness, and divine calm).',
+    descriptionEn: 'Depth, richness, and divine calm.',
+    blessingMr: 'अथांग समृद्धी आणि दिव्य शांतता',
+    blessingEn: 'Depth, richness, and divine calm'
+  },
+  {
+    dayIndex: 5,
+    dateStr: '2026-10-15',
+    nameMr: 'दिवस ५ (पंचमी)',
+    nameEn: 'Day 5 (Panchami)',
+    colorNameMr: 'पिवळा (पीतवर्ण)',
+    colorNameEn: 'Yellow',
+    goddessFormMr: 'माँ स्कंदमाता',
+    goddessFormEn: 'Maa Skandamata',
+    swatchHex: '#EAB308',
+    hexPrimary: '#2E2204',
+    hexSecondary: '#B45309',
+    hexGradient: 'from-[#1F1702] via-[#4D3806] to-[#1F1702]',
+    accentGold: '#FDE047',
+    descriptionMr: 'आनंद, आशावाद आणि उज्वल तेज (Joy, optimism and brightness).',
+    descriptionEn: 'Joy, optimism and brightness.',
+    blessingMr: 'आनंद, आशावाद आणि उज्वल तेज',
+    blessingEn: 'Joy, optimism and brightness'
+  },
+  {
+    dayIndex: 6,
+    dateStr: '2026-10-16',
+    nameMr: 'दिवस ६ (षष्ठी)',
+    nameEn: 'Day 6 (Shashthi)',
+    colorNameMr: 'हिरवा (हरितवर्ण)',
+    colorNameEn: 'Green',
+    goddessFormMr: 'माँ कात्यायनी',
+    goddessFormEn: 'Maa Katyayani',
+    swatchHex: '#16A34A',
+    hexPrimary: '#062617',
+    hexSecondary: '#065F46',
+    hexGradient: 'from-[#03180E] via-[#0B3822] to-[#02120B]',
+    accentGold: '#34D399',
+    descriptionMr: 'प्रगती, निसर्ग आणि नवचैतन्य (Growth, nature and new beginnings).',
+    descriptionEn: 'Growth, nature and new beginnings.',
+    blessingMr: 'प्रगती, निसर्ग आणि नवी सुरुवात',
+    blessingEn: 'Growth, nature and new beginnings'
+  },
+  {
+    dayIndex: 7,
+    dateStr: '2026-10-17',
+    nameMr: 'दिवस ७ (सप्तमी)',
+    nameEn: 'Day 7 (Saptami)',
+    colorNameMr: 'राखाडी (ग्रे / भस्म वर्ण)',
+    colorNameEn: 'Grey',
+    goddessFormMr: 'माँ कालरात्री',
+    goddessFormEn: 'Maa Kalaratri',
+    swatchHex: '#6B7280',
+    hexPrimary: '#212529',
+    hexSecondary: '#4B5563',
+    hexGradient: 'from-[#16191D] via-[#333740] to-[#0E1014]',
+    accentGold: '#D1D5DB',
+    descriptionMr: 'संयमी आत्मिक सामर्थ्य आणि समतोल (Quiet strength and balance).',
+    descriptionEn: 'Quiet strength and balance.',
+    blessingMr: 'संयमी सामर्थ्य आणि समतोल',
+    blessingEn: 'Quiet strength and balance'
+  },
+  {
+    dayIndex: 8,
+    dateStr: '2026-10-18',
+    nameMr: 'दिवस ८ (अष्टमी - महाष्टमी)',
+    nameEn: 'Day 8 (Ashtami - Mahagauri)',
+    colorNameMr: 'जांभळा (पर्पल)',
+    colorNameEn: 'Purple',
+    goddessFormMr: 'माँ महागौरी',
+    goddessFormEn: 'Maa Mahagauri',
+    swatchHex: '#7E22CE',
+    hexPrimary: '#280838',
+    hexSecondary: '#6B21A8',
+    hexGradient: 'from-[#180422] via-[#3B0E50] to-[#12021A]',
+    accentGold: '#C084FC',
+    descriptionMr: 'उच्च ध्येय, प्रतिष्ठा आणि आध्यात्मिक सिद्धी (Ambition, dignity, and spiritual fulfilments).',
+    descriptionEn: 'Ambition, dignity, and spiritual fulfilments.',
+    blessingMr: 'उच्च ध्येय, प्रतिष्ठा आणि आध्यात्मिक सिद्धी',
+    blessingEn: 'Ambition, dignity, and spiritual fulfilments'
+  },
+  {
+    dayIndex: 9,
+    dateStr: '2026-10-19',
+    nameMr: 'दिवस ९ (नवमी - महानवमी)',
+    nameEn: 'Day 9 (Navami - Siddhidatri)',
+    colorNameMr: 'मोरपंखी हिरवा (पिकॉक ग्रीन)',
+    colorNameEn: 'Peacock Green',
+    goddessFormMr: 'माँ सिद्धिदात्री',
+    goddessFormEn: 'Maa Siddhidatri',
+    swatchHex: '#0D9488',
+    hexPrimary: '#062426',
+    hexSecondary: '#0F766E',
+    hexGradient: 'from-[#031618] via-[#0E3639] to-[#020D0E]',
+    accentGold: '#2DD4BF',
+    descriptionMr: 'वैशिष्ट्यपूर्ण तेज, चैतन्य आणि असीम करुणा (Individuality, freshness and compassion).',
+    descriptionEn: 'Individuality, freshness and compassion.',
+    blessingMr: 'वैशिष्ट्यपूर्ण चैतन्य, ताजेपणा आणि करुणा',
+    blessingEn: 'Individuality, freshness and compassion'
+  }
+];
+
+/**
+ * Returns the Navratri theme based on an active preference.
+ * Preference options:
+ * - 'auto' (automatically selects today's Navratri color if within Navratri, or defaults to Day 1 Orange)
+ * - number 1 to 9 (manually chosen day)
+ */
+export const getActiveNavratriTheme = (themePref: string | number = 'auto'): NavratriColorTheme => {
+  if (typeof themePref === 'number' || (!isNaN(Number(themePref)) && Number(themePref) >= 1 && Number(themePref) <= 9)) {
+    const idx = Number(themePref);
+    const found = NAVRATRI_9_COLORS.find(c => c.dayIndex === idx);
+    if (found) return found;
+  }
+
+  // Auto-detect based on current calendar date
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const localDateStr = `${year}-${month}-${day}`;
+
+  const utcYear = now.getUTCFullYear();
+  const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const utcDay = String(now.getUTCDate()).padStart(2, '0');
+  const utcDateStr = `${utcYear}-${utcMonth}-${utcDay}`;
+
+  const matchedDay = NAVRATRI_9_COLORS.find(c => c.dateStr === localDateStr || c.dateStr === utcDateStr);
+  if (matchedDay) return matchedDay;
+
+  // Navratri 2026 starts with 11 Oct (Day 1 Pratipada / Ghatasthapana - Orange).
+  // If today is on or before 11 Oct (including 10 Oct Aagman):
+  if (localDateStr <= '2026-10-11' || utcDateStr <= '2026-10-11') {
+    return NAVRATRI_9_COLORS[0]; // Day 1 Orange
+  }
+
+  // If on or after Day 9:
+  if (localDateStr >= '2026-10-19' || utcDateStr >= '2026-10-19') {
+    return NAVRATRI_9_COLORS[8]; // Day 9 Peacock Green
+  }
+
+  // Default to Day 1 Orange
+  return NAVRATRI_9_COLORS[0];
+};

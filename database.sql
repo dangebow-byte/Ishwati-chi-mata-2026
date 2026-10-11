@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     last_prayer_date DATE,
     total_donation NUMERIC(12, 2) NOT NULL DEFAULT 0.00,
     milestones_reached JSONB DEFAULT '[]'::jsonb,
+    navratri_theme_day VARCHAR(32) DEFAULT 'auto',
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -219,6 +220,25 @@ VALUES
     '2026-06-02'
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- Devotee Profile Seed Data (Official Devotee Sanctuary)
+INSERT INTO user_profiles (email, name, phone, gotra, streak_count, last_prayer_date, total_donation, milestones_reached, navratri_theme_day)
+VALUES (
+    'devendraparte2001@gmail.com',
+    'DEVENDRA PRAKASH PARTE',
+    '9892938554',
+    'Kashyap',
+    1,
+    '2026-10-10',
+    0.00,
+    '[]'::jsonb,
+    'auto'
+)
+ON CONFLICT (email) DO UPDATE SET
+    name = EXCLUDED.name,
+    phone = EXCLUDED.phone,
+    navratri_theme_day = EXCLUDED.navratri_theme_day,
+    updated_at = CURRENT_TIMESTAMP;
 
 -- --------------------------------------------------------------------
 -- 8. Table: navratri_patrika_schedule
@@ -316,6 +336,41 @@ ON CONFLICT (id) DO UPDATE SET
     description_mr = EXCLUDED.description_mr,
     description_en = EXCLUDED.description_en,
     updated_at = CURRENT_TIMESTAMP;
+
+-- --------------------------------------------------------------------
+-- 10. Table: navratri_2026_colors
+-- Official Navratri 2026 – 9 Days, 9 Colours, 9 Blessings Schema
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS navratri_2026_colors (
+    day_number INTEGER PRIMARY KEY CHECK (day_number BETWEEN 1 AND 9),
+    date_str VARCHAR(32) NOT NULL,
+    date_iso DATE NOT NULL,
+    goddess_name VARCHAR(128) NOT NULL,
+    color_name VARCHAR(64) NOT NULL,
+    color_hex VARCHAR(16) NOT NULL,
+    significance TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Seed Data: Official Navratri 2026 (9 Days, 9 Colours, 9 Blessings)
+INSERT INTO navratri_2026_colors (day_number, date_str, date_iso, goddess_name, color_name, color_hex, significance)
+VALUES
+(1, '11th October 2026', '2026-10-11', 'Maa Shailputri', 'Orange', '#EA580C', 'Warmth, energy and brightness'),
+(2, '12th October 2026', '2026-10-12', 'Maa Brahmacharini', 'White', '#F8FAFC', 'Purity, peace and simplicity'),
+(3, '13th October 2026', '2026-10-13', 'Maa Chandraghanta', 'Red', '#DC2626', 'Passion, love and raw strength'),
+(4, '14th October 2026', '2026-10-14', 'Maa Kushmada', 'Royal Blue', '#1D4ED8', 'Depth, richness, and divine calm'),
+(5, '15th October 2026', '2026-10-15', 'Maa Skandamata', 'Yellow', '#EAB308', 'Joy, optimism and brightness'),
+(6, '16th October 2026', '2026-10-16', 'Maa Katyayani', 'Green', '#16A34A', 'Growth, nature and new beginnings'),
+(7, '17th October 2026', '2026-10-17', 'Maa Kalaratri', 'Grey', '#6B7280', 'Quiet strength and balance'),
+(8, '18th October 2026', '2026-10-18', 'Maa Mahagauri', 'Purple', '#7E22CE', 'Ambition, dignity, and spiritual fulfilments'),
+(9, '19th October 2026', '2026-10-19', 'Maa Siddhidatri', 'Peacock Green', '#0D9488', 'Individuality, freshness and compassion')
+ON CONFLICT (day_number) DO UPDATE SET
+    date_str = EXCLUDED.date_str,
+    date_iso = EXCLUDED.date_iso,
+    goddess_name = EXCLUDED.goddess_name,
+    color_name = EXCLUDED.color_name,
+    color_hex = EXCLUDED.color_hex,
+    significance = EXCLUDED.significance;
 
 -- Sample CRUD SQL Operations for Reference:
 -- Add:

@@ -48,6 +48,7 @@ import {
   getActiveDevoteeStreak,
   sanitizeDevoteeProfile
 } from './utils/streakEngine';
+import { getActiveNavratriTheme } from './utils/navratriColorTheme';
 export { cleanDevanagariSpelling };
 
 export default function App() {
@@ -69,18 +70,34 @@ export default function App() {
     try {
       const stored = localStorage.getItem('ishwatichi_profile') || localStorage.getItem('ishawati_profile');
       if (stored) {
-        return sanitizeDevoteeProfile(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (
+          !parsed.name || 
+          parsed.name === 'Sanjay Deshpande' || 
+          parsed.name === 'Anonymous Devotee' ||
+          parsed.email === 'dsanjay@spiritual.in' ||
+          parsed.email === 'bhakt@temple.in' ||
+          parsed.phone === '+91 94825 00000'
+        ) {
+          parsed.name = 'DEVENDRA PRAKASH PARTE';
+          parsed.email = 'devendraparte2001@gmail.com';
+          parsed.phone = '9892938554';
+        }
+        const sanitized = sanitizeDevoteeProfile(parsed);
+        localStorage.setItem('ishwatichi_profile', JSON.stringify(sanitized));
+        return sanitized;
       }
     } catch {}
     return {
-      name: 'Sanjay Deshpande',
-      phone: '+91 94825 00000',
-      email: 'dsanjay@spiritual.in',
-      gotra: 'Bharadwaj',
+      name: 'DEVENDRA PRAKASH PARTE',
+      phone: '9892938554',
+      email: 'devendraparte2001@gmail.com',
+      gotra: 'Kashyap',
       streakCount: 0,
       lastPrayerDate: '',
       milestonesReached: [],
-      totalDonation: 0
+      totalDonation: 0,
+      navratriThemeDay: 'auto'
     };
   });
   const [claimsHistory, setClaimsHistory] = useState<{ id: string; title: string; date: string }[]>([]);
@@ -206,7 +223,22 @@ export default function App() {
     try {
       const storedProfile = localStorage.getItem('ishwatichi_profile') || localStorage.getItem('ishawati_profile');
       if (storedProfile) {
-        setUserProfile(sanitizeDevoteeProfile(JSON.parse(storedProfile)));
+        const parsed = JSON.parse(storedProfile);
+        if (
+          !parsed.name || 
+          parsed.name === 'Sanjay Deshpande' || 
+          parsed.name === 'Anonymous Devotee' ||
+          parsed.email === 'dsanjay@spiritual.in' ||
+          parsed.email === 'bhakt@temple.in' ||
+          parsed.phone === '+91 94825 00000'
+        ) {
+          parsed.name = 'DEVENDRA PRAKASH PARTE';
+          parsed.email = 'devendraparte2001@gmail.com';
+          parsed.phone = '9892938554';
+        }
+        const sanitized = sanitizeDevoteeProfile(parsed);
+        localStorage.setItem('ishwatichi_profile', JSON.stringify(sanitized));
+        setUserProfile(sanitized);
       }
 
       const storedHistory = localStorage.getItem('ishwatichi_history') || localStorage.getItem('ishawati_history');
@@ -539,9 +571,34 @@ export default function App() {
   };
 
   const t = TRANSLATIONS[lang];
+  const activeNavratriTheme = getActiveNavratriTheme(userProfile.navratriThemeDay);
+
+  // Dynamically synchronize website body background & CSS variables per Navratri 9 sacred colors
+  useEffect(() => {
+    const activeTheme = getActiveNavratriTheme(userProfile.navratriThemeDay);
+    if (darkMode) {
+      document.body.style.backgroundColor = activeTheme.hexPrimary;
+      document.body.style.backgroundImage = `radial-gradient(circle at 50% 12%, ${activeTheme.hexSecondary}77 0%, transparent 68%)`;
+    } else {
+      document.body.style.backgroundColor = '#FCFAF5';
+      document.body.style.backgroundImage = `radial-gradient(circle at 50% 12%, ${activeTheme.hexSecondary}22 0%, transparent 68%)`;
+    }
+    document.documentElement.style.setProperty('--navratri-theme-primary', activeTheme.hexPrimary);
+    document.documentElement.style.setProperty('--navratri-theme-secondary', activeTheme.hexSecondary);
+    document.documentElement.style.setProperty('--navratri-theme-accent', activeTheme.accentGold);
+  }, [userProfile.navratriThemeDay, darkMode]);
 
   return (
-    <div className={`w-full m-0 p-0 min-h-screen transition-all duration-300 ${darkMode ? 'bg-black/25 text-white' : 'bg-[#fffdf6] text-stone-900'}`}>
+    <div 
+      className={`w-full m-0 p-0 min-h-screen transition-colors duration-500 ${darkMode ? 'text-white' : 'text-stone-900'}`}
+      style={{
+        backgroundColor: darkMode ? `${activeNavratriTheme.hexPrimary}FA` : '#FAF8F4',
+        backgroundImage: darkMode 
+          ? `radial-gradient(circle at 50% 10%, ${activeNavratriTheme.hexSecondary}66 0%, transparent 65%)` 
+          : `radial-gradient(circle at 50% 10%, ${activeNavratriTheme.hexSecondary}1F 0%, transparent 65%)`,
+        transition: 'background-color 0.5s ease, background-image 0.5s ease'
+      }}
+    >
       
       {/* Dynamic Animated floral blossom floating elements in background */}
       <div className="fixed inset-x-0 top-0 overflow-hidden h-[500px] pointer-events-none z-0">
@@ -551,7 +608,7 @@ export default function App() {
         <span className="absolute animate-flower-1 left-[95%] top-20 text-lg font-bold opacity-25 select-none" style={{ animationDelay: '1s' }}>🌸</span>
       </div>
 
-      {/* Shared Header (Logo, Language selectors, Dark/Light usage themes, Streak values) */}
+      {/* Shared Header (Logo, Language selectors, Dark/Light usage themes, Streak values, Navratri Color Badge) */}
       <Header
         lang={lang}
         setLang={setLang}
@@ -564,6 +621,7 @@ export default function App() {
         onLogin={handleLogin}
         onLogout={handleLogout}
         logoUrl={logoImg}
+        navratriTheme={activeNavratriTheme}
       />
 
       {/* Resilient Quota Notification Banner */}
@@ -591,11 +649,21 @@ export default function App() {
       {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}
       {activeTab === 'home' && (
         <section 
-          className="relative w-full overflow-hidden border-b border-brand-gold/25 bg-gradient-to-b from-[#240101] via-[#380303] to-[#200101] text-white py-6 sm:py-8 lg:py-10"
+          className="relative w-full overflow-hidden border-b border-brand-gold/25 text-white py-6 sm:py-8 lg:py-10 transition-colors duration-500"
+          style={{
+            background: darkMode
+              ? `linear-gradient(to bottom, ${activeNavratriTheme.hexPrimary}, ${activeNavratriTheme.hexSecondary}99, ${activeNavratriTheme.hexPrimary})`
+              : `linear-gradient(to bottom, #FAF6EE, ${activeNavratriTheme.hexSecondary}22, #FAF6EE)`
+          }}
         >
           {/* Subtle Ambient Sanctum Background Glow & Motifs */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-            <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-radial from-brand-gold/15 via-brand-saffron/5 to-transparent blur-3xl opacity-60" />
+            <div 
+              className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px] blur-3xl opacity-60 pointer-events-none" 
+              style={{
+                background: `radial-gradient(circle, ${activeNavratriTheme.hexSecondary}88 0%, ${activeNavratriTheme.accentGold}33 50%, transparent 70%)`
+              }}
+            />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,153,51,0.09)_0%,transparent_70%)]" />
           </div>
 

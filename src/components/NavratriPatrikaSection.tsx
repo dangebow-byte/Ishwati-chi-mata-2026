@@ -23,6 +23,7 @@ import {
   MANDAL_PATRIKA_METADATA, 
   NavratriPatrikaDay 
 } from '../data/navratriPatrika2026';
+import { NAVRATRI_9_COLORS } from '../utils/navratriColorTheme';
 
 interface NavratriPatrikaSectionProps {
   lang: 'EN' | 'MR';
@@ -31,6 +32,7 @@ interface NavratriPatrikaSectionProps {
 export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ lang }) => {
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [showColorChart, setShowColorChart] = useState<boolean>(true);
 
   // Current date in YYYY-MM-DD
   const todayIso = useMemo(() => {
@@ -134,6 +136,75 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
             ? 'Official Festival Calendar for Shardiya Navratri 2026 • 10 October to 25 October 2026'
             : 'शारदीय नवरात्रौत्सव २०२६ चे अधिकृत सविस्तर कार्यक्रम वेळापत्रक • १० ऑक्टोबर ते २५ ऑक्टोबर २०२६'}
         </p>
+
+        {/* Navratri 2026 – 9 Days, 9 Colours, 9 Blessings Feature Showcase */}
+        <div className="pt-3">
+          <div className="bg-gradient-to-r from-[#3D0A0A] via-[#1A0303] to-[#3D0A0A] border-2 border-brand-gold/40 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3.5">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-brand-gold/25 pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">🪷</span>
+                <div className="text-left">
+                  <h4 className="font-sans font-black text-sm sm:text-base md:text-lg text-yellow-300 tracking-wide">
+                    {lang === 'EN' ? 'Navratri 2026 – 9 Days, 9 Colours, 9 Blessings' : 'नवरात्र २०२६ – ९ दिवस, ९ पावन रंग, ९ वरदान'}
+                  </h4>
+                  <p className="text-[11px] text-gray-300 font-sans">
+                    {lang === 'EN' 
+                      ? 'Official Sharad Navratri 2026 color palette with Goddess forms and spiritual significance' 
+                      : 'शारदीय नवरात्र २०२६ अधिकृत रंग, कुलस्वामिनी देवीचे रूप आणि आध्यात्मिक महत्त्व'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowColorChart(!showColorChart)}
+                className="px-3 py-1 rounded-xl bg-black/60 hover:bg-black/90 text-brand-gold border border-brand-gold/40 text-xs font-bold transition-all cursor-pointer shrink-0"
+              >
+                {showColorChart 
+                  ? (lang === 'EN' ? 'Hide Chart ✕' : 'तक्ता लपवा ✕') 
+                  : (lang === 'EN' ? 'View 9 Colors Chart ▼' : '९ रंग तक्ता पहा ▼')}
+              </button>
+            </div>
+
+            {showColorChart && (
+              <div className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2.5 pt-1">
+                {NAVRATRI_9_COLORS.map((col) => (
+                  <div
+                    key={col.dayIndex}
+                    className="p-2.5 rounded-xl border flex flex-col items-center text-center space-y-1.5 transition-all hover:scale-105 shadow-md"
+                    style={{
+                      background: `linear-gradient(135deg, ${col.hexPrimary}EE, ${col.hexSecondary}88)`,
+                      borderColor: col.accentGold
+                    }}
+                  >
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-black/70 text-brand-gold">
+                      Day {col.dayIndex}
+                    </span>
+
+                    {/* Swatch circle */}
+                    <div
+                      className="w-6 h-6 rounded-full border-2 border-white/60 shadow-md shrink-0 flex items-center justify-center"
+                      style={{ backgroundColor: col.swatchHex }}
+                      title={col.colorNameEn}
+                    />
+
+                    <strong className="text-xs font-bold text-white font-sans leading-tight">
+                      {lang === 'EN' ? col.colorNameEn : col.colorNameMr.split(' ')[0]}
+                    </strong>
+
+                    <span className="text-[10px] text-brand-gold font-sans font-semibold leading-tight">
+                      {lang === 'EN' ? col.goddessFormEn : col.goddessFormMr}
+                    </span>
+
+                    <span className="text-[9px] text-gray-300 font-sans italic leading-tight line-clamp-2 pt-0.5">
+                      {lang === 'EN' ? col.descriptionEn : col.descriptionMr.split('(')[0]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Action Bar: Filters, Search, Print */}
         <div className="pt-4 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
@@ -265,6 +336,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
           <tbody className="divide-y divide-white/10 text-xs font-sans">
             {filteredDays.map((day, idx) => {
               const isToday = day.dateIso === todayIso;
+              const matchingColor = NAVRATRI_9_COLORS.find(c => c.dateStr === day.dateIso);
 
               let rowClass = 'transition-colors ';
               if (isToday) {
@@ -288,11 +360,25 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                     </span>
                   </td>
 
-                  {/* Column 2: दिनांक (Date) */}
+                  {/* Column 2: दिनांक (Date) & Sacred Color */}
                   <td className="py-3.5 px-4 border-r border-white/10 text-center align-middle font-sans">
                     <span className="text-sm font-bold text-brand-saffron block">
                       {lang === 'EN' ? day.dateStrEn : day.dateStrMr}
                     </span>
+                    {matchingColor && (
+                      <div 
+                        className="mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/60 border border-brand-gold/30 text-[10px]"
+                        title={lang === 'EN' ? `${matchingColor.colorNameEn} (${matchingColor.goddessFormEn}): ${matchingColor.descriptionEn}` : `${matchingColor.colorNameMr} (${matchingColor.goddessFormMr}): ${matchingColor.descriptionMr}`}
+                      >
+                        <span 
+                          className="w-2.5 h-2.5 rounded-full border border-white/40 shadow-sm shrink-0" 
+                          style={{ backgroundColor: matchingColor.swatchHex }} 
+                        />
+                        <span className="font-bold text-yellow-300 font-sans">
+                          {lang === 'EN' ? matchingColor.colorNameEn : matchingColor.colorNameMr.split(' ')[0]}
+                        </span>
+                      </div>
+                    )}
                     {isToday && (
                       <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-red-600 text-white font-mono text-[9px] font-bold animate-pulse">
                         TODAY LIVE
@@ -355,6 +441,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
       <div className="md:hidden space-y-3.5">
         {filteredDays.map((day) => {
           const isToday = day.dateIso === todayIso;
+          const matchingColor = NAVRATRI_9_COLORS.find(c => c.dateStr === day.dateIso);
 
           return (
             <div 
@@ -378,6 +465,17 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                     <span className="text-[11px] font-sans font-medium text-brand-saffron block">
                       {lang === 'EN' ? day.dateStrEn : day.dateStrMr}
                     </span>
+                    {matchingColor && (
+                      <div className="mt-1 flex items-center gap-1.5">
+                        <span 
+                          className="w-2 h-2 rounded-full border border-white/40 shadow-sm shrink-0" 
+                          style={{ backgroundColor: matchingColor.swatchHex }} 
+                        />
+                        <span className="text-[10px] font-bold text-yellow-300 font-sans">
+                          {lang === 'EN' ? `${matchingColor.colorNameEn} (${matchingColor.goddessFormEn})` : `${matchingColor.colorNameMr.split(' ')[0]} (${matchingColor.goddessFormMr})`}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

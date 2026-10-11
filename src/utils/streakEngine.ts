@@ -240,14 +240,15 @@ export const getActiveDevoteeStreak = (profile: UserProfile, currentTime?: Date)
 export const sanitizeDevoteeProfile = (rawProfile: any, currentTime?: Date): UserProfile => {
   if (!rawProfile || typeof rawProfile !== 'object') {
     return {
-      name: 'Sanjay Deshpande',
-      phone: '+91 94825 00000',
-      email: 'dsanjay@spiritual.in',
-      gotra: 'Bharadwaj',
+      name: 'DEVENDRA PRAKASH PARTE',
+      phone: '9892938554',
+      email: 'devendraparte2001@gmail.com',
+      gotra: 'Kashyap',
       streakCount: 0,
       lastPrayerDate: '',
       milestonesReached: [],
-      totalDonation: 0
+      totalDonation: 0,
+      navratriThemeDay: 'auto'
     };
   }
 
@@ -273,14 +274,23 @@ export const sanitizeDevoteeProfile = (rawProfile: any, currentTime?: Date): Use
     }
   }
 
+  const isOldDefault =
+    !rawProfile.name ||
+    rawProfile.name === 'Sanjay Deshpande' ||
+    rawProfile.name === 'Anonymous Devotee' ||
+    rawProfile.email === 'dsanjay@spiritual.in' ||
+    rawProfile.email === 'bhakt@temple.in' ||
+    rawProfile.phone === '+91 94825 00000';
+
   return {
-    name: rawProfile.name || 'Sanjay Deshpande',
-    phone: rawProfile.phone || '+91 94825 00000',
-    email: rawProfile.email || 'dsanjay@spiritual.in',
-    gotra: rawProfile.gotra || 'Bharadwaj',
+    name: isOldDefault ? 'DEVENDRA PRAKASH PARTE' : (rawProfile.name || 'DEVENDRA PRAKASH PARTE'),
+    phone: isOldDefault ? '9892938554' : (rawProfile.phone || '9892938554'),
+    email: isOldDefault ? 'devendraparte2001@gmail.com' : (rawProfile.email || 'devendraparte2001@gmail.com'),
+    gotra: rawProfile.gotra || 'Kashyap',
     streakCount: validStreak,
     lastPrayerDate: normalizedLastPrayer,
     milestonesReached: Array.isArray(rawProfile.milestonesReached) ? rawProfile.milestonesReached : [],
-    totalDonation: typeof rawProfile.totalDonation === 'number' ? rawProfile.totalDonation : 0
+    totalDonation: typeof rawProfile.totalDonation === 'number' ? rawProfile.totalDonation : 0,
+    navratriThemeDay: rawProfile.navratriThemeDay !== undefined ? rawProfile.navratriThemeDay : 'auto'
   };
 };
