@@ -45,7 +45,7 @@ import {
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
-import heroImg from './assets/devotional/devi-mata-main-Day2-I1-20261011.webp';
+import heroImg from './assets/devotional/devi-mata-main-Day2-I1-20261012.webp';
 
 import { cleanDevanagariSpelling } from './utils/spellingSanitizer';
 import { 
@@ -1105,7 +1105,7 @@ export default function App() {
         </div>
 
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 mt-8 pt-8 border-t border-white/5 text-center text-gray-400 text-[10px] space-y-1">
-          <p>© २०२६ श्री यंग इश्वटी नवरात्रौत्सव मंडळ चॅरिटेबल ट्रस्ट. सर्व हक्क सुरक्षित. नोंदणी क्र. E-५०१२५/मुंबई.</p>
+          <p>© २०२६ श्री यंग इश्वटी नवरात्रौत्सव मंडळ चॅरिटेबल ट्रस्ट. सर्व हक्क सुरक्षित. नोंदणी क्र. 2133/10 GBBSD F/42669. मुंबई.</p>
           <p className="tracking-widest">{lang === 'EN' ? '|| Shree Ishwatichi Mata Devasthan ||' : '|| श्री इश्वटीची माता देवस्थान ||'}</p>
         </div>
       </footer>
