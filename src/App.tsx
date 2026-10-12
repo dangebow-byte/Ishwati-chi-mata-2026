@@ -1092,8 +1092,8 @@ export default function App() {
             <h5 className="font-bold text-white font-sans tracking-widest uppercase text-xs">{lang === 'EN' ? 'Mandal Head Office' : 'मध्यवर्ती कार्यालय'}</h5>
             <p className="text-gray-300 leading-normal">
               {lang === 'EN'
-                ? 'Sector-4, Main Mandir Marg, Dombivli East, Thane. Near Shivaji Garden, Maharashtra 421201'
-                : 'सेक्टर-४, मुख्य मंदिर मार्ग, डोंबिवली पूर्व, ठाणे. जवळ शिवाजी उद्यान, महाराष्ट्र ४२१२०१'}
+                ? 'A/004, Shri Ishwati Prasad C.H.S., Dattaram Lad Marg, Kalachowki, Mumbai-400 033'
+                : 'अ/००४, श्री इश्वटी प्रसाद को. ऑप. हौ. सो., दत्ताराम लाड मार्ग, काळाचौकी, मुंबई-४०० ०३३'}
             </p>
             <div className="flex gap-2">
               <button onClick={() => setActiveTab('admin')} className="text-brand-gold underline font-mono tracking-wider font-bold cursor-pointer">
