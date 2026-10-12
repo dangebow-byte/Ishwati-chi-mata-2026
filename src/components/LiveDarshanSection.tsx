@@ -33,6 +33,7 @@ import { DeviImage } from './DeviImage';
 interface LiveDarshanSectionProps {
   lang: 'EN' | 'MR';
   heroImagePath: string;
+  onManageDeviImage?: () => void;
 }
 
 export interface DailyAartiItem {
@@ -144,7 +145,7 @@ export const DAILY_AARTI_SCHEDULE: DailyAartiItem[] = [
   },
 ];
 
-export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, heroImagePath }) => {
+export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, heroImagePath, onManageDeviImage }) => {
   const t = TRANSLATIONS[lang];
   const [activeCam, setActiveCam] = useState<'sanctum' | 'arch' | 'food' | 'courtyard'>('sanctum');
   const [viewers, setViewers] = useState(4821);
@@ -469,6 +470,17 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                   <span>🌸</span>
                   <span>श्री इश्वटीची थेट दर्शन</span>
                 </div>
+
+                {onManageDeviImage && (
+                  <button
+                    onClick={onManageDeviImage}
+                    className="absolute top-3 right-3 z-10 bg-black/85 hover:bg-brand-maroon text-brand-gold hover:text-white border border-brand-gold/60 text-[10px] font-sans font-bold px-2.5 py-1 rounded-md shadow-lg backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer hover:scale-105"
+                    title={lang === 'EN' ? 'Manage Daily Idol Images' : 'दैनिक दर्शन फोटो जोडा / बदला / हटवा'}
+                  >
+                    <span>📸</span>
+                    <span>{lang === 'EN' ? 'Manage Idol Images' : 'दर्शन फोटो व्यवस्थापन'}</span>
+                  </button>
+                )}
 
                 <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between">
                   <div className="bg-black/85 px-3 py-1.5 rounded-lg backdrop-blur border border-white/10 text-xs shadow-md">

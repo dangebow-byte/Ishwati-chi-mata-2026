@@ -11,6 +11,7 @@ import { DeviImage } from './DeviImage';
 
 interface AboutSectionProps {
   lang: 'EN' | 'MR';
+  onManageDeviImage?: () => void;
   siteContent?: {
     headerDescEN: string;
     headerDescMR: string;
@@ -44,7 +45,7 @@ interface AboutSectionProps {
   }[];
 }
 
-export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, milestones }) => {
+export const AboutSection: React.FC<AboutSectionProps> = ({ lang, onManageDeviImage, siteContent, milestones }) => {
   const finalMilestones = milestones || TIMELINE_MILESTONES;
   const [selectedMilestone, setSelectedMilestone] = useState(finalMilestones[0] || TIMELINE_MILESTONES[0]);
 
@@ -82,6 +83,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, siteContent, m
               withFrame
               withAura
               objectFit="contain"
+              onManageClick={onManageDeviImage}
+              showManageButton={Boolean(onManageDeviImage)}
               className="h-full w-auto aspect-[1023/1537] overflow-hidden bg-black/60"
               imageClassName="w-auto h-full max-h-full object-contain object-center drop-shadow-md"
             />

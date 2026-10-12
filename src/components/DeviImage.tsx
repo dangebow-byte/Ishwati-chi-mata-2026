@@ -22,6 +22,8 @@ export interface DeviImageProps {
   objectFit?: 'cover' | 'contain';
   objectPosition?: string;
   onClick?: () => void;
+  onManageClick?: () => void;
+  showManageButton?: boolean;
   src?: string;
 }
 
@@ -36,6 +38,8 @@ export const DeviImage: React.FC<DeviImageProps> = ({
   objectFit = 'cover',
   objectPosition,
   onClick,
+  onManageClick,
+  showManageButton = false,
   src,
 }) => {
   const aspectClass =
@@ -108,6 +112,22 @@ export const DeviImage: React.FC<DeviImageProps> = ({
           referrerPolicy="no-referrer"
         />
       </picture>
+
+      {/* Daily Devi Mata Image Management Button */}
+      {(onManageClick || showManageButton) && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onManageClick) onManageClick();
+          }}
+          className="absolute top-2 left-2 z-20 bg-black/80 hover:bg-brand-maroon text-brand-gold hover:text-white border border-brand-gold/60 text-[10px] font-sans font-bold px-2 py-1 rounded-md shadow-lg backdrop-blur-md flex items-center gap-1 transition-all cursor-pointer hover:scale-105"
+          title="दैनिक दर्शन फोटो जोडा / बदला (Add/Edit Daily Image)"
+        >
+          <span>📸</span>
+          <span>फोटो बदला / जोडा</span>
+        </button>
+      )}
     </div>
   );
 };

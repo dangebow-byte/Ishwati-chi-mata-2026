@@ -35,6 +35,13 @@ import { NavratriPatrikaSection } from './components/NavratriPatrikaSection';
 import { InteractiveDiya } from './components/InteractiveDiya';
 import { GlobalAudioController } from './components/GlobalAudioController';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
+import { DeviMataImageManagerModal } from './components/DeviMataImageManagerModal';
+import { 
+  DeviMataImageItem, 
+  subscribeDeviMataImages, 
+  DEFAULT_DEVI_IMAGE, 
+  getCachedDeviImages 
+} from './services/deviImagesService';
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
@@ -103,6 +110,27 @@ export default function App() {
   const [claimsHistory, setClaimsHistory] = useState<{ id: string; title: string; date: string }[]>([]);
   const [isFullDarshanOpen, setIsFullDarshanOpen] = useState(false);
   const [flowerShowerCount, setFlowerShowerCount] = useState(0);
+
+  // Devi Mata Sacred Idol Real-time State & Management
+  const [deviImages, setDeviImages] = useState<DeviMataImageItem[]>(() => getCachedDeviImages());
+  const [activeDeviImage, setActiveDeviImage] = useState<DeviMataImageItem>(() => {
+    const cached = getCachedDeviImages();
+    return cached.find(x => x.isHeroDefault) || cached[0] || DEFAULT_DEVI_IMAGE;
+  });
+  const [isDeviImageManagerOpen, setIsDeviImageManagerOpen] = useState(false);
+  const [currentCalendarDay, setCurrentCalendarDay] = useState<string>(() => new Date().toISOString().split('T')[0]);
+
+  // Subscribe to real-time updates for Devi Mata images
+  useEffect(() => {
+    const unsubscribe = subscribeDeviMataImages((imgs) => {
+      if (imgs && imgs.length > 0) {
+        setDeviImages(imgs);
+        const heroDefault = imgs.find(x => x.isHeroDefault) || imgs[0] || DEFAULT_DEVI_IMAGE;
+        setActiveDeviImage(heroDefault);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Function to seed database on first mount if empty - guarded against redundant quota consumption
   const seedDatabaseIfNeeded = async () => {
@@ -572,31 +600,58 @@ export default function App() {
 
   const t = TRANSLATIONS[lang];
   const activeNavratriTheme = getActiveNavratriTheme(userProfile.navratriThemeDay);
+  const isWhiteDay = activeNavratriTheme.dayIndex === 2;
 
-  // Dynamically synchronize website body background & CSS variables per Navratri 9 sacred colors
+  // Dynamically synchronize website background & CSS variables per Navratri 9 sacred colors
+  // When set to 'auto', it derives automatically from current calendar date and updates daily
   useEffect(() => {
+    // Check calendar date periodically to support automatic daily color transitions at midnight without manual input
+    const intervalTimer = setInterval(() => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      setCurrentCalendarDay(prev => prev !== todayStr ? todayStr : prev);
+    }, 30000);
+
     const activeTheme = getActiveNavratriTheme(userProfile.navratriThemeDay);
-    if (darkMode) {
-      document.body.style.backgroundColor = activeTheme.hexPrimary;
-      document.body.style.backgroundImage = `radial-gradient(circle at 50% 12%, ${activeTheme.hexSecondary}77 0%, transparent 68%)`;
+    const isWhite = activeTheme.dayIndex === 2;
+
+    if (isWhite) {
+      document.body.style.backgroundColor = '#FFFFFF';
+      document.body.style.backgroundImage = 'radial-gradient(circle at 50% 15%, #FFFFFF 0%, #F8FAFC 70%, #F1F5F9 100%)';
+    } else if (darkMode) {
+      const bgDark = activeTheme.darkBackgroundHex || activeTheme.hexPrimary;
+      document.body.style.backgroundColor = bgDark;
+      document.body.style.backgroundImage = `radial-gradient(circle at 50% 15%, ${activeTheme.hexSecondary}88 0%, ${bgDark} 100%)`;
     } else {
-      document.body.style.backgroundColor = '#FCFAF5';
-      document.body.style.backgroundImage = `radial-gradient(circle at 50% 12%, ${activeTheme.hexSecondary}22 0%, transparent 68%)`;
+      const bgLight = activeTheme.lightBackgroundHex || '#FAF8F4';
+      document.body.style.backgroundColor = bgLight;
+      document.body.style.backgroundImage = `radial-gradient(circle at 50% 15%, ${activeTheme.hexSecondary}22 0%, ${bgLight} 100%)`;
     }
+
     document.documentElement.style.setProperty('--navratri-theme-primary', activeTheme.hexPrimary);
     document.documentElement.style.setProperty('--navratri-theme-secondary', activeTheme.hexSecondary);
     document.documentElement.style.setProperty('--navratri-theme-accent', activeTheme.accentGold);
-  }, [userProfile.navratriThemeDay, darkMode]);
+
+    return () => clearInterval(intervalTimer);
+  }, [userProfile.navratriThemeDay, darkMode, currentCalendarDay]);
+
+  const siteBgColor = isWhiteDay 
+    ? '#FFFFFF' 
+    : (darkMode ? (activeNavratriTheme.darkBackgroundHex || activeNavratriTheme.hexPrimary) : (activeNavratriTheme.lightBackgroundHex || '#FAF8F4'));
+  const siteBgImage = isWhiteDay
+    ? 'radial-gradient(circle at 50% 20%, #FFFFFF 0%, #F8FAFC 65%, #F1F5F9 100%)'
+    : (darkMode 
+        ? `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}88 0%, ${activeNavratriTheme.darkBackgroundHex || activeNavratriTheme.hexPrimary} 100%)`
+        : `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}22 0%, ${activeNavratriTheme.lightBackgroundHex || '#FAF8F4'} 100%)`);
 
   return (
     <div 
-      className={`w-full m-0 p-0 min-h-screen transition-colors duration-500 ${darkMode ? 'text-white' : 'text-stone-900'}`}
+      className={`w-full m-0 p-0 min-h-screen transition-colors duration-500 ${
+        isWhiteDay ? 'text-stone-900' : (darkMode ? 'text-white' : 'text-stone-900')
+      }`}
       style={{
-        backgroundColor: darkMode ? `${activeNavratriTheme.hexPrimary}FA` : '#FAF8F4',
-        backgroundImage: darkMode 
-          ? `radial-gradient(circle at 50% 10%, ${activeNavratriTheme.hexSecondary}66 0%, transparent 65%)` 
-          : `radial-gradient(circle at 50% 10%, ${activeNavratriTheme.hexSecondary}1F 0%, transparent 65%)`,
-        transition: 'background-color 0.5s ease, background-image 0.5s ease'
+        backgroundColor: siteBgColor,
+        backgroundImage: siteBgImage,
+        transition: 'background-color 0.6s ease, background-image 0.6s ease'
       }}
     >
       
@@ -649,11 +704,15 @@ export default function App() {
       {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}
       {activeTab === 'home' && (
         <section 
-          className="relative w-full overflow-hidden border-b border-brand-gold/25 text-white py-6 sm:py-8 lg:py-10 transition-colors duration-500"
+          className={`relative w-full overflow-hidden border-b border-brand-gold/25 py-6 sm:py-8 lg:py-10 transition-colors duration-500 ${
+            isWhiteDay ? 'text-stone-900' : 'text-white'
+          }`}
           style={{
-            background: darkMode
-              ? `linear-gradient(to bottom, ${activeNavratriTheme.hexPrimary}, ${activeNavratriTheme.hexSecondary}99, ${activeNavratriTheme.hexPrimary})`
-              : `linear-gradient(to bottom, #FAF6EE, ${activeNavratriTheme.hexSecondary}22, #FAF6EE)`
+            background: isWhiteDay
+              ? 'linear-gradient(to bottom, #FFFFFF 0%, #F8FAFC 70%, #FFFFFF 100%)'
+              : (darkMode 
+                  ? `linear-gradient(to bottom, ${activeNavratriTheme.hexSecondary}33, transparent)`
+                  : `linear-gradient(to bottom, ${activeNavratriTheme.hexSecondary}15, transparent)`)
           }}
         >
           {/* Subtle Ambient Sanctum Background Glow & Motifs */}
@@ -699,10 +758,14 @@ export default function App() {
                   {/* Complete, Full Portrait Idol Container - Uncut on all devices */}
                   <div className="relative w-full flex items-center justify-center overflow-hidden rounded-xl bg-black/70 py-1">
                     <DeviImage 
+                      src={activeDeviImage.url || heroImg}
+                      alt="Shree Ishwatichi Mata Sanctum Idol"
                       aspectRatio="auto"
                       objectFit="contain"
                       objectPosition="center center"
                       priority
+                      onManageClick={() => setIsDeviImageManagerOpen(true)}
+                      showManageButton={true}
                       className="w-full h-auto max-h-[380px] xs:max-h-[440px] sm:max-h-[500px] md:max-h-[540px] lg:max-h-[560px] xl:max-h-[600px] flex items-center justify-center"
                       imageClassName="w-auto h-auto max-h-[380px] xs:max-h-[440px] sm:max-h-[500px] md:max-h-[540px] lg:max-h-[560px] xl:max-h-[600px] object-contain mx-auto transition-transform duration-700 group-hover:scale-[1.03] drop-shadow-[0_8px_25px_rgba(0,0,0,0.9)]"
                     />
@@ -722,6 +785,19 @@ export default function App() {
                       <span>{lang === 'EN' ? 'Full View' : 'संपूर्ण दर्शन'}</span>
                     </div>
                   </div>
+
+                  {/* Daily Darshan Idol Manager Action Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsDeviImageManagerOpen(true);
+                    }}
+                    className="mt-2 w-full py-1.5 px-3 rounded-xl bg-black/80 hover:bg-brand-maroon text-brand-gold hover:text-white border border-brand-gold/60 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-lg"
+                  >
+                    <span>📸</span>
+                    <span>{lang === 'EN' ? 'Manage Daily Idol (Add / Edit / Delete)' : 'आजचे दर्शन व्यवस्थापन (फोटो जोडा / बदला / हटवा)'}</span>
+                  </button>
 
                   {/* Sacred footer banner of the frame */}
                   <div className="mt-2 pt-1.5 border-t border-brand-gold/25 flex items-center justify-between text-[10px] sm:text-[11px] text-gray-300 px-1">
@@ -836,21 +912,18 @@ export default function App() {
         {/* Render Tab specific portals */}
         {activeTab === 'home' && (
           <>
-            {/* Live Upcoming Major Festival Countdown Widget */}
-            <UpcomingFestivalCountdown
-              lang={lang}
-              events={events.length > 0 ? events : INITIAL_EVENTS}
-              onNavigateToEvents={() => setActiveTab('events')}
-              onNavigateToSeva={() => setActiveTab('seva')}
-              onNavigateToPatrika={() => setActiveTab('patrika')}
-              onRsvp={handleRsvpEvent}
+            {/* Live streaming & quick timing schedule dashboards */}
+            <LiveDarshanSection 
+              lang={lang} 
+              heroImagePath={activeDeviImage.url || heroImg} 
+              onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
             />
 
-            {/* Live streaming & quick timing schedule dashboards */}
-            <LiveDarshanSection lang={lang} heroImagePath={heroImg} />
-
             {/* General Highlights about the Temple Origin */}
-            <AboutSection lang={lang} />
+            <AboutSection 
+              lang={lang} 
+              onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
+            />
 
             {/* Fast Quick Buttons to contact & locations */}
             <div className="text-center py-6 sm:py-8 bg-black/45 rounded-2xl border border-brand-gold/25 p-5 sm:p-8 w-full max-w-2xl mx-auto space-y-3 shadow-xl">
@@ -873,11 +946,18 @@ export default function App() {
         )}
 
         {activeTab === 'about' && (
-          <AboutSection lang={lang} />
+          <AboutSection 
+            lang={lang} 
+            onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
+          />
         )}
 
         {activeTab === 'darshan' && (
-          <LiveDarshanSection lang={lang} heroImagePath={heroImg} />
+          <LiveDarshanSection 
+            lang={lang} 
+            heroImagePath={activeDeviImage.url || heroImg} 
+            onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
+          />
         )}
 
         {activeTab === 'seva' && (
@@ -1161,6 +1241,7 @@ export default function App() {
 
             {/* Sacred Image container with Pinch-to-Zoom, Fine Details Inspection & Overlays */}
             <SacredDarshanZoomViewer 
+              src={activeDeviImage.url || heroImg}
               lang={lang} 
               alt={lang === 'EN' ? 'Shree Ishwatichi Mata Official Sacred Idol' : 'श्री इश्वटीची माता अधिकृत स्वयंभू दर्शन मूर्ती'}
             />
@@ -1172,6 +1253,14 @@ export default function App() {
 
             {/* Action buttons */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              <button
+                onClick={() => setIsDeviImageManagerOpen(true)}
+                className="px-4 py-2 bg-black/60 text-brand-gold border border-brand-gold/60 rounded-xl hover:bg-brand-maroon hover:text-white text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95"
+              >
+                <span>📸</span>
+                <span>{lang === 'EN' ? 'Manage Idol Photo (CRUD)' : 'दर्शन फोटो व्यवस्थापन'}</span>
+              </button>
+
               <button
                 onClick={() => setFlowerShowerCount(prev => prev + 1)}
                 className="px-4 py-2 bg-brand-maroon text-brand-gold border border-brand-gold/60 rounded-xl hover:bg-brand-gold hover:text-brand-maroon text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95"
@@ -1201,6 +1290,17 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* DEVI MATA DAILY DARSHAN IMAGE MANAGER MODAL (CRUD) */}
+      <DeviMataImageManagerModal
+        lang={lang}
+        isOpen={isDeviImageManagerOpen}
+        onClose={() => setIsDeviImageManagerOpen(false)}
+        images={deviImages}
+        activeImageId={activeDeviImage.id}
+        onSelectActiveImage={(img) => setActiveDeviImage(img)}
+        onImagesChanged={(updated) => setDeviImages(updated)}
+      />
 
     </div>
   );
