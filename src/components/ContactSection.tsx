@@ -163,8 +163,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
                 <strong>🗺️ Address:</strong>
                 <br />
                 {lang === 'EN'
-                  ? (siteContent?.addressEN || 'Shree Ishwatichi Mata Mandir Court, Sector-4, Traditional Lane 5, Dombivli East, Thane. Near Shivaji Garden, Maharashtra 421201')
-                  : (siteContent?.addressMR || 'श्री इश्वटीची माता मंदिर चौक, सेक्टर-४, पारंपरिक गल्ली क्र ५, डोंबिवली पूर्व, ठाणे. जवळ शिवाजी उद्यान, महाराष्ट्र ४२१२०१')}
+                  ? (siteContent?.addressEN || 'Shree Ishwatichi Mata Mandir, A/004, Shri Ishwati Prasad C.H.S., Dattaram Lad Marg, kalachowki, Mumbai-400 033.')
+                  : (siteContent?.addressMR || 'श्री इश्वटीची माता मंदिर चौक, अ/००४, श्री इश्वटी प्रसाद को. ऑप. हौ. सो., दत्ताराम लाड मार्ग, काळाचौकी, मुंबई-४०० ०३३.')}
               </p>
 
               <p>
