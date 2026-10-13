@@ -4,13 +4,15 @@
  */
 
 import { DevoteeExperience, TempleEvent, Announcement } from './types';
-import heroImg from './assets/devotional/devi-mata-main-Day2-I1-20261012.webp';
+import heroImg from './assets/devotional/devi-mata-main-Day3-I1-20261013.webp';
 import sanctumHeroImg from './assets/images/ishwati_mata_darshan_widescreen_1790944258044.jpg';
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 import authenticIdolImg from './assets/images/devi-mata-main-Day1-I1-20261011.jpg';
+import heroImgDayII from './assets/devotional/devi-mata-main-Day2-I1-20261012.jpg';
+import heroImgDayIII from './assets/devotional/devi-mata-main-Day3-I1-20261013.jpg';
 import sanctumGrandImg from './assets/images/ishwati_mata_sanctum_hero_1790943891454.jpg';
 import alankritaDarshanImg from './assets/images/ishwati_mata_darshan_1790695775224.jpg';
-import navratriDarshanImg from './assets/devotional/devi-mata-main-Day2-I1-20261012.jpg';
+import navratriDarshanImg from './assets/devotional/devi-mata-main-Day3-I1-20261013.jpg';
 import mandalEmblemImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 import agamanBannerImg from './assets/images/agaman_banner_initial_with_real_devi_1791626201136.jpg';
 
@@ -180,32 +182,39 @@ export const TIMELINE_MILESTONES = [
 
 export const GALLERY_ITEMS = [
   {
-    id: 'gal-agaman-banner-2026',
-    category: 'Festivals',
-    title: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव बॅनर',
-    titleMarathi: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव बॅनर',
-    url: agamanBannerImg
+    id: 'gal-authentic-idol',
+    category: 'Mata Darshan',
+    title: 'दिवस १ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
+    titleMarathi: 'दिवस १ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
+    url: authenticIdolImg
   },
   {
     id: 'gal-official-mata',
     category: 'Mata Darshan',
-    title: 'श्री इश्वटीची माता अधिकृत दिव्य दर्शन मूर्ती',
-    titleMarathi: 'श्री इश्वटीची माता अधिकृत दिव्य दर्शन मूर्ती',
-    url: heroImg
-  },
+    title: 'दिवस २ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
+    titleMarathi: 'दिवस २ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
+    url: heroImgDayII
+  },  
   {
-    id: 'gal-authentic-idol',
+    id: 'gal-official-mata',
     category: 'Mata Darshan',
-    title: 'श्री इश्वटीची माता मूळ सुवर्ण अलंकारित पावन मूर्ती',
-    titleMarathi: 'श्री इश्वटीची माता मूळ सुवर्ण अलंकारित पावन मूर्ती',
-    url: authenticIdolImg
-  },
+    title: 'दिवस ३ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
+    titleMarathi: 'दिवस ३ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
+    url: heroImgDayIII
+  },  
   {
     id: 'gal-sanctum-altar',
     category: 'Mata Darshan',
     title: 'श्री इश्वटीची माता मुख्य गर्भगृह व राजसिंहासन दर्शन',
     titleMarathi: 'श्री इश्वटीची माता मुख्य गर्भगृह व राजसिंहासन दर्शन',
     url: sanctumHeroImg
+  },
+  {
+    id: 'gal-agaman-banner-2026',
+    category: 'Festivals',
+    title: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव बॅनर',
+    titleMarathi: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव बॅनर',
+    url: agamanBannerImg
   },
   {
     id: 'gal-sanctum-grand',
