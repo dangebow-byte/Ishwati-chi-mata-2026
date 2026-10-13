@@ -179,10 +179,12 @@ export async function addDeviMataImage(params: {
 
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
-    await setDoc(docRef, {
-      ...newItem,
-      serverCreated: serverTimestamp()
-    });
+    const cleanedPayload: Record<string, any> = {};
+    for (const [key, value] of Object.entries(newItem)) {
+      if (value !== undefined) cleanedPayload[key] = value;
+    }
+    cleanedPayload.serverCreated = serverTimestamp();
+    await setDoc(docRef, cleanedPayload);
     return newItem;
   } catch (error) {
     handleFirestoreError(error, OperationType.CREATE, `${COLLECTION_NAME}/${id}`);
@@ -221,10 +223,12 @@ export async function updateDeviMataImage(
 
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
-    await setDoc(docRef, {
-      ...params,
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
+    const cleanedParams: Record<string, any> = {};
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) cleanedParams[key] = value;
+    }
+    cleanedParams.updatedAt = new Date().toISOString();
+    await setDoc(docRef, cleanedParams, { merge: true });
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, `${COLLECTION_NAME}/${id}`);
   }

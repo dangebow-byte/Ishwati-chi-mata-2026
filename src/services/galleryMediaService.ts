@@ -10,7 +10,8 @@ import {
   deleteDoc,
   onSnapshot,
   query,
-  serverTimestamp
+  serverTimestamp,
+  writeBatch
 } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { GALLERY_ITEMS, OFFICIAL_INSTAGRAM_REELS } from '../data';
@@ -29,6 +30,7 @@ export interface GalleryMediaItem {
   descriptionMR?: string;
   descriptionEN?: string;
   authorHandle?: string;
+  displayOrder?: number; // Order index for custom reordering
   createdAt: string;
   updatedAt?: string;
 }
@@ -36,7 +38,19 @@ export interface GalleryMediaItem {
 const COLLECTION_NAME = 'gallery_media';
 const LOCAL_STORAGE_KEY = 'temple_gallery_media_cache';
 
-// Transform initial bundled data to standard items
+// Sort helper to sort items consistently by displayOrder first, then createdAt
+export function sortGalleryMediaItems(items: GalleryMediaItem[]): GalleryMediaItem[] {
+  return [...items].sort((a, b) => {
+    const orderA = typeof a.displayOrder === 'number' ? a.displayOrder : 999999;
+    const orderB = typeof b.displayOrder === 'number' ? b.displayOrder : 999999;
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
+
+// Transform initial bundled data to standard items with default displayOrder
 export const INITIAL_GALLERY_MEDIA: GalleryMediaItem[] = [
   ...GALLERY_ITEMS.map((item, idx) => {
     let year = '2026';
@@ -51,10 +65,11 @@ export const INITIAL_GALLERY_MEDIA: GalleryMediaItem[] = [
       titleEN: item.title,
       category: item.category || 'Mata Darshan',
       year,
+      displayOrder: idx,
       createdAt: new Date().toISOString()
     };
   }),
-  ...OFFICIAL_INSTAGRAM_REELS.map((reel) => ({
+  ...OFFICIAL_INSTAGRAM_REELS.map((reel, idx) => ({
     id: reel.id,
     type: 'instagram' as GalleryMediaType,
     url: reel.reelUrl,
@@ -66,6 +81,7 @@ export const INITIAL_GALLERY_MEDIA: GalleryMediaItem[] = [
     descriptionMR: reel.descriptionMR,
     descriptionEN: reel.descriptionEN,
     authorHandle: reel.authorHandle || '@ishwatichi_mata',
+    displayOrder: GALLERY_ITEMS.length + idx,
     createdAt: new Date().toISOString()
   }))
 ];
@@ -87,11 +103,11 @@ export function getCachedGalleryMedia(): GalleryMediaItem[] {
           seen.add(itemId);
           uniqueItems.push(item);
         });
-        return uniqueItems;
+        return sortGalleryMediaItems(uniqueItems);
       }
     }
   } catch {}
-  return INITIAL_GALLERY_MEDIA;
+  return sortGalleryMediaItems(INITIAL_GALLERY_MEDIA);
 }
 
 export function setCachedGalleryMedia(items: GalleryMediaItem[]): void {
@@ -140,6 +156,7 @@ export function subscribeGalleryMedia(
               descriptionMR: data.descriptionMR,
               descriptionEN: data.descriptionEN,
               authorHandle: data.authorHandle,
+              displayOrder: typeof data.displayOrder === 'number' ? data.displayOrder : undefined,
               createdAt: data.createdAt || new Date().toISOString(),
               updatedAt: data.updatedAt
             });
@@ -154,8 +171,9 @@ export function subscribeGalleryMedia(
           }
         });
 
-        setCachedGalleryMedia(items);
-        onUpdate(items);
+        const sortedItems = sortGalleryMediaItems(items);
+        setCachedGalleryMedia(sortedItems);
+        onUpdate(sortedItems);
       },
       (error) => {
         handleFirestoreError(error, OperationType.LIST, COLLECTION_NAME);
@@ -169,6 +187,92 @@ export function subscribeGalleryMedia(
     handleFirestoreError(error, OperationType.LIST, COLLECTION_NAME);
     onUpdate(getCachedGalleryMedia());
     return () => {};
+  }
+}
+
+/**
+ * Helper to strip undefined values so Firestore setDoc does not throw
+ */
+function cleanFirestoreData<T extends Record<string, any>>(data: T): Record<string, any> {
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== undefined) {
+      cleaned[key] = value;
+    }
+  }
+  return cleaned;
+}
+
+/**
+ * Helper to reorder items within a filtered subset while preserving the relative positions of other items in the master list.
+ */
+export function applyReorderToMasterList(
+  masterItems: GalleryMediaItem[],
+  filteredItems: GalleryMediaItem[],
+  dragIndex: number,
+  dropIndex: number
+): GalleryMediaItem[] {
+  if (dragIndex === dropIndex || dragIndex < 0 || dropIndex < 0) {
+    return masterItems;
+  }
+  if (dragIndex >= filteredItems.length || dropIndex >= filteredItems.length) {
+    return masterItems;
+  }
+
+  // 1. Compute reordered filtered subset
+  const newFiltered = [...filteredItems];
+  const [movedItem] = newFiltered.splice(dragIndex, 1);
+  newFiltered.splice(dropIndex, 0, movedItem);
+
+  // 2. Identify and replace filtered items within the master list in order
+  const filteredIds = new Set(filteredItems.map(item => item.id));
+  let filteredPointer = 0;
+
+  const newMaster = masterItems.map(item => {
+    if (filteredIds.has(item.id)) {
+      const replacement = newFiltered[filteredPointer++];
+      return replacement;
+    }
+    return item;
+  });
+
+  // 3. Normalize displayOrder across the master list
+  return newMaster.map((item, idx) => ({
+    ...item,
+    displayOrder: idx
+  }));
+}
+
+/**
+ * Persists the reordered list of media items.
+ * Updates local cache immediately and writes batch updates to Firestore.
+ */
+export async function reorderGalleryMedia(reorderedItems: GalleryMediaItem[]): Promise<void> {
+  const normalized = reorderedItems.map((item, idx) => ({
+    ...item,
+    displayOrder: idx,
+    updatedAt: new Date().toISOString()
+  }));
+
+  setCachedGalleryMedia(normalized);
+
+  try {
+    const batch = writeBatch(db);
+    normalized.forEach((item) => {
+      const docRef = doc(db, COLLECTION_NAME, item.id);
+      batch.set(
+        docRef,
+        cleanFirestoreData({
+          ...item,
+          displayOrder: item.displayOrder,
+          updatedAt: item.updatedAt
+        }),
+        { merge: true }
+      );
+    });
+    await batch.commit();
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, COLLECTION_NAME);
   }
 }
 
@@ -189,20 +293,33 @@ export async function addGalleryMedia(item: {
 }): Promise<GalleryMediaItem> {
   const id = `media-${Date.now()}`;
   const newItem: GalleryMediaItem = {
-    ...item,
     id,
+    type: item.type,
+    url: item.url,
+    titleMR: item.titleMR,
+    titleEN: item.titleEN,
+    category: item.category,
+    year: item.year,
+    displayOrder: 0,
     createdAt: new Date().toISOString()
   };
 
+  if (item.embedUrl) newItem.embedUrl = item.embedUrl;
+  if (item.descriptionMR) newItem.descriptionMR = item.descriptionMR;
+  if (item.descriptionEN) newItem.descriptionEN = item.descriptionEN;
+  if (item.authorHandle) newItem.authorHandle = item.authorHandle;
+
   const current = getCachedGalleryMedia();
-  setCachedGalleryMedia([newItem, ...current]);
+  const reordered = [newItem, ...current].map((it, idx) => ({ ...it, displayOrder: idx }));
+  setCachedGalleryMedia(reordered);
 
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
-    await setDoc(docRef, {
+    const firestorePayload = cleanFirestoreData({
       ...newItem,
       serverCreated: serverTimestamp()
     });
+    await setDoc(docRef, firestorePayload);
     return newItem;
   } catch (error) {
     handleFirestoreError(error, OperationType.CREATE, `${COLLECTION_NAME}/${id}`);
@@ -232,10 +349,11 @@ export async function updateGalleryMedia(
 
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
-    await setDoc(docRef, {
+    const firestorePayload = cleanFirestoreData({
       ...params,
       updatedAt: new Date().toISOString()
-    }, { merge: true });
+    });
+    await setDoc(docRef, firestorePayload, { merge: true });
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, `${COLLECTION_NAME}/${id}`);
   }

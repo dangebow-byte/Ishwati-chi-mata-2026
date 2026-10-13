@@ -115,7 +115,7 @@ service cloud.firestore {
 
     function isValidDeviMataImage(data) {
       return data.id is string && data.id.size() <= 128 &&
-             data.url is string && data.url.size() <= 2000 &&
+             data.url is string && data.url.size() <= 1048576 &&
              data.titleMR is string && data.titleMR.size() <= 500 &&
              data.titleEN is string && data.titleEN.size() <= 500 &&
              (!('descriptionMR' in data) || (data.descriptionMR is string && data.descriptionMR.size() <= 3000)) &&
@@ -131,7 +131,7 @@ service cloud.firestore {
     function isValidGalleryMedia(data) {
       return data.id is string && data.id.size() <= 128 &&
              data.type is string && data.type.size() <= 30 &&
-             data.url is string && data.url.size() <= 2000 &&
+             data.url is string && data.url.size() <= 1048576 &&
              data.titleMR is string && data.titleMR.size() <= 500 &&
              data.titleEN is string && data.titleEN.size() <= 500 &&
              data.category is string && data.category.size() <= 100 &&

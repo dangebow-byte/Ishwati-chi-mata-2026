@@ -425,9 +425,17 @@ CREATE TABLE IF NOT EXISTS gallery_media (
     description_mr TEXT,
     description_en TEXT,
     author_handle VARCHAR(100) DEFAULT '@ishwatichi_mata',
+    display_order INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_gallery_media_order 
+    ON gallery_media (display_order ASC, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_gallery_media_category 
+    ON gallery_media (category, display_order ASC);
+CREATE INDEX IF NOT EXISTS idx_gallery_media_year 
+    ON gallery_media (year, display_order ASC);
 
 -- --------------------------------------------------------------------
 -- 13. Table: featured_ashtami_video_configs
@@ -465,4 +473,15 @@ ON CONFLICT (id) DO UPDATE SET
     title = EXCLUDED.title,
     title_marathi = EXCLUDED.title_marathi,
     updated_at = CURRENT_TIMESTAMP;
+
+-- ====================================================================
+-- Incremental Migrations
+-- ====================================================================
+
+-- Migration: Add display_order to gallery_media for drag-and-drop reordering
+ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS display_order INTEGER NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_gallery_media_order ON gallery_media (display_order ASC, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_gallery_media_category ON gallery_media (category, display_order ASC);
+CREATE INDEX IF NOT EXISTS idx_gallery_media_year ON gallery_media (year, display_order ASC);
+
 

@@ -3,13 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { InstagramVideoEmbed, extractInstagramShortcode, getInstagramEmbedUrl } from './InstagramVideoEmbed';
 import { 
   subscribeGalleryMedia, 
   addGalleryMedia, 
   updateGalleryMedia, 
   deleteGalleryMedia, 
+  reorderGalleryMedia,
+  applyReorderToMasterList,
   GalleryMediaItem, 
   GalleryMediaType,
   getCachedGalleryMedia,
@@ -41,7 +44,11 @@ import {
   Image as ImageIcon,
   Upload,
   HardDrive,
-  Globe
+  Globe,
+  GripVertical,
+  ArrowUpDown,
+  CheckCircle2,
+  RotateCcw
 } from 'lucide-react';
 import { compressAndReadImageFile, saveLocalVideoFile, formatFileSize } from '../services/localMediaStorage';
 
@@ -66,6 +73,14 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   // Active Featured Reel for Top Showcase Altar
   const [activeFeaturedId, setActiveFeaturedId] = useState<string>('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Drag-and-Drop Reordering States (All Sections & Filters)
+  const [isReorderMode, setIsReorderMode] = useState<boolean>(false);
+  const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [isSavingOrder, setIsSavingOrder] = useState<boolean>(false);
+  const [saveOrderSuccess, setSaveOrderSuccess] = useState<boolean>(false);
+  const [originalOrderSnapshot, setOriginalOrderSnapshot] = useState<GalleryMediaItem[] | null>(null);
 
   // Add Media Modal State
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -372,6 +387,110 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     setStatusSuccess('');
   };
 
+  // =========================================================================
+  // REORDERING & DRAG-AND-DROP HANDLERS (ALL SECTIONS & FILTERS)
+  // =========================================================================
+  const handleToggleReorderMode = () => {
+    if (!isReorderMode) {
+      setOriginalOrderSnapshot([...mediaItems]);
+      setIsReorderMode(true);
+      setSaveOrderSuccess(false);
+      setStatusError('');
+      setStatusSuccess('');
+    } else {
+      setIsReorderMode(false);
+      setDraggedItemIndex(null);
+      setDragOverIndex(null);
+      setOriginalOrderSnapshot(null);
+    }
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+    setDraggedItemIndex(index);
+    setSaveOrderSuccess(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent, index: number) => {
+    if (dragOverIndex === index) {
+      setDragOverIndex(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedItemIndex === null || draggedItemIndex === dropIndex) {
+      setDraggedItemIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const updatedMaster = applyReorderToMasterList(
+      mediaItems,
+      filteredItems,
+      draggedItemIndex,
+      dropIndex
+    );
+    setMediaItems(updatedMaster);
+    setCachedGalleryMedia(updatedMaster);
+    setDraggedItemIndex(null);
+    setDragOverIndex(null);
+    setSaveOrderSuccess(false);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItemIndex(null);
+    setDragOverIndex(null);
+  };
+
+  // Quick move buttons for touch & mobile devices
+  const handleMoveItem = (filteredIndex: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? filteredIndex - 1 : filteredIndex + 1;
+    if (targetIndex < 0 || targetIndex >= filteredItems.length) return;
+
+    const updatedMaster = applyReorderToMasterList(
+      mediaItems,
+      filteredItems,
+      filteredIndex,
+      targetIndex
+    );
+    setMediaItems(updatedMaster);
+    setCachedGalleryMedia(updatedMaster);
+    setSaveOrderSuccess(false);
+  };
+
+  const handleSaveOrder = async () => {
+    setIsSavingOrder(true);
+    setStatusError('');
+    try {
+      await reorderGalleryMedia(mediaItems);
+      setSaveOrderSuccess(true);
+      setOriginalOrderSnapshot([...mediaItems]);
+      setTimeout(() => setSaveOrderSuccess(false), 3000);
+    } catch (err: any) {
+      setStatusError(err?.message || (lang === 'EN' ? 'Failed to save new order.' : 'नवीन क्रम जतन करणे अयशस्वी झाले.'));
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
+
+  const handleResetOrder = () => {
+    if (originalOrderSnapshot) {
+      setMediaItems(originalOrderSnapshot);
+      setCachedGalleryMedia(originalOrderSnapshot);
+      setSaveOrderSuccess(false);
+    }
+  };
+
   // Submit Add Media
   const handleAddMediaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -387,7 +506,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     try {
       setIsSubmitting(true);
 
-      let embedUrl = undefined;
+      let embedUrl: string | undefined = undefined;
       if (addForm.type === 'instagram') {
         embedUrl = getInstagramEmbedUrl(cleanUrl);
       } else if (addForm.type === 'video' && cleanUrl.includes('youtube.com/watch?v=')) {
@@ -401,7 +520,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       const newItem = await addGalleryMedia({
         type: addForm.type,
         url: cleanUrl,
-        embedUrl,
+        ...(embedUrl ? { embedUrl } : {}),
         titleMR: addForm.titleMR.trim() || 'श्री ईश्वटीची माता पावन दर्शन',
         titleEN: addForm.titleEN.trim() || 'Shree Ishwatichi Mata Sacred Darshan',
         category: addForm.category,
@@ -448,15 +567,22 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     try {
       setIsSubmitting(true);
 
-      let embedUrl = editingItem.embedUrl;
+      let embedUrl: string | undefined = editingItem.embedUrl;
+      const cleanEditUrl = editForm.url.trim();
       if (editForm.type === 'instagram') {
-        embedUrl = getInstagramEmbedUrl(editForm.url.trim());
+        embedUrl = getInstagramEmbedUrl(cleanEditUrl);
+      } else if (editForm.type === 'video' && cleanEditUrl.includes('youtube.com/watch?v=')) {
+        const vidId = cleanEditUrl.split('v=')[1]?.split('&')[0];
+        if (vidId) embedUrl = `https://www.youtube.com/embed/${vidId}`;
+      } else if (editForm.type === 'video' && cleanEditUrl.includes('youtu.be/')) {
+        const vidId = cleanEditUrl.split('youtu.be/')[1]?.split('?')[0];
+        if (vidId) embedUrl = `https://www.youtube.com/embed/${vidId}`;
       }
 
       await updateGalleryMedia(editingItem.id, {
         type: editForm.type,
-        url: editForm.url.trim(),
-        embedUrl,
+        url: cleanEditUrl,
+        ...(embedUrl ? { embedUrl } : {}),
         titleMR: editForm.titleMR.trim() || editingItem.titleMR,
         titleEN: editForm.titleEN.trim() || editingItem.titleEN,
         category: editForm.category,
@@ -1042,18 +1168,21 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       {/* ========================================================================= */}
       {/* 6. UNIVERSAL ADD MEDIA MODAL (PHOTO, VIDEO, INSTAGRAM BY YEAR)            */}
       {/* ========================================================================= */}
-      {showAddModal && (
+      {showAddModal && typeof document !== 'undefined' && createPortal(
         <div 
           ref={addModalContainerRef}
-          className="fixed inset-0 z-[100] overflow-y-auto bg-black/85 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-[9999] overflow-y-auto bg-black/85 backdrop-blur-md animate-fade-in flex items-center justify-center p-3 sm:p-4"
           role="dialog"
           aria-modal="true"
+          onClick={(e) => {
+            if (e.target === addModalContainerRef.current) setShowAddModal(false);
+          }}
         >
-          <div className="min-h-full flex items-center justify-center p-3 sm:p-4 my-auto">
-            <form 
-              onSubmit={handleAddMediaSubmit}
-              className="bg-zinc-950 border-2 border-brand-gold/60 rounded-2xl p-5 sm:p-6 w-full max-w-xl space-y-4 shadow-2xl text-xs text-left my-6"
-            >
+          <form 
+            onSubmit={handleAddMediaSubmit}
+            className="bg-zinc-950 border-2 border-brand-gold/60 rounded-2xl p-5 sm:p-6 w-full max-w-xl space-y-4 shadow-2xl text-xs text-left max-h-[92vh] overflow-y-auto my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2 text-brand-gold font-bold text-sm">
                 <Plus className="h-4 w-4 text-brand-gold" />
@@ -1393,25 +1522,28 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               </button>
             </div>
           </form>
-          </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ========================================================================= */}
       {/* 7. UNIVERSAL EDIT MEDIA MODAL                                             */}
       {/* ========================================================================= */}
-      {editingItem && (
+      {editingItem && typeof document !== 'undefined' && createPortal(
         <div 
           ref={editModalContainerRef}
-          className="fixed inset-0 z-[100] overflow-y-auto bg-black/85 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-[9999] overflow-y-auto bg-black/85 backdrop-blur-md animate-fade-in flex items-center justify-center p-3 sm:p-4"
           role="dialog"
           aria-modal="true"
+          onClick={(e) => {
+            if (e.target === editModalContainerRef.current) setEditingItem(null);
+          }}
         >
-          <div className="min-h-full flex items-center justify-center p-3 sm:p-4 my-auto">
-            <form 
-              onSubmit={handleEditMediaSubmit}
-              className="bg-zinc-950 border-2 border-brand-gold/60 rounded-2xl p-5 sm:p-6 w-full max-w-xl space-y-4 shadow-2xl text-xs text-left my-6"
-            >
+          <form 
+            onSubmit={handleEditMediaSubmit}
+            className="bg-zinc-950 border-2 border-brand-gold/60 rounded-2xl p-5 sm:p-6 w-full max-w-xl space-y-4 shadow-2xl text-xs text-left max-h-[92vh] overflow-y-auto my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2 text-brand-gold font-bold text-sm">
                 <Pencil className="h-4 w-4 text-brand-gold" />
@@ -1681,21 +1813,26 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               </button>
             </div>
           </form>
-          </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ========================================================================= */}
       {/* 8. UNIVERSAL DELETE CONFIRMATION MODAL                                    */}
       {/* ========================================================================= */}
-      {deletingItem && (
+      {deletingItem && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-[100] overflow-y-auto bg-black/85 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-[9999] overflow-y-auto bg-black/85 backdrop-blur-md animate-fade-in flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
+          onClick={() => {
+            if (!isSubmitting) setDeletingItem(null);
+          }}
         >
-          <div className="min-h-full flex items-center justify-center p-4">
-            <div className="bg-zinc-950 border-2 border-red-500/40 rounded-2xl p-5 sm:p-6 w-full max-w-md space-y-4 shadow-2xl text-left my-6">
+          <div 
+            className="bg-zinc-950 border-2 border-red-500/40 rounded-2xl p-5 sm:p-6 w-full max-w-md space-y-4 shadow-2xl text-left my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 text-red-400">
               <div className="h-10 w-10 rounded-full bg-red-950/80 border border-red-500/40 flex items-center justify-center shrink-0">
                 <AlertTriangle className="h-5 w-5" />
@@ -1756,15 +1893,15 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               </button>
             </div>
           </div>
-          </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ========================================================================= */}
       {/* 9. HIGH-RES PHOTO LIGHTBOX MODAL                                          */}
       {/* ========================================================================= */}
-      {selectedPhoto && (
-        <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col justify-between p-4 md:p-6 md:pb-12 text-white animate-fade-in font-sans">
+      {selectedPhoto && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/95 flex flex-col justify-between p-4 md:p-6 md:pb-12 text-white animate-fade-in font-sans">
           
           {/* Lightbox Toolbar Top */}
           <div className="flex justify-between items-center bg-black/60 px-4 py-3 rounded-xl border border-white/10">
@@ -1882,7 +2019,8 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             </div>
           </div>
 
-        </div>
+        </div>,
+        document.body
       )}
 
     </section>
