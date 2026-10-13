@@ -28,6 +28,7 @@ import {
 import { TRANSLATIONS } from '../data';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
 import { templeSoundboardEngine, SACRED_MANTRAS } from '../utils/templeSoundboardEngine';
+import { AshtamiFeaturedVideoSection } from './AshtamiFeaturedVideoSection';
 import { DeviImage } from './DeviImage';
 
 interface LiveDarshanSectionProps {
@@ -428,7 +429,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
         
         {/* Cam Screen (Left) */}
         <div className="col-span-1 lg:col-span-8 space-y-4">
-          <div className="relative min-h-[480px] sm:min-h-[580px] lg:h-[640px] w-full rounded-2xl overflow-hidden border-2 border-brand-gold/30 bg-black group shadow-2xl">
+          <div className="relative h-[380px] xs:h-[440px] sm:h-[520px] lg:h-[640px] w-full rounded-2xl overflow-hidden border-2 border-brand-gold/40 bg-gradient-to-b from-[#280202] via-[#140101] to-black group shadow-2xl">
             {/* Overlay indicators */}
             <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-red-700 text-white font-mono font-bold text-[10px] uppercase px-2.5 py-1 rounded-md shadow-md">
               <span className="h-1.5 w-1.5 bg-white rounded-full animate-ping" />
@@ -442,14 +443,14 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
 
             {/* Video or Image source */}
             {videoFeeds[activeCam].isLive ? (
-              <div className="h-full w-full relative flex items-center justify-center bg-[#150101] overflow-hidden">
+              <div className="h-full w-full relative flex items-center justify-center bg-gradient-to-b from-[#220101] to-[#0a0000] overflow-hidden">
                 {/* Atmospheric sanctum ambient glow background */}
                 <div 
-                  className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-30 scale-110 pointer-events-none"
+                  className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-40 scale-105 pointer-events-none"
                   style={{ backgroundImage: `url(${heroImagePath})` }}
                 />
 
-                {/* DeviImage Component with object-fit contain ensuring full uncut sacred idol darshan */}
+                {/* DeviImage Component with object-fit contain ensuring full uncut illuminated sacred idol darshan */}
                 <DeviImage
                   src={heroImagePath}
                   alt="Shree Ishwatichi Mata Darshan Chamber Live"
@@ -458,11 +459,11 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                   objectPosition="center center"
                   priority
                   className="w-full h-full relative z-[1] flex items-center justify-center p-1 sm:p-2"
-                  imageClassName="max-h-full max-w-full object-contain mx-auto drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] transition-transform duration-1000 group-hover:scale-105"
+                  imageClassName="w-auto h-auto max-h-full max-w-full object-contain mx-auto drop-shadow-[0_4px_30px_rgba(255,200,60,0.35)] transition-transform duration-1000 group-hover:scale-105"
                 />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none z-[2]" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_30%,rgba(0,0,0,0.6)_100%)] pointer-events-none z-[2]" />
+                {/* Soft subtle bottom vignette (replaces heavy blackout overlays) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none z-[2]" />
                 <div className="absolute top-0 left-0 w-full h-[1px] bg-brand-gold/30 animate-pulse pointer-events-none z-[2]" />
                 
                 {/* Sacred watermark badge */}
@@ -1236,16 +1237,11 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
               </div>
             </div>
 
-            {/* Responsive 16:9 YouTube Player Frame */}
-            <div className="relative w-full aspect-video rounded-xl overflow-hidden border-2 border-brand-gold/50 shadow-2xl bg-black">
-              <iframe
-                src="https://www.youtube-nocookie.com/embed/28TJIom9GFw?autoplay=1&enablejsapi=1&rel=0"
-                title="Ashtami - Dharmaveer Maha Aarti | Adarsh Shinde"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-              />
-            </div>
+            {/* Dynamic Player with Local Upload, YouTube & Instagram Options */}
+            <AshtamiFeaturedVideoSection
+              lang={lang}
+              className="w-full"
+            />
 
             {/* Devotional Shloka and Actions */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-white/10 text-xs text-gray-300">

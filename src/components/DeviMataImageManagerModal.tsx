@@ -15,7 +15,10 @@ import {
   Sparkles, 
   AlertCircle,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  Upload,
+  HardDrive,
+  Globe
 } from 'lucide-react';
 import { 
   DeviMataImageItem, 
@@ -24,6 +27,7 @@ import {
   deleteDeviMataImage,
   DEFAULT_DEVI_IMAGE
 } from '../services/deviImagesService';
+import { compressAndReadImageFile, formatFileSize } from '../services/localMediaStorage';
 
 interface DeviMataImageManagerModalProps {
   lang: 'EN' | 'MR';
@@ -52,6 +56,10 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
 
   // Form State
   const [formUrl, setFormUrl] = useState('');
+  const [uploadSource, setUploadSource] = useState<'device' | 'url'>('device');
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState('');
+  const [uploadedFileSize, setUploadedFileSize] = useState<number | null>(null);
   const [formTitleMR, setFormTitleMR] = useState('');
   const [formTitleEN, setFormTitleEN] = useState('');
   const [formDate, setFormDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -64,6 +72,10 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
 
   const resetForm = () => {
     setFormUrl('');
+    setUploadSource('device');
+    setIsProcessingFile(false);
+    setUploadedFileName('');
+    setUploadedFileSize(null);
     setFormTitleMR('');
     setFormTitleEN('');
     setFormDate(new Date().toISOString().split('T')[0]);
@@ -79,6 +91,9 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
   const startEdit = (img: DeviMataImageItem) => {
     setEditingId(img.id);
     setFormUrl(img.url);
+    setUploadSource(img.url.startsWith('data:') ? 'device' : 'url');
+    setUploadedFileName(img.url.startsWith('data:') ? 'uploaded-image' : '');
+    setUploadedFileSize(null);
     setFormTitleMR(img.titleMR);
     setFormTitleEN(img.titleEN);
     setFormDate(img.dateStr);
@@ -90,10 +105,34 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
     setErrorMsg(null);
   };
 
+  const handleDeviceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsProcessingFile(true);
+    setErrorMsg(null);
+    try {
+      const result = await compressAndReadImageFile(file, 1600, 0.85);
+      setFormUrl(result.dataUrl);
+      setUploadedFileName(result.name);
+      setUploadedFileSize(result.size);
+      if (!formTitleMR.trim()) {
+        setFormTitleMR('श्री इश्वटीची माता पावन दर्शन (नवीन छायाचित्र)');
+      }
+      if (!formTitleEN.trim()) {
+        setFormTitleEN('Shree Ishwatichi Mata Sacred Darshan (New Photo)');
+      }
+    } catch (err: any) {
+      setErrorMsg(err?.message || (lang === 'EN' ? 'Failed to process image file.' : 'फोटो फाईल प्रक्रिया अयशस्वी झाली.'));
+    } finally {
+      setIsProcessingFile(false);
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formUrl.trim() && editingId !== DEFAULT_DEVI_IMAGE.id) {
-      setErrorMsg(lang === 'EN' ? 'Please enter a valid image URL.' : 'कृपया वैध फोटो URL प्रविष्ट करा.');
+      setErrorMsg(lang === 'EN' ? 'Please upload an image from your device or enter a valid URL.' : 'कृपया तुमच्या डिव्हाइसवरून फोटो निवडा किंवा वैध URL टाका.');
       return;
     }
 
@@ -304,40 +343,125 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
                 </button>
               </div>
 
-              {/* URL Input */}
+              {/* Image Source Mode Selector */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider block">
-                  {lang === 'EN' ? 'Image Direct URL *' : 'प्रतिमा वेब लिंक (Image URL) *'}
+                  {lang === 'EN' ? 'Photo Source *' : 'फोटो स्त्रोत (Photo Source) *'}
                 </label>
-                <input
-                  type="url"
-                  required
-                  placeholder="https://example.com/devi-mata-darshan-today.jpg"
-                  value={formUrl}
-                  onChange={(e) => setFormUrl(e.target.value)}
-                  className="w-full bg-black/70 border border-brand-gold/30 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-brand-gold"
-                />
-                <span className="text-[10px] text-gray-400 block">
-                  {lang === 'EN' 
-                    ? 'Tip: Paste any hosted image URL (Unsplash, Google Drive link, Imgur, Cloudinary, etc.)'
-                    : 'टीप: कोणत्याही ऑनलाइन फोटोची लिंक येथे टाका (उदा. Imgur, Drive, सोशल मीडिया फोटो लिंक)'}
-                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setUploadSource('device')}
+                    className={`py-2 px-3 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      uploadSource === 'device'
+                        ? 'bg-brand-gold text-brand-maroon border-brand-gold shadow-md font-black'
+                        : 'bg-black/50 text-gray-300 border-white/10 hover:text-white'
+                    }`}
+                  >
+                    <HardDrive className="h-4 w-4" />
+                    <span>{lang === 'EN' ? 'Upload from Device' : 'डिव्हाइसवरून निवडा (Upload)'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setUploadSource('url')}
+                    className={`py-2 px-3 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      uploadSource === 'url'
+                        ? 'bg-brand-gold text-brand-maroon border-brand-gold shadow-md font-black'
+                        : 'bg-black/50 text-gray-300 border-white/10 hover:text-white'
+                    }`}
+                  >
+                    <Globe className="h-4 w-4" />
+                    <span>{lang === 'EN' ? 'Web Image URL' : 'वेब लिंक (Web URL)'}</span>
+                  </button>
+                </div>
               </div>
+
+              {/* Mode A: Device File Upload */}
+              {uploadSource === 'device' ? (
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider block">
+                    {lang === 'EN' ? 'Choose Image File from Computer / Mobile *' : 'तुमच्या संगणक किंवा मोबाईलवरून फोटो निवडा *'}
+                  </label>
+                  
+                  <label className="border-2 border-dashed border-brand-gold/40 hover:border-brand-gold bg-black/40 hover:bg-black/60 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors text-center">
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/jpg"
+                      onChange={handleDeviceImageUpload}
+                      className="hidden"
+                    />
+                    <div className="h-10 w-10 rounded-full bg-brand-gold/15 flex items-center justify-center text-brand-gold">
+                      <Upload className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-brand-gold block text-xs">
+                        {isProcessingFile 
+                          ? (lang === 'EN' ? 'Optimizing Image...' : 'फोटो अनुकूलित होत आहे...') 
+                          : (lang === 'EN' ? 'Click to Browse or Drag Photo Here' : 'फोटो निवडण्यासाठी येथे क्लिक करा')}
+                      </span>
+                      <span className="text-[10px] text-gray-400 block mt-0.5">
+                        {lang === 'EN' 
+                          ? 'Supports JPG, PNG, WEBP • Automatically optimized for high resolution'
+                          : 'सर्व फोटो फॉरमॅट समर्थित (JPG, PNG, WEBP) • आपोआप ऑप्टिमाइझ केले जाईल'}
+                      </span>
+                    </div>
+                  </label>
+
+                  {uploadedFileName && (
+                    <div className="text-[11px] text-emerald-400 flex items-center gap-1.5 bg-emerald-950/40 p-2 rounded-lg border border-emerald-500/30">
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
+                      <span className="font-mono truncate">{uploadedFileName}</span>
+                      {uploadedFileSize !== null && (
+                        <span className="text-[10px] text-gray-300 font-mono ml-auto">
+                          ({formatFileSize(uploadedFileSize)})
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Mode B: Web Direct URL */
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-gray-300 uppercase tracking-wider block">
+                    {lang === 'EN' ? 'Image Direct URL *' : 'प्रतिमा वेब लिंक (Image URL) *'}
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://example.com/devi-mata-darshan-today.jpg"
+                    value={formUrl}
+                    onChange={(e) => setFormUrl(e.target.value)}
+                    className="w-full bg-black/70 border border-brand-gold/30 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-brand-gold"
+                  />
+                  <span className="text-[10px] text-gray-400 block">
+                    {lang === 'EN' 
+                      ? 'Tip: Paste any hosted image URL (Unsplash, Google Drive link, Imgur, Cloudinary, etc.)'
+                      : 'टीप: कोणत्याही ऑनलाइन फोटोची थेट लिंक येथे टाका'}
+                  </span>
+                </div>
+              )}
 
               {/* Image Preview */}
               {formUrl && (
-                <div className="p-2 bg-black/40 rounded-lg border border-white/10 flex items-center gap-3">
+                <div className="p-2.5 bg-black/50 rounded-xl border border-brand-gold/40 flex items-center gap-3">
                   <img
                     src={formUrl}
                     alt="Preview"
-                    className="w-16 h-16 object-cover rounded-md border border-brand-gold/40 shrink-0"
+                    className="w-16 h-16 object-cover rounded-lg border border-brand-gold shadow-md shrink-0 bg-black"
                     onError={(e) => {
                       (e.target as HTMLElement).style.display = 'none';
                     }}
                   />
-                  <div className="text-[11px] text-gray-300">
-                    <span className="text-emerald-400 font-bold block">✓ URL Live Preview</span>
-                    <span className="text-[10px] text-gray-400 line-clamp-1">{formUrl}</span>
+                  <div className="text-[11px] text-gray-300 min-w-0">
+                    <span className="text-brand-gold font-bold flex items-center gap-1">
+                      <Sparkles className="h-3.5 w-3.5 text-brand-saffron" />
+                      <span>{lang === 'EN' ? 'Live Sacred Preview' : 'थेट पावन दर्शन पूर्वावलोकन'}</span>
+                    </span>
+                    <span className="text-[10px] text-gray-400 truncate block mt-0.5">
+                      {formUrl.startsWith('data:') 
+                        ? (lang === 'EN' ? 'Local Device Converted Image' : 'डिव्हाइसवरून निवडलेला फोटो') 
+                        : formUrl}
+                    </span>
                   </div>
                 </div>
               )}

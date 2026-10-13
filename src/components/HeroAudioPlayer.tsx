@@ -19,6 +19,7 @@ import {
   Radio 
 } from 'lucide-react';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
+import { AshtamiFeaturedVideoSection } from './AshtamiFeaturedVideoSection';
 
 interface HeroAudioPlayerProps {
   lang: 'EN' | 'MR';
@@ -298,31 +299,13 @@ export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
 
             {/* Main Interactive Playback Panel */}
             {youtubeViewMode === 'video' ? (
-              /* Video Mode: Responsive HD Embedded YouTube Player */
-              <div className="space-y-2">
-                <div className="relative w-full aspect-video rounded-xl overflow-hidden border-2 border-brand-gold/60 shadow-[0_4px_25px_rgba(0,0,0,0.8)] bg-black">
-                  <iframe
-                    src="https://www.youtube-nocookie.com/embed/28TJIom9GFw?enablejsapi=1&rel=0&modestbranding=1"
-                    title="Ashtami - Dharmaveer Maha Aarti | Adarsh Shinde | Zee Music Marathi"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="absolute inset-0 w-full h-full"
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-gray-400 font-sans px-1">
-                  <span className="flex items-center gap-1.5 text-brand-gold font-bold">
-                    <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
-                    <span>{lang === 'EN' ? 'Direct Official YouTube Stream' : 'अधिकृत यूट्यूब पावन महाआरती'}</span>
-                  </span>
-                  <button
-                    onClick={() => setShowLyrics(!showLyrics)}
-                    className="text-brand-saffron hover:underline font-bold flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>{lang === 'EN' ? 'Aarti Lyrics' : 'आरतीचे बोल'}</span>
-                    {showLyrics ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                  </button>
-                </div>
-              </div>
+              /* Video Mode: Interactive Player supporting Device Video Upload, YouTube & Instagram */
+              <AshtamiFeaturedVideoSection
+                lang={lang}
+                showLyricsToggle={true}
+                showLyrics={showLyrics}
+                onToggleLyrics={() => setShowLyrics(!showLyrics)}
+              />
             ) : (
               /* Audio Focus Mode: Rich Devotional Player with Equalizer & Rotating Chakra */
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-black/60 rounded-xl border border-brand-gold/30">

@@ -38,8 +38,12 @@ import {
   AlertTriangle,
   Play,
   Layers,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Upload,
+  HardDrive,
+  Globe
 } from 'lucide-react';
+import { compressAndReadImageFile, saveLocalVideoFile, formatFileSize } from '../services/localMediaStorage';
 
 interface MasonryGalleryProps {
   lang: 'EN' | 'MR';
@@ -111,12 +115,102 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     authorHandle: '@ishwatichi_mata'
   });
 
+  // Device Upload States
+  const [addUploadSource, setAddUploadSource] = useState<'device' | 'url'>('device');
+  const [editUploadSource, setEditUploadSource] = useState<'device' | 'url'>('url');
+  const [isProcessingMediaFile, setIsProcessingMediaFile] = useState<boolean>(false);
+  const [uploadedMediaFileName, setUploadedMediaFileName] = useState<string>('');
+  const [uploadedMediaFileSize, setUploadedMediaFileSize] = useState<number | null>(null);
+
+  // File Upload Handler for Photo & Video
+  const handleDeviceMediaUpload = async (
+    file: File | undefined, 
+    type: GalleryMediaType, 
+    isEdit: boolean
+  ) => {
+    if (!file) return;
+
+    setIsProcessingMediaFile(true);
+    setStatusError('');
+    try {
+      if (type === 'photo') {
+        const result = await compressAndReadImageFile(file, 1600, 0.85);
+        if (isEdit) {
+          setEditForm(prev => ({
+            ...prev,
+            url: result.dataUrl,
+            titleMR: prev.titleMR || `श्री इश्वटीची माता पावन दर्शन (${file.name})`,
+            titleEN: prev.titleEN || `Shree Ishwatichi Mata Darshan (${file.name})`
+          }));
+        } else {
+          setAddForm(prev => ({
+            ...prev,
+            url: result.dataUrl,
+            titleMR: prev.titleMR || `श्री इश्वटीची माता पावन दर्शन (${file.name})`,
+            titleEN: prev.titleEN || `Shree Ishwatichi Mata Darshan (${file.name})`
+          }));
+        }
+        setUploadedMediaFileName(result.name);
+        setUploadedMediaFileSize(result.size);
+      } else if (type === 'video') {
+        const result = await saveLocalVideoFile(file);
+        if (isEdit) {
+          setEditForm(prev => ({
+            ...prev,
+            url: result.blobUrl,
+            titleMR: prev.titleMR || `महोत्सव व्हिडिओ: ${file.name}`,
+            titleEN: prev.titleEN || `Festival Video: ${file.name}`
+          }));
+        } else {
+          setAddForm(prev => ({
+            ...prev,
+            url: result.blobUrl,
+            titleMR: prev.titleMR || `महोत्सव व्हिडिओ: ${file.name}`,
+            titleEN: prev.titleEN || `Festival Video: ${file.name}`
+          }));
+        }
+        setUploadedMediaFileName(result.name);
+        setUploadedMediaFileSize(result.size);
+      }
+    } catch (err: any) {
+      setStatusError(err?.message || (lang === 'EN' ? 'Failed to process selected file.' : 'निवडलेली फाईल प्रक्रिया अयशस्वी झाली.'));
+    } finally {
+      setIsProcessingMediaFile(false);
+    }
+  };
+
   // Delete Confirmation State
   const [deletingItem, setDeletingItem] = useState<GalleryMediaItem | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [statusError, setStatusError] = useState<string>('');
   const [statusSuccess, setStatusSuccess] = useState<string>('');
+
+  // Modal container refs for immediate top-focus
+  const addModalContainerRef = React.useRef<HTMLDivElement>(null);
+  const editModalContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Auto-scroll modal container to top & lock document body scroll when modal opens
+  useEffect(() => {
+    if (showAddModal) {
+      document.body.style.overflow = 'hidden';
+      if (addModalContainerRef.current) {
+        addModalContainerRef.current.scrollTop = 0;
+      }
+    } else if (editingItem) {
+      document.body.style.overflow = 'hidden';
+      if (editModalContainerRef.current) {
+        editModalContainerRef.current.scrollTop = 0;
+      }
+    } else if (deletingItem) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showAddModal, editingItem, deletingItem]);
 
   // Subscribe to real-time updates from Firestore 'gallery_media'
   useEffect(() => {
@@ -154,14 +248,19 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     { id: 'Community Service', labelMR: 'सामाजिक सेवा', labelEN: 'Community Service' }
   ];
 
-  // Instagram Reels list for top altar showcase
+  // Instagram Reels list for Instagram tab showcase (filtered strictly by selected year)
   const reelsList = useMemo(() => {
-    return mediaItems.filter(item => item.type === 'instagram' || item.type === 'video');
-  }, [mediaItems]);
+    return mediaItems.filter(item => {
+      if (item.type !== 'instagram') return false;
+      if (selectedYear !== 'All' && item.year !== selectedYear) return false;
+      return true;
+    });
+  }, [mediaItems, selectedYear]);
 
   const activeFeaturedReel = useMemo(() => {
-    return reelsList.find(r => r.id === activeFeaturedId) || reelsList[0] || mediaItems[0];
-  }, [reelsList, activeFeaturedId, mediaItems]);
+    if (reelsList.length === 0) return null;
+    return reelsList.find(r => r.id === activeFeaturedId) || reelsList[0];
+  }, [reelsList, activeFeaturedId]);
 
   // Filtered Media Items (By Year, Media Type, and Category)
   const filteredItems = useMemo(() => {
@@ -248,6 +347,9 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   // Open Edit Modal
   const handleOpenEdit = (item: GalleryMediaItem) => {
     setEditingItem(item);
+    setEditUploadSource(item.url.startsWith('data:') || item.url.startsWith('blob:') ? 'device' : 'url');
+    setUploadedMediaFileName(item.url.startsWith('data:') || item.url.startsWith('blob:') ? 'uploaded-file' : '');
+    setUploadedMediaFileSize(null);
     setEditForm({
       type: item.type,
       url: item.url,
@@ -445,7 +547,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
 
         {/* Action Toolbar: Add Media + Toggle Featured Altar */}
         <div className="flex items-center gap-2.5 self-start lg:self-auto shrink-0 flex-wrap">
-          {reelsList.length > 0 && (
+          {mediaTypeFilter === 'instagram' && reelsList.length > 0 && (
             <button
               onClick={() => setShowFeaturedAltar(!showFeaturedAltar)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
@@ -597,9 +699,9 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. FEATURED INSTAGRAM REEL ALTAR (EXPANDABLE SACRED SHOWCASE)             */}
+      {/* 4. FEATURED INSTAGRAM REEL ALTAR (ONLY IN INSTAGRAM REELS TAB ACCORDING TO YEAR) */}
       {/* ========================================================================= */}
-      {showFeaturedAltar && reelsList.length > 0 && activeFeaturedReel && (
+      {mediaTypeFilter === 'instagram' && activeCategory === 'All' && showFeaturedAltar && reelsList.length > 0 && activeFeaturedReel && (
         <div className="bg-gradient-to-b from-[#2E0202]/90 via-black/85 to-[#1E0101]/95 border-2 border-brand-gold/45 rounded-2xl p-4 sm:p-6 shadow-2xl backdrop-blur-md space-y-5">
           
           {/* Altar Top Header */}
@@ -857,6 +959,17 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                       allowFullScreen
                     />
                   </div>
+                ) : isVideo ? (
+                  <div className="aspect-video w-full bg-black flex items-center justify-center">
+                    <video
+                      src={item.url}
+                      controls
+                      playsInline
+                      className="w-full h-full object-contain bg-black"
+                    >
+                      Your browser does not support HTML5 video playback.
+                    </video>
+                  </div>
                 ) : (
                   <div 
                     onClick={() => handleOpenLightbox(item)}
@@ -930,11 +1043,17 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       {/* 6. UNIVERSAL ADD MEDIA MODAL (PHOTO, VIDEO, INSTAGRAM BY YEAR)            */}
       {/* ========================================================================= */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
-          <form 
-            onSubmit={handleAddMediaSubmit}
-            className="bg-zinc-950 border-2 border-brand-gold/60 rounded-2xl p-5 sm:p-6 w-full max-w-xl space-y-4 shadow-2xl text-xs text-left"
-          >
+        <div 
+          ref={addModalContainerRef}
+          className="fixed inset-0 z-[100] overflow-y-auto bg-black/85 backdrop-blur-md animate-fade-in"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="min-h-full flex items-center justify-center p-3 sm:p-4 my-auto">
+            <form 
+              onSubmit={handleAddMediaSubmit}
+              className="bg-zinc-950 border-2 border-brand-gold/60 rounded-2xl p-5 sm:p-6 w-full max-w-xl space-y-4 shadow-2xl text-xs text-left my-6"
+            >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2 text-brand-gold font-bold text-sm">
                 <Plus className="h-4 w-4 text-brand-gold" />
@@ -1030,30 +1149,154 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               </div>
             </div>
 
-            {/* URL Input */}
-            <div>
-              <label className="block text-gray-300 font-semibold mb-1">
-                {addForm.type === 'photo' 
-                  ? (lang === 'EN' ? 'Photo Direct URL *' : 'फोटो लिंक (Image Direct URL) *')
-                  : addForm.type === 'video'
-                  ? (lang === 'EN' ? 'Video / YouTube URL *' : 'व्हिडिओ किंवा YouTube लिंक *')
-                  : (lang === 'EN' ? 'Instagram Reel URL *' : 'इन्स्टाग्राम रील किंवा पोस्ट लिंक *')}
-              </label>
-              <input
-                type="url"
-                placeholder={
-                  addForm.type === 'photo' 
-                    ? 'https://example.com/festival-photo.jpg'
-                    : addForm.type === 'video'
-                    ? 'https://www.youtube.com/watch?v=...'
-                    : 'https://www.instagram.com/reel/Cx0sn8AoN7l/...'
-                }
-                value={addForm.url}
-                onChange={(e) => setAddForm(prev => ({ ...prev, url: e.target.value }))}
-                className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
-                required
-              />
-            </div>
+            {/* Media Source & URL/File Input */}
+            {addForm.type === 'instagram' ? (
+              <div>
+                <label className="block text-gray-300 font-semibold mb-1">
+                  {lang === 'EN' ? 'Instagram Reel URL *' : 'इन्स्टाग्राम रील किंवा पोस्ट लिंक *'}
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://www.instagram.com/reel/Cx0sn8AoN7l/..."
+                  value={addForm.url}
+                  onChange={(e) => setAddForm(prev => ({ ...prev, url: e.target.value }))}
+                  className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
+                  required
+                />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {/* Mode Selector */}
+                <div className="flex items-center justify-between">
+                  <label className="block text-gray-300 font-semibold">
+                    {addForm.type === 'photo'
+                      ? (lang === 'EN' ? 'Photo Upload Source *' : 'फोटो निवडण्याचा प्रकार *')
+                      : (lang === 'EN' ? 'Video Upload Source *' : 'व्हिडिओ निवडण्याचा प्रकार *')}
+                  </label>
+                  <div className="flex items-center gap-1 bg-black/60 p-0.5 rounded-lg border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setAddUploadSource('device')}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                        addUploadSource === 'device'
+                          ? 'bg-brand-gold text-brand-maroon font-black shadow'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <HardDrive className="h-3 w-3" />
+                      <span>{lang === 'EN' ? 'From Device' : 'डिव्हाइसवरून'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAddUploadSource('url')}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                        addUploadSource === 'url'
+                          ? 'bg-brand-gold text-brand-maroon font-black shadow'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <Globe className="h-3 w-3" />
+                      <span>{lang === 'EN' ? 'Web Link / URL' : 'वेब लिंक'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sub-mode A: Local Device File Upload */}
+                {addUploadSource === 'device' ? (
+                  <div className="space-y-2">
+                    <label className="border-2 border-dashed border-brand-gold/40 hover:border-brand-gold bg-black/40 hover:bg-black/60 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors text-center">
+                      <input
+                        type="file"
+                        accept={addForm.type === 'photo' ? 'image/png,image/jpeg,image/webp,image/jpg' : 'video/mp4,video/webm,video/ogg,video/quicktime,video/*'}
+                        onChange={(e) => handleDeviceMediaUpload(e.target.files?.[0], addForm.type, false)}
+                        className="hidden"
+                      />
+                      <div className="h-10 w-10 rounded-full bg-brand-gold/15 flex items-center justify-center text-brand-gold">
+                        <Upload className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="font-bold text-brand-gold block text-xs">
+                          {isProcessingMediaFile
+                            ? (lang === 'EN' ? 'Processing File...' : 'फाईल प्रक्रिया होत आहे...')
+                            : addForm.type === 'photo'
+                            ? (lang === 'EN' ? 'Click to Browse Photo from Device' : 'डिव्हाइसवरून फोटो निवडण्यासाठी येथे क्लिक करा')
+                            : (lang === 'EN' ? 'Click to Browse Video from Device' : 'डिव्हाइसवरून व्हिडिओ फाईल निवडण्यासाठी येथे क्लिक करा')}
+                        </span>
+                        <span className="text-[10px] text-gray-400 block mt-0.5">
+                          {addForm.type === 'photo'
+                            ? (lang === 'EN' ? 'Supports JPG, PNG, WEBP' : 'JPG, PNG, WEBP फोटो फॉरमॅट')
+                            : (lang === 'EN' ? 'Supports MP4, WebM, MOV • Stored in local browser database' : 'MP4, WebM, MOV व्हिडिओ फॉरमॅट')}
+                        </span>
+                      </div>
+                    </label>
+
+                    {uploadedMediaFileName && (
+                      <div className="text-[11px] text-emerald-400 flex items-center gap-1.5 bg-emerald-950/40 p-2 rounded-lg border border-emerald-500/30">
+                        <Check className="h-4 w-4 shrink-0" />
+                        <span className="font-mono truncate">{uploadedMediaFileName}</span>
+                        {uploadedMediaFileSize !== null && (
+                          <span className="text-[10px] text-gray-300 font-mono ml-auto">
+                            ({formatFileSize(uploadedMediaFileSize)})
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Instant Media Preview */}
+                    {addForm.url && (
+                      <div className="p-2.5 bg-black/60 rounded-xl border border-brand-gold/30">
+                        {addForm.type === 'photo' ? (
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={addForm.url}
+                              alt="Preview"
+                              className="w-16 h-16 object-cover rounded-lg border border-brand-gold shadow bg-black shrink-0"
+                            />
+                            <div className="text-[11px] text-gray-300 min-w-0">
+                              <span className="text-brand-gold font-bold block">✓ Photo Ready</span>
+                              <span className="text-[10px] text-gray-400 truncate block">{uploadedMediaFileName || 'Selected photo'}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-1">
+                            <span className="text-brand-gold font-bold block text-[11px]">✓ Video Preview</span>
+                            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-white/10">
+                              <video
+                                src={addForm.url}
+                                controls
+                                playsInline
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Sub-mode B: Web URL Input */
+                  <div>
+                    <input
+                      type="url"
+                      placeholder={
+                        addForm.type === 'photo'
+                          ? 'https://example.com/festival-photo.jpg'
+                          : 'https://www.youtube.com/watch?v=...'
+                      }
+                      value={addForm.url}
+                      onChange={(e) => setAddForm(prev => ({ ...prev, url: e.target.value }))}
+                      className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
+                      required
+                    />
+                    <span className="text-[10px] text-gray-400 block mt-1">
+                      {addForm.type === 'photo'
+                        ? (lang === 'EN' ? 'Paste any direct image link' : 'कोणत्याही ऑनलाइन फोटोची थेट वेब लिंक टाका')
+                        : (lang === 'EN' ? 'Paste YouTube watch link or direct MP4 URL' : 'यूट्यूब लिंक किंवा थेट व्हिडिओ URL टाका')}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Titles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1150,6 +1393,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               </button>
             </div>
           </form>
+          </div>
         </div>
       )}
 
@@ -1157,11 +1401,17 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       {/* 7. UNIVERSAL EDIT MEDIA MODAL                                             */}
       {/* ========================================================================= */}
       {editingItem && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
-          <form 
-            onSubmit={handleEditMediaSubmit}
-            className="bg-zinc-950 border-2 border-brand-gold/60 rounded-2xl p-5 sm:p-6 w-full max-w-xl space-y-4 shadow-2xl text-xs text-left"
-          >
+        <div 
+          ref={editModalContainerRef}
+          className="fixed inset-0 z-[100] overflow-y-auto bg-black/85 backdrop-blur-md animate-fade-in"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="min-h-full flex items-center justify-center p-3 sm:p-4 my-auto">
+            <form 
+              onSubmit={handleEditMediaSubmit}
+              className="bg-zinc-950 border-2 border-brand-gold/60 rounded-2xl p-5 sm:p-6 w-full max-w-xl space-y-4 shadow-2xl text-xs text-left my-6"
+            >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2 text-brand-gold font-bold text-sm">
                 <Pencil className="h-4 w-4 text-brand-gold" />
@@ -1206,18 +1456,124 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-gray-300 font-semibold mb-1">
-                {lang === 'EN' ? 'Media URL *' : 'वेब लिंक (URL) *'}
-              </label>
-              <input
-                type="url"
-                value={editForm.url}
-                onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value }))}
-                className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
-                required
-              />
-            </div>
+            {/* Media Source & URL/File Input for Edit */}
+            {editForm.type === 'instagram' ? (
+              <div>
+                <label className="block text-gray-300 font-semibold mb-1">
+                  {lang === 'EN' ? 'Instagram Reel URL *' : 'इन्स्टाग्राम रील किंवा पोस्ट लिंक *'}
+                </label>
+                <input
+                  type="url"
+                  value={editForm.url}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value }))}
+                  className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
+                  required
+                />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-gray-300 font-semibold">
+                    {editForm.type === 'photo'
+                      ? (lang === 'EN' ? 'Photo Upload Source *' : 'फोटो निवडण्याचा प्रकार *')
+                      : (lang === 'EN' ? 'Video Upload Source *' : 'व्हिडिओ निवडण्याचा प्रकार *')}
+                  </label>
+                  <div className="flex items-center gap-1 bg-black/60 p-0.5 rounded-lg border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setEditUploadSource('device')}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                        editUploadSource === 'device'
+                          ? 'bg-brand-gold text-brand-maroon font-black shadow'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <HardDrive className="h-3 w-3" />
+                      <span>{lang === 'EN' ? 'From Device' : 'डिव्हाइसवरून'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditUploadSource('url')}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                        editUploadSource === 'url'
+                          ? 'bg-brand-gold text-brand-maroon font-black shadow'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <Globe className="h-3 w-3" />
+                      <span>{lang === 'EN' ? 'Web Link / URL' : 'वेब लिंक'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {editUploadSource === 'device' ? (
+                  <div className="space-y-2">
+                    <label className="border-2 border-dashed border-brand-gold/40 hover:border-brand-gold bg-black/40 hover:bg-black/60 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors text-center">
+                      <input
+                        type="file"
+                        accept={editForm.type === 'photo' ? 'image/png,image/jpeg,image/webp,image/jpg' : 'video/mp4,video/webm,video/ogg,video/quicktime,video/*'}
+                        onChange={(e) => handleDeviceMediaUpload(e.target.files?.[0], editForm.type, true)}
+                        className="hidden"
+                      />
+                      <div className="h-10 w-10 rounded-full bg-brand-gold/15 flex items-center justify-center text-brand-gold">
+                        <Upload className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="font-bold text-brand-gold block text-xs">
+                          {isProcessingMediaFile
+                            ? (lang === 'EN' ? 'Processing File...' : 'नवीन फाईल प्रक्रिया होत आहे...')
+                            : (lang === 'EN' ? 'Click to Browse Replacement File from Device' : 'डिव्हाइसवरून नवीन फाईल बदलण्यासाठी येथे क्लिक करा')}
+                        </span>
+                        <span className="text-[10px] text-gray-400 block mt-0.5">
+                          {editForm.type === 'photo' ? 'JPG, PNG, WEBP फोटो' : 'MP4, WebM, MOV व्हिडिओ'}
+                        </span>
+                      </div>
+                    </label>
+
+                    {/* Instant Edit Preview */}
+                    {editForm.url && (
+                      <div className="p-2.5 bg-black/60 rounded-xl border border-brand-gold/30">
+                        {editForm.type === 'photo' ? (
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={editForm.url}
+                              alt="Preview"
+                              className="w-16 h-16 object-cover rounded-lg border border-brand-gold shadow bg-black shrink-0"
+                            />
+                            <div className="text-[11px] text-gray-300 min-w-0">
+                              <span className="text-brand-gold font-bold block">✓ Photo Preview</span>
+                              <span className="text-[10px] text-gray-400 truncate block">{uploadedMediaFileName || 'Current photo'}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-1">
+                            <span className="text-brand-gold font-bold block text-[11px]">✓ Video Preview</span>
+                            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-white/10">
+                              <video
+                                src={editForm.url}
+                                controls
+                                playsInline
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="url"
+                      value={editForm.url}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value }))}
+                      className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -1325,6 +1681,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               </button>
             </div>
           </form>
+          </div>
         </div>
       )}
 
@@ -1332,8 +1689,13 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       {/* 8. UNIVERSAL DELETE CONFIRMATION MODAL                                    */}
       {/* ========================================================================= */}
       {deletingItem && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-zinc-950 border-2 border-red-500/40 rounded-2xl p-5 sm:p-6 w-full max-w-md space-y-4 shadow-2xl text-left">
+        <div 
+          className="fixed inset-0 z-[100] overflow-y-auto bg-black/85 backdrop-blur-md animate-fade-in"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="min-h-full flex items-center justify-center p-4">
+            <div className="bg-zinc-950 border-2 border-red-500/40 rounded-2xl p-5 sm:p-6 w-full max-w-md space-y-4 shadow-2xl text-left my-6">
             <div className="flex items-center gap-3 text-red-400">
               <div className="h-10 w-10 rounded-full bg-red-950/80 border border-red-500/40 flex items-center justify-center shrink-0">
                 <AlertTriangle className="h-5 w-5" />
@@ -1394,6 +1756,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               </button>
             </div>
           </div>
+          </div>
         </div>
       )}
 
@@ -1401,7 +1764,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       {/* 9. HIGH-RES PHOTO LIGHTBOX MODAL                                          */}
       {/* ========================================================================= */}
       {selectedPhoto && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex flex-col justify-between p-4 md:p-6 md:pb-12 text-white animate-fade-in font-sans">
+        <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col justify-between p-4 md:p-6 md:pb-12 text-white animate-fade-in font-sans">
           
           {/* Lightbox Toolbar Top */}
           <div className="flex justify-between items-center bg-black/60 px-4 py-3 rounded-xl border border-white/10">

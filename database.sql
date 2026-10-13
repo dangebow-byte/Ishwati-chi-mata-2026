@@ -429,6 +429,40 @@ CREATE TABLE IF NOT EXISTS gallery_media (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_gallery_media_year_cat 
-    ON gallery_media (year DESC, category);
+-- --------------------------------------------------------------------
+-- 13. Table: featured_ashtami_video_configs
+-- Configurable video player under Ashtami Maha Aarti (Official, Local, YouTube, Instagram)
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS featured_ashtami_video_configs (
+    id VARCHAR(64) PRIMARY KEY,
+    source_type VARCHAR(32) NOT NULL CHECK (source_type IN ('official', 'youtube', 'instagram', 'local')),
+    video_url TEXT NOT NULL,
+    embed_url TEXT,
+    title VARCHAR(500) NOT NULL,
+    title_marathi VARCHAR(500) NOT NULL,
+    local_video_id VARCHAR(128),
+    file_name VARCHAR(255),
+    file_size BIGINT,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Seed Data: Default Official Ashtami Dharmaveer Durga Maha Aarti
+INSERT INTO featured_ashtami_video_configs (id, source_type, video_url, embed_url, title, title_marathi, is_active)
+VALUES (
+    'ashtami-featured-official',
+    'official',
+    'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
+    'https://www.youtube-nocookie.com/embed/28TJIom9GFw?enablejsapi=1&rel=0&modestbranding=1',
+    'Ashtami - Dharmaveer Durga Maha Aarti | Adarsh Shinde',
+    'अष्टमी - धर्मवीर दुर्गा महाआरती | गायक: आदर्श शिंदे (झी म्युझिक मराठी)',
+    TRUE
+)
+ON CONFLICT (id) DO UPDATE SET
+    video_url = EXCLUDED.video_url,
+    embed_url = EXCLUDED.embed_url,
+    title = EXCLUDED.title,
+    title_marathi = EXCLUDED.title_marathi,
+    updated_at = CURRENT_TIMESTAMP;
 
