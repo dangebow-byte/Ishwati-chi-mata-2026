@@ -130,6 +130,44 @@
         "createdAt": { "type": "string" }
       },
       "required": ["id", "reelUrl", "embedUrl", "titleMR"]
+    },
+    "DeviMataImage": {
+      "title": "DeviMataImage",
+      "description": "Sacred daily darshan images of Devi Mata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "url": { "type": "string" },
+        "titleMR": { "type": "string" },
+        "titleEN": { "type": "string" },
+        "descriptionMR": { "type": "string" },
+        "descriptionEN": { "type": "string" },
+        "dateStr": { "type": "string" },
+        "year": { "type": "string" },
+        "isHeroDefault": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "url", "titleMR", "titleEN"]
+    },
+    "GalleryMedia": {
+      "title": "GalleryMedia",
+      "description": "Sacred gallery media including darshan photos, festival videos and Instagram reels",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "url": { "type": "string" },
+        "embedUrl": { "type": "string" },
+        "titleMR": { "type": "string" },
+        "titleEN": { "type": "string" },
+        "category": { "type": "string" },
+        "year": { "type": "string" },
+        "descriptionMR": { "type": "string" },
+        "descriptionEN": { "type": "string" },
+        "authorHandle": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "type", "url", "titleMR", "titleEN", "category", "year"]
     }
   },
   "firestore": {
@@ -164,6 +202,14 @@
     "/gallery_videos/{videoId}": {
       "schema": "GalleryVideo",
       "description": "Devotional Instagram reels and videos in gallery"
+    },
+    "/devi_mata_images/{imageId}": {
+      "schema": "DeviMataImage",
+      "description": "Daily darshan photos of Devi Mata"
+    },
+    "/gallery_media/{mediaId}": {
+      "schema": "GalleryMedia",
+      "description": "Comprehensive temple gallery photos, videos and reels"
     }
   }
 }

@@ -372,11 +372,63 @@ ON CONFLICT (day_number) DO UPDATE SET
     color_hex = EXCLUDED.color_hex,
     significance = EXCLUDED.significance;
 
--- Sample CRUD SQL Operations for Reference:
--- Add:
--- INSERT INTO gallery_videos (id, reel_url, embed_url, title_mr, title_en, description_mr, description_en) VALUES (...);
--- Edit:
--- UPDATE gallery_videos SET title_mr = :title_mr, title_en = :title_en, description_mr = :desc_mr, updated_at = CURRENT_TIMESTAMP WHERE id = :id;
--- Delete:
--- DELETE FROM gallery_videos WHERE id = :id AND id != 'reel-official-navratri-1974';
+-- --------------------------------------------------------------------
+-- 11. Table: devi_mata_images
+-- Daily sacred darshan images of Shree Ishwatichi Mata with CRUD support
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS devi_mata_images (
+    id VARCHAR(64) PRIMARY KEY,
+    url TEXT NOT NULL,
+    title_mr VARCHAR(500) NOT NULL,
+    title_en VARCHAR(500) NOT NULL,
+    description_mr TEXT,
+    description_en TEXT,
+    date_str VARCHAR(32) NOT NULL,
+    year VARCHAR(10) NOT NULL DEFAULT '2026',
+    is_hero_default BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_devi_mata_images_date 
+    ON devi_mata_images (date_str DESC);
+
+-- Seed Data: Official Sanctum Darshan
+INSERT INTO devi_mata_images (id, url, title_mr, title_en, date_str, year, is_hero_default)
+VALUES (
+    'devi-default-sanctum-2026',
+    'https://raw.githubusercontent.com/stackblitz/stackblitz-images/main/ishwatichi_mata_authentic_hero.png',
+    'श्री इश्वटीची माता ५३ वे वर्ष - अखंड पावन दर्शन',
+    'Shree Ishwatichi Mata 53rd Year - Sacred Sanctum Darshan',
+    '2026-10-11',
+    '2026',
+    TRUE
+)
+ON CONFLICT (id) DO UPDATE SET
+    title_mr = EXCLUDED.title_mr,
+    title_en = EXCLUDED.title_en,
+    updated_at = CURRENT_TIMESTAMP;
+
+-- --------------------------------------------------------------------
+-- 12. Table: gallery_media
+-- Unified repository of photos, videos, and devotional reels with year filters
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS gallery_media (
+    id VARCHAR(64) PRIMARY KEY,
+    type VARCHAR(32) NOT NULL CHECK (type IN ('photo', 'video', 'instagram')),
+    url TEXT NOT NULL,
+    embed_url TEXT,
+    title_mr VARCHAR(500) NOT NULL,
+    title_en VARCHAR(500) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    year VARCHAR(10) NOT NULL DEFAULT '2026',
+    description_mr TEXT,
+    description_en TEXT,
+    author_handle VARCHAR(100) DEFAULT '@ishwatichi_mata',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_gallery_media_year_cat 
+    ON gallery_media (year DESC, category);
 

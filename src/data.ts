@@ -189,14 +189,14 @@ export const GALLERY_ITEMS = [
     url: authenticIdolImg
   },
   {
-    id: 'gal-official-mata',
+    id: 'gal-official-mata-day-2',
     category: 'Mata Darshan',
     title: 'दिवस २ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
     titleMarathi: 'दिवस २ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
     url: heroImgDayII
   },  
   {
-    id: 'gal-official-mata',
+    id: 'gal-official-mata-day-3',
     category: 'Mata Darshan',
     title: 'दिवस ३ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
     titleMarathi: 'दिवस ३ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
@@ -223,13 +223,13 @@ export const GALLERY_ITEMS = [
     titleMarathi: 'श्री इश्वटीची माता भव्य सुवर्ण मखर व गर्भगृह राजसिंहासन',
     url: sanctumGrandImg
   },
-  {
-    id: 'gal-alankrita-darshan',
-    category: 'Mata Darshan',
-    title: 'श्री इश्वटीची प्रातः अभिषेक व महापूजा अलंकार दर्शन',
-    titleMarathi: 'श्री इश्वटीची प्रातः अभिषेक व महापूजा अलंकार दर्शन',
-    url: alankritaDarshanImg
-  },
+  // {
+  //   id: 'gal-alankrita-darshan',
+  //   category: 'Mata Darshan',
+  //   title: 'श्री इश्वटीची प्रातः अभिषेक व महापूजा अलंकार दर्शन',
+  //   titleMarathi: 'श्री इश्वटीची प्रातः अभिषेक व महापूजा अलंकार दर्शन',
+  //   url: alankritaDarshanImg
+  // },
   {
     id: 'gal-navratri-utsav',
     category: 'Festivals',
@@ -244,13 +244,13 @@ export const GALLERY_ITEMS = [
     titleMarathi: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ अधिकृत राजमुद्रा बोधचिन्ह',
     url: logoImg
   },
-  {
-    id: 'gal-mandal-emblem',
-    category: 'Festivals',
-    title: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ सुवर्ण प्रतीक व गौरव मुद्रा',
-    titleMarathi: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ सुवर्ण प्रतीक व गौरव मुद्रा',
-    url: mandalEmblemImg
-  },
+  // {
+  //   id: 'gal-mandal-emblem',
+  //   category: 'Festivals',
+  //   title: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ सुवर्ण प्रतीक व गौरव मुद्रा',
+  //   titleMarathi: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ सुवर्ण प्रतीक व गौरव मुद्रा',
+  //   url: mandalEmblemImg
+  // },
   {
     id: 'gal-community-health',
     category: 'Community Service',

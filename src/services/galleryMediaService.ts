@@ -76,7 +76,18 @@ export function getCachedGalleryMedia(): GalleryMediaItem[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        const seen = new Set<string>();
+        const uniqueItems: GalleryMediaItem[] = [];
+        parsed.forEach((item, idx) => {
+          let itemId = item.id;
+          if (!itemId || seen.has(itemId)) {
+            itemId = itemId ? `${itemId}-dup-${idx}` : `gal-item-${idx}`;
+            item = { ...item, id: itemId };
+          }
+          seen.add(itemId);
+          uniqueItems.push(item);
+        });
+        return uniqueItems;
       }
     }
   } catch {}
@@ -110,30 +121,36 @@ export function subscribeGalleryMedia(
         }
 
         const items: GalleryMediaItem[] = [];
+        const seenIds = new Set<string>();
+
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
-          items.push({
-            id: docSnap.id,
-            type: (data.type as GalleryMediaType) || 'photo',
-            url: data.url || '',
-            embedUrl: data.embedUrl,
-            titleMR: data.titleMR || '',
-            titleEN: data.titleEN || '',
-            category: data.category || 'Mata Darshan',
-            year: data.year || '2026',
-            descriptionMR: data.descriptionMR,
-            descriptionEN: data.descriptionEN,
-            authorHandle: data.authorHandle,
-            createdAt: data.createdAt || new Date().toISOString(),
-            updatedAt: data.updatedAt
-          });
+          const docId = docSnap.id;
+          if (!seenIds.has(docId)) {
+            seenIds.add(docId);
+            items.push({
+              id: docId,
+              type: (data.type as GalleryMediaType) || 'photo',
+              url: data.url || '',
+              embedUrl: data.embedUrl,
+              titleMR: data.titleMR || '',
+              titleEN: data.titleEN || '',
+              category: data.category || 'Mata Darshan',
+              year: data.year || '2026',
+              descriptionMR: data.descriptionMR,
+              descriptionEN: data.descriptionEN,
+              authorHandle: data.authorHandle,
+              createdAt: data.createdAt || new Date().toISOString(),
+              updatedAt: data.updatedAt
+            });
+          }
         });
 
         // Merge any bundled items not in firestore so nothing is lost
-        const firestoreIds = new Set(items.map(x => x.id));
         INITIAL_GALLERY_MEDIA.forEach(initItem => {
-          if (!firestoreIds.has(initItem.id)) {
+          if (!seenIds.has(initItem.id)) {
             items.push(initItem);
+            seenIds.add(initItem.id);
           }
         });
 

@@ -113,6 +113,38 @@ service cloud.firestore {
              (!('establishedYear' in data) || (data.establishedYear is string && data.establishedYear.size() <= 20));
     }
 
+    function isValidDeviMataImage(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.url is string && data.url.size() <= 2000 &&
+             data.titleMR is string && data.titleMR.size() <= 500 &&
+             data.titleEN is string && data.titleEN.size() <= 500 &&
+             (!('descriptionMR' in data) || (data.descriptionMR is string && data.descriptionMR.size() <= 3000)) &&
+             (!('descriptionEN' in data) || (data.descriptionEN is string && data.descriptionEN.size() <= 3000)) &&
+             (!('dateStr' in data) || (data.dateStr is string && data.dateStr.size() <= 30)) &&
+             (!('year' in data) || (data.year is string && data.year.size() <= 20)) &&
+             (!('isHeroDefault' in data) || (data.isHeroDefault is bool)) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 100)) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 100)) &&
+             (!('serverCreated' in data) || (data.serverCreated is timestamp));
+    }
+
+    function isValidGalleryMedia(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.type is string && data.type.size() <= 30 &&
+             data.url is string && data.url.size() <= 2000 &&
+             data.titleMR is string && data.titleMR.size() <= 500 &&
+             data.titleEN is string && data.titleEN.size() <= 500 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.year is string && data.year.size() <= 20 &&
+             (!('embedUrl' in data) || (data.embedUrl is string && data.embedUrl.size() <= 2000)) &&
+             (!('descriptionMR' in data) || (data.descriptionMR is string && data.descriptionMR.size() <= 3000)) &&
+             (!('descriptionEN' in data) || (data.descriptionEN is string && data.descriptionEN.size() <= 3000)) &&
+             (!('authorHandle' in data) || (data.authorHandle is string && data.authorHandle.size() <= 100)) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 100)) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 100)) &&
+             (!('serverCreated' in data) || (data.serverCreated is timestamp));
+    }
+
     // --- COLLECTION GATES ---
 
     // 1. ANNOUNCEMENTS
@@ -178,6 +210,22 @@ service cloud.firestore {
       allow create: if isValidGalleryVideo(request.resource.data) && isValidId(videoId);
       allow update: if (isAdmin() || isValidGalleryVideo(request.resource.data)) && isValidId(videoId);
       allow delete: if (isAdmin() || isValidId(videoId));
+    }
+
+    // 9. DEVI MATA IMAGES (Daily Sacred Darshan Photos)
+    match /devi_mata_images/{imageId} {
+      allow read: if true;
+      allow create: if isValidDeviMataImage(request.resource.data) && isValidId(imageId);
+      allow update: if (isAdmin() || isValidDeviMataImage(request.resource.data)) && isValidId(imageId);
+      allow delete: if (isAdmin() || isValidId(imageId));
+    }
+
+    // 10. GALLERY MEDIA (Photos, Videos, Reels)
+    match /gallery_media/{mediaId} {
+      allow read: if true;
+      allow create: if isValidGalleryMedia(request.resource.data) && isValidId(mediaId);
+      allow update: if (isAdmin() || isValidGalleryMedia(request.resource.data)) && isValidId(mediaId);
+      allow delete: if (isAdmin() || isValidId(mediaId));
     }
   }
 }

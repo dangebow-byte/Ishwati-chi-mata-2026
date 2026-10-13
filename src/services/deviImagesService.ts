@@ -52,7 +52,18 @@ export function getCachedDeviImages(): DeviMataImageItem[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        const seen = new Set<string>();
+        const uniqueList: DeviMataImageItem[] = [];
+        parsed.forEach((item, idx) => {
+          let itemId = item.id;
+          if (!itemId || seen.has(itemId)) {
+            itemId = itemId ? `${itemId}-dup-${idx}` : `devi-img-${idx}`;
+            item = { ...item, id: itemId };
+          }
+          seen.add(itemId);
+          uniqueList.push(item);
+        });
+        return uniqueList;
       }
     }
   } catch {}
