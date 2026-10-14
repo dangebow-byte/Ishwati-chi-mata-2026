@@ -166,7 +166,7 @@ export const Header: React.FC<HeaderProps> = ({
               {lang === 'EN' ? '|| Hail Shree Ishwatichi Mata (श्री इश्वटीची)! Welcome to Official Digital Portal ||' : '|| श्री इश्वटीची माता की जय! अधिकृत डिजिटल कक्षात स्वागत ||'}
             </span>
             <span className="lg:hidden text-[10px] sm:text-xs font-sans font-bold text-brand-gold truncate">
-              || श्री इश्वटीची प्रसन्न ||
+             || श्री इश्वटीची माता प्रसन्न ||
             </span>
           </div>
 
