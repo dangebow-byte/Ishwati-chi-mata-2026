@@ -9,7 +9,8 @@ import sanctumHeroImg from './assets/images/ishwati_mata_darshan_widescreen_1790
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 import authenticIdolImg from './assets/images/devi-mata-main-Day1-I1-20261011.jpg';
 import heroImgDayII from './assets/devotional/devi-mata-main-Day2-I1-20261012.jpg';
-import heroImgDayIII from './assets/devotional/devi-mata-main-Day4-I1-20261014.jpg';
+import heroImgDayIII from './assets/devotional/devi-mata-main-Day3-I1-20261013.jpg';
+import heroImgDayIV from './assets/devotional/devi-mata-main-Day4-I1-20261014.jpg';
 import sanctumGrandImg from './assets/images/ishwati_mata_sanctum_hero_1790943891454.jpg';
 import alankritaDarshanImg from './assets/images/ishwati_mata_darshan_1790695775224.jpg';
 import navratriDarshanImg from './assets/devotional/devi-mata-main-Day4-I1-20261014.jpg';
@@ -202,6 +203,13 @@ export const GALLERY_ITEMS = [
     titleMarathi: 'दिवस ३ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
     url: heroImgDayIII
   },  
+   {
+    id: 'gal-official-mata-day-4',
+    category: 'Mata Darshan',
+    title: 'दिवस ४ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
+    titleMarathi: 'दिवस ४ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
+    url: heroImgDayIV
+  }, 
   {
     id: 'gal-sanctum-altar',
     category: 'Mata Darshan',
