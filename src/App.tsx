@@ -45,7 +45,7 @@ import {
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
-import heroImg from './assets/devotional/devi-mata-main-Day3-I1-20261013.webp';
+import heroImg from './assets/devotional/devi-mata-main-Day4-I1-20261014.webp';
 
 import { cleanDevanagariSpelling } from './utils/spellingSanitizer';
 import { 

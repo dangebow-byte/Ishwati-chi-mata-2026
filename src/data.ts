@@ -4,15 +4,15 @@
  */
 
 import { DevoteeExperience, TempleEvent, Announcement } from './types';
-import heroImg from './assets/devotional/devi-mata-main-Day3-I1-20261013.webp';
+import heroImg from './assets/devotional/devi-mata-main-Day4-I1-20261014.webp';
 import sanctumHeroImg from './assets/images/ishwati_mata_darshan_widescreen_1790944258044.jpg';
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 import authenticIdolImg from './assets/images/devi-mata-main-Day1-I1-20261011.jpg';
 import heroImgDayII from './assets/devotional/devi-mata-main-Day2-I1-20261012.jpg';
-import heroImgDayIII from './assets/devotional/devi-mata-main-Day3-I1-20261013.jpg';
+import heroImgDayIII from './assets/devotional/devi-mata-main-Day4-I1-20261014.jpg';
 import sanctumGrandImg from './assets/images/ishwati_mata_sanctum_hero_1790943891454.jpg';
 import alankritaDarshanImg from './assets/images/ishwati_mata_darshan_1790695775224.jpg';
-import navratriDarshanImg from './assets/devotional/devi-mata-main-Day3-I1-20261013.jpg';
+import navratriDarshanImg from './assets/devotional/devi-mata-main-Day4-I1-20261014.jpg';
 import mandalEmblemImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
 import agamanBannerImg from './assets/images/agaman_banner_initial_with_real_devi_1791626201136.jpg';
 

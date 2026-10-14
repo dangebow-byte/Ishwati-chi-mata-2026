@@ -4,8 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import deviMainPng from '../assets/devotional/devi-mata-main-Day3-I1-20261013.png';
-import deviMainWebp from '../assets/devotional/devi-mata-main-Day3-I1-20261013.webp';
+import deviMainPng from '../assets/devotional/devi-mata-main-Day4-I1-20261014.png';
+import deviMainWebp from '../assets/devotional/devi-mata-main-Day4-I1-20261014.webp';
 import deviMobileWebp from '../assets/devotional/devi-mata-main-mobile.webp';
 import deviMainJpg from '../assets/devotional/devi-mata-main.jpeg';
 
