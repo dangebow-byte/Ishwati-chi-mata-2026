@@ -4,8 +4,6 @@
  */
 
 import React, { useState } from 'react';
-import deviMainPng from '../assets/devotional/devi-mata-main-Day4-I1-20261014.png';
-import deviMainWebp from '../assets/devotional/devi-mata-main-Day4-I1-20261014.webp';
 import deviMobileWebp from '../assets/devotional/devi-mata-main-mobile.webp';
 import deviMainJpg from '../assets/devotional/devi-mata-main.jpeg';
 
@@ -46,10 +44,10 @@ export const DeviImage: React.FC<DeviImageProps> = ({
     aspectRatio === 'portrait'
       ? 'aspect-[854/1280]'
       : aspectRatio === 'square'
-      ? 'aspect-square'
-      : aspectRatio === 'hero'
-      ? 'aspect-[16/9] md:aspect-[21/9]'
-      : 'w-full h-full';
+        ? 'aspect-square'
+        : aspectRatio === 'hero'
+          ? 'aspect-[16/9] md:aspect-[21/9]'
+          : 'w-full h-full';
 
   const frameClass = withFrame
     ? 'rounded-2xl border-2 sm:border-4 border-brand-gold/70 ring-2 ring-brand-gold/30 shadow-2xl p-1 bg-black/60'
@@ -69,16 +67,14 @@ export const DeviImage: React.FC<DeviImageProps> = ({
 
   // If a specific src prop is passed (e.g. heroImagePath), prioritize it;
   // Fall back to bundled Day 4 sacred idol assets only if src fails or is empty
-  const activeImage = (!imageError && src) ? src : (deviMainWebp || deviMainPng || deviMainJpg);
-  const activeWebp = src ? src : deviMainWebp;
+  const activeImage = (!imageError && src) ? src : (deviMainJpg);
   const activeMobileWebp = src ? src : deviMobileWebp;
 
   return (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden flex items-center justify-center ${aspectClass} ${frameClass} ${auraClass} ${
-        onClick ? 'cursor-pointer hover:scale-[1.01] transition-transform' : ''
-      } ${className}`}
+      className={`relative overflow-hidden flex items-center justify-center ${aspectClass} ${frameClass} ${auraClass} ${onClick ? 'cursor-pointer hover:scale-[1.01] transition-transform' : ''
+        } ${className}`}
     >
       <picture className="w-full h-full flex items-center justify-center overflow-hidden relative z-[1]">
         {/* Mobile optimized WebP if not explicitly overridden by custom src */}
@@ -90,12 +86,6 @@ export const DeviImage: React.FC<DeviImageProps> = ({
           />
         )}
         {/* High-res WebP for tablets & desktops if not explicitly overridden */}
-        {!src && (
-          <source
-            srcSet={activeWebp}
-            type="image/webp"
-          />
-        )}
         {/* Universal Fallback Image */}
         <img
           src={activeImage}
@@ -108,7 +98,7 @@ export const DeviImage: React.FC<DeviImageProps> = ({
             }
           }}
           className={`transition-all duration-500 ${imageClassName}`}
-          style={{ 
+          style={{
             objectFit: objectFit || 'cover',
             objectPosition: objectPosition || (objectFit === 'cover' ? 'center 15%' : 'center center'),
             maxWidth: '100%',

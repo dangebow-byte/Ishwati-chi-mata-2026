@@ -36,21 +36,20 @@ import { InteractiveDiya } from './components/InteractiveDiya';
 import { GlobalAudioController } from './components/GlobalAudioController';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
 import { DeviMataImageManagerModal } from './components/DeviMataImageManagerModal';
-import { 
-  DeviMataImageItem, 
-  subscribeDeviMataImages, 
-  DEFAULT_DEVI_IMAGE, 
-  getCachedDeviImages 
+import {
+  DeviMataImageItem,
+  subscribeDeviMataImages,
+  DEFAULT_DEVI_IMAGE,
+  getCachedDeviImages
 } from './services/deviImagesService';
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
-import heroImg from './assets/devotional/devi-mata-main-Day4-I1-20261014.webp';
 
 import { cleanDevanagariSpelling } from './utils/spellingSanitizer';
-import { 
-  calculateDevoteeCheckIn, 
-  getTodayDateString, 
+import {
+  calculateDevoteeCheckIn,
+  getTodayDateString,
   getDayDifference,
   getActiveDevoteeStreak,
   sanitizeDevoteeProfile
@@ -71,7 +70,7 @@ export default function App() {
   const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>(INITIAL_ANNOUNCEMENTS);
   const [quotaWarning, setQuotaWarning] = useState<string | null>(null);
-  
+
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
     try {
@@ -79,8 +78,8 @@ export default function App() {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (
-          !parsed.name || 
-          parsed.name === 'Sanjay Deshpande' || 
+          !parsed.name ||
+          parsed.name === 'Sanjay Deshpande' ||
           parsed.name === 'Anonymous Devotee' ||
           parsed.email === 'dsanjay@spiritual.in' ||
           parsed.email === 'bhakt@temple.in' ||
@@ -94,7 +93,7 @@ export default function App() {
         localStorage.setItem('ishwatichi_profile', JSON.stringify(sanitized));
         return sanitized;
       }
-    } catch {}
+    } catch { }
     return {
       name: 'DEVENDRA PRAKASH PARTE',
       phone: '9892938554',
@@ -141,7 +140,7 @@ export default function App() {
       const siteContentCheck = await getDocs(collection(db, 'site_content'));
       if (siteContentCheck.empty) {
         console.log('Database empty! Seeding default entries to Firestore...');
-        
+
         // Seed site_content documents
         const keys: (keyof typeof DEFAULT_SITE_CONTENT)[] = ['welcome', 'about', 'contact', 'aarti', 'milestones'];
         for (const key of keys) {
@@ -219,12 +218,12 @@ export default function App() {
           evtData.time = '१० ऑक्टोबर आगमन (सायं ०५:००) | ११ ऑक्टोबर घटस्थापना (१२:०० AM IST) ते २५ ऑक्टोबर २०२६';
           evtData.title = 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६';
           evtData.titleMarathi = 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्र महोत्सव सोहळा २०२६';
-          setDoc(doc(db, 'events', 'ev-2'), { 
+          setDoc(doc(db, 'events', 'ev-2'), {
             date: '2026-10-11',
             time: evtData.time,
             title: evtData.title,
             titleMarathi: evtData.titleMarathi
-          }, { merge: true }).catch(() => {});
+          }, { merge: true }).catch(() => { });
         }
         list.push(evtData);
       });
@@ -253,8 +252,8 @@ export default function App() {
       if (storedProfile) {
         const parsed = JSON.parse(storedProfile);
         if (
-          !parsed.name || 
-          parsed.name === 'Sanjay Deshpande' || 
+          !parsed.name ||
+          parsed.name === 'Sanjay Deshpande' ||
           parsed.name === 'Anonymous Devotee' ||
           parsed.email === 'dsanjay@spiritual.in' ||
           parsed.email === 'bhakt@temple.in' ||
@@ -290,8 +289,8 @@ export default function App() {
 
     // 4. Testimonials Sub: Admins see everything, Standard/visitor only see approved ones
     const testimonialsRef = collection(db, 'testimonials');
-    const testimonialsQuery = isAdminUser 
-      ? testimonialsRef 
+    const testimonialsQuery = isAdminUser
+      ? testimonialsRef
       : query(testimonialsRef, where('approved', '==', true));
 
     const unsubTest = onSnapshot(testimonialsQuery, (snapshot) => {
@@ -306,7 +305,7 @@ export default function App() {
     });
 
     // 5. Bookings Sub: Admins see everything, Signed-in users see their own
-    let unsubBook = () => {};
+    let unsubBook = () => { };
     if (isAdminUser) {
       unsubBook = onSnapshot(collection(db, 'bookings'), (snapshot) => {
         const list: DigitalSevaBooking[] = [];
@@ -334,7 +333,7 @@ export default function App() {
     }
 
     // 6. Donations Sub: Admins see everything, Signed-in users see their own
-    let unsubDon = () => {};
+    let unsubDon = () => { };
     if (isAdminUser) {
       unsubDon = onSnapshot(collection(db, 'donations'), (snapshot) => {
         const list: DonationRecord[] = [];
@@ -387,8 +386,8 @@ export default function App() {
         return;
       }
       if (errorCode === 'auth/popup-blocked' || errorMsg.includes('popup-blocked')) {
-        alert(lang === 'EN' 
-          ? 'Browser popup blocked. Please allow popups for this site to sign in.' 
+        alert(lang === 'EN'
+          ? 'Browser popup blocked. Please allow popups for this site to sign in.'
           : 'ब्राउझर पॉपअप ब्लॉक केले आहे. कृपया लॉगिन करण्यासाठी पॉपअपची परवानगी द्या.');
         return;
       }
@@ -408,14 +407,14 @@ export default function App() {
     setUserProfile(newProf);
     try {
       localStorage.setItem('ishwatichi_profile', JSON.stringify(newProf));
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const updateHistoryState = (newHist: typeof claimsHistory) => {
     setClaimsHistory(newHist);
     try {
       localStorage.setItem('ishwatichi_history', JSON.stringify(newHist));
-    } catch (e) {}
+    } catch (e) { }
   };
 
   // State handlers triggers
@@ -472,7 +471,7 @@ export default function App() {
 
   const handleRsvpEvent = async (eventId: string, devoteeName: string) => {
     const targetEvt = events.find(x => x.id === eventId) || INITIAL_EVENTS.find(x => x.id === eventId);
-    
+
     // Increment RSVP count in Firestore if possible
     try {
       if (targetEvt) {
@@ -513,7 +512,7 @@ export default function App() {
       // Update profile locally
       const calculated = userProfile.totalDonation + record.amount;
       const isFirstDonation = userProfile.totalDonation === 0;
-      
+
       let milestones = [...userProfile.milestonesReached];
       if (isFirstDonation) {
         milestones.push({
@@ -561,8 +560,8 @@ export default function App() {
     const checkInResult = calculateDevoteeCheckIn(userProfile);
 
     if (checkInResult.alreadyCheckedIn) {
-      alert(lang === 'EN' 
-        ? `🙏 Your daily devotion check-in is already accounted for today! (Streak: 🔥 ${checkInResult.newStreak} Day${checkInResult.newStreak > 1 ? 's' : ''}). Check in tomorrow to increase your streak.` 
+      alert(lang === 'EN'
+        ? `🙏 Your daily devotion check-in is already accounted for today! (Streak: 🔥 ${checkInResult.newStreak} Day${checkInResult.newStreak > 1 ? 's' : ''}). Check in tomorrow to increase your streak.`
         : `🙏 आजचे दर्शन गुण आधीच नोंदवले गेले आहेत! (भक्ती सातत्य: 🔥 ${checkInResult.newStreak} दिवस). उद्या पुन्हा भेट देऊन सातत्य वाढवा.`);
       return;
     }
@@ -584,8 +583,8 @@ export default function App() {
     };
     updateHistoryState([newLog, ...claimsHistory]);
 
-    alert(lang === 'EN' 
-      ? `🎉 Jai Mata Di! Daily check-in successful. Your devotion streak is now 🔥 ${checkInResult.newStreak} Day${checkInResult.newStreak > 1 ? 's' : ''}!` 
+    alert(lang === 'EN'
+      ? `🎉 Jai Mata Di! Daily check-in successful. Your devotion streak is now 🔥 ${checkInResult.newStreak} Day${checkInResult.newStreak > 1 ? 's' : ''}!`
       : `🎉 विजयाभव! आजचे दर्शन यशस्वी नोंदले गेले. तुमची भक्ती गुण सातत्य आता 🔥 ${checkInResult.newStreak} दिवस झाले आहे!`);
   };
 
@@ -634,27 +633,26 @@ export default function App() {
     return () => clearInterval(intervalTimer);
   }, [userProfile.navratriThemeDay, darkMode, currentCalendarDay]);
 
-  const siteBgColor = isWhiteDay 
-    ? '#FFFFFF' 
+  const siteBgColor = isWhiteDay
+    ? '#FFFFFF'
     : (darkMode ? (activeNavratriTheme.darkBackgroundHex || activeNavratriTheme.hexPrimary) : (activeNavratriTheme.lightBackgroundHex || '#FAF8F4'));
   const siteBgImage = isWhiteDay
     ? 'radial-gradient(circle at 50% 20%, #FFFFFF 0%, #F8FAFC 65%, #F1F5F9 100%)'
-    : (darkMode 
-        ? `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}88 0%, ${activeNavratriTheme.darkBackgroundHex || activeNavratriTheme.hexPrimary} 100%)`
-        : `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}22 0%, ${activeNavratriTheme.lightBackgroundHex || '#FAF8F4'} 100%)`);
+    : (darkMode
+      ? `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}88 0%, ${activeNavratriTheme.darkBackgroundHex || activeNavratriTheme.hexPrimary} 100%)`
+      : `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}22 0%, ${activeNavratriTheme.lightBackgroundHex || '#FAF8F4'} 100%)`);
 
   return (
-    <div 
-      className={`w-full m-0 p-0 min-h-screen transition-colors duration-500 ${
-        isWhiteDay ? 'text-stone-900' : (darkMode ? 'text-white' : 'text-stone-900')
-      }`}
+    <div
+      className={`w-full m-0 p-0 min-h-screen transition-colors duration-500 ${isWhiteDay ? 'text-stone-900' : (darkMode ? 'text-white' : 'text-stone-900')
+        }`}
       style={{
         backgroundColor: siteBgColor,
         backgroundImage: siteBgImage,
         transition: 'background-color 0.6s ease, background-image 0.6s ease'
       }}
     >
-      
+
       {/* Dynamic Animated floral blossom floating elements in background */}
       <div className="fixed inset-x-0 top-0 overflow-hidden h-[500px] pointer-events-none z-0">
         <span className="absolute animate-flower-1 left-[10%] top-10 text-xl font-bold opacity-30 select-none">🌸</span>
@@ -703,22 +701,21 @@ export default function App() {
 
       {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}
       {activeTab === 'home' && (
-        <section 
-          className={`relative w-full overflow-hidden border-b border-brand-gold/25 py-6 sm:py-8 lg:py-10 transition-colors duration-500 ${
-            isWhiteDay ? 'text-stone-900' : 'text-white'
-          }`}
+        <section
+          className={`relative w-full overflow-hidden border-b border-brand-gold/25 py-6 sm:py-8 lg:py-10 transition-colors duration-500 ${isWhiteDay ? 'text-stone-900' : 'text-white'
+            }`}
           style={{
             background: isWhiteDay
               ? 'linear-gradient(to bottom, #FFFFFF 0%, #F8FAFC 70%, #FFFFFF 100%)'
-              : (darkMode 
-                  ? `linear-gradient(to bottom, ${activeNavratriTheme.hexSecondary}33, transparent)`
-                  : `linear-gradient(to bottom, ${activeNavratriTheme.hexSecondary}15, transparent)`)
+              : (darkMode
+                ? `linear-gradient(to bottom, ${activeNavratriTheme.hexSecondary}33, transparent)`
+                : `linear-gradient(to bottom, ${activeNavratriTheme.hexSecondary}15, transparent)`)
           }}
         >
           {/* Subtle Ambient Sanctum Background Glow & Motifs */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-            <div 
-              className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px] blur-3xl opacity-60 pointer-events-none" 
+            <div
+              className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px] blur-3xl opacity-60 pointer-events-none"
               style={{
                 background: `radial-gradient(circle, ${activeNavratriTheme.hexSecondary}88 0%, ${activeNavratriTheme.accentGold}33 50%, transparent 70%)`
               }}
@@ -738,10 +735,10 @@ export default function App() {
 
             {/* Responsive Grid: Sacred Idol Column (Left) + Sacred Information & Action Matrix (Right) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-center">
-              
+
               {/* SACRED IDOL SHOWCASE (Devi Mata Full Sacred Idol View - 100% Uncut) */}
               <div className="lg:col-span-5 xl:col-span-5 flex flex-col items-center justify-center">
-                <div 
+                <div
                   onClick={() => setIsFullDarshanOpen(true)}
                   className="relative group w-full max-w-[340px] xs:max-w-[380px] sm:max-w-[420px] lg:max-w-none rounded-2xl mt-[-10px] sm:mt-0 pt-2 p-2 sm:p-2.5 bg-gradient-to-b from-[#4A0404]/90 via-black/85 to-[#300202]/95 border-2 sm:border-3 border-brand-gold/75 ring-2 ring-brand-gold/25 shadow-[0_0_35px_rgba(255,153,51,0.45)] backdrop-blur-md cursor-pointer transition-all duration-300 hover:scale-[1.015] hover:shadow-[0_0_45px_rgba(255,153,51,0.7)]"
                   title={lang === 'EN' ? 'Click to view full sacred idol in high-definition' : 'संपूर्ण दिव्य दर्शन मोठ्या आकारात पाहण्यासाठी क्लिक करा'}
@@ -757,8 +754,8 @@ export default function App() {
 
                   {/* Complete, Full Portrait Idol Container - Uncut on all devices */}
                   <div className="relative w-full flex items-center justify-center overflow-hidden rounded-xl bg-black/70 py-1">
-                    <DeviImage 
-                      src={activeDeviImage.url || heroImg}
+                    <DeviImage
+                      src={activeDeviImage.url}
                       alt="Shree Ishwatichi Mata Sanctum Idol"
                       aspectRatio="auto"
                       objectFit="contain"
@@ -771,7 +768,7 @@ export default function App() {
                     />
 
                     {/* Interactive 'Light a Diya' Divine Lamp Feature (Pinned at Bottom-Right Corner) */}
-                    <InteractiveDiya 
+                    <InteractiveDiya
                       lang={lang}
                       userProfile={userProfile}
                       onUpdateProfile={handleUpdateProfile}
@@ -814,7 +811,7 @@ export default function App() {
 
               {/* TEMPLE INFORMATION & ACTION MATRIX (Right / Side Column) */}
               <div className="lg:col-span-7 xl:col-span-7 text-center lg:text-left space-y-4 sm:space-y-5">
-                
+
                 {/* Header Titles */}
                 <div className="space-y-2">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-gold/15 border border-brand-gold/30 text-brand-gold text-[11px] sm:text-xs font-sans font-bold">
@@ -857,38 +854,38 @@ export default function App() {
 
                 {/* Quick Action Button Portals - Full-width responsive 4-column matrix with comfortable gaps and padding */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-1">
-                  <button 
+                  <button
                     onClick={() => setActiveTab('darshan')}
                     className="w-full min-h-[48px] px-3 py-2.5 rounded-xl font-sans font-bold text-xs sm:text-sm bg-brand-red text-white border-2 border-brand-gold hover:bg-brand-saffron hover:text-brand-maroon transition-all shadow-lg cursor-pointer flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95"
                   >
-                    <span className="text-base shrink-0">🎥</span> 
+                    <span className="text-base shrink-0">🎥</span>
                     <span className="font-sans leading-tight text-center">{t.hero_btn1}</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActiveTab('seva')}
                     className="w-full min-h-[48px] px-3 py-2.5 rounded-xl font-sans font-bold text-xs sm:text-sm bg-brand-maroon text-brand-gold border-2 border-brand-gold hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-lg cursor-pointer flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95"
                   >
-                    <span className="text-base shrink-0">🕯️</span> 
+                    <span className="text-base shrink-0">🕯️</span>
                     <span className="font-sans leading-tight text-center">{t.hero_btn2}</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActiveTab('donation')}
                     className="w-full min-h-[48px] px-3 py-2.5 rounded-xl font-sans font-bold text-xs sm:text-sm bg-brand-gold text-brand-maroon hover:opacity-95 transition-all shadow-lg cursor-pointer flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95"
                   >
-                    <span className="text-base shrink-0">💝</span> 
+                    <span className="text-base shrink-0">💝</span>
                     <span className="font-sans leading-tight text-center">{t.hero_btn3}</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActiveTab('patrika')}
                     className="w-full min-h-[48px] px-3 py-2.5 rounded-xl font-sans font-bold text-xs sm:text-sm bg-amber-900/80 text-brand-gold border-2 border-brand-gold/70 hover:bg-brand-gold hover:text-brand-maroon transition-all shadow-lg cursor-pointer flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95"
                   >
-                    <span className="text-base shrink-0">📜</span> 
+                    <span className="text-base shrink-0">📜</span>
                     <span className="font-sans leading-tight text-center">{lang === 'EN' ? 'Karyakram Patrika' : 'कार्यक्रम पत्रिका'}</span>
                   </button>
                 </div>
 
                 {/* Interactive 'Light a Diya' Feature Card in Hero Section */}
-                <InteractiveDiya 
+                <InteractiveDiya
                   lang={lang}
                   userProfile={userProfile}
                   onUpdateProfile={handleUpdateProfile}
@@ -908,21 +905,21 @@ export default function App() {
 
       {/* MAIN VIEWPORT MATRIX CONTROLLER */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 relative z-10 space-y-8 sm:space-y-12">
-        
+
         {/* Render Tab specific portals */}
         {activeTab === 'home' && (
           <>
             {/* Live streaming & quick timing schedule dashboards */}
-            <LiveDarshanSection 
-              lang={lang} 
-              heroImagePath={activeDeviImage.url || heroImg} 
+            <LiveDarshanSection
+              lang={lang}
+              heroImagePath={activeDeviImage.url}
               onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
             />
 
             {/* General Highlights about the Temple Origin */}
-            <AboutSection 
-              lang={lang} 
-              heroImagePath={activeDeviImage.url || heroImg}
+            <AboutSection
+              lang={lang}
+              heroImagePath={activeDeviImage.url}
               onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
             />
 
@@ -932,11 +929,11 @@ export default function App() {
                 {lang === 'EN' ? '24/7 Digital Helpline' : '२४/७ डिजिटल साहाय्यता कक्ष'}
               </span>
               <h4 className="text-base sm:text-lg font-sans font-bold text-white leading-relaxed">
-                {lang === 'EN' 
-                  ? 'Have questions regarding Abhishek Pooja or Prasad deliveries?' 
+                {lang === 'EN'
+                  ? 'Have questions regarding Abhishek Pooja or Prasad deliveries?'
                   : 'अभिषेक पूजा, आरती किंवा प्रसाद घरपोच सेवेविषयी काही प्रश्न आहेत का?'}
               </h4>
-              <button 
+              <button
                 onClick={() => setActiveTab('contact')}
                 className="px-5 py-2.5 bg-brand-gold text-brand-maroon font-bold font-sans text-xs sm:text-sm rounded-xl hover:scale-105 transition-all shadow-md cursor-pointer inline-flex items-center gap-1.5"
               >
@@ -947,33 +944,33 @@ export default function App() {
         )}
 
         {activeTab === 'about' && (
-          <AboutSection 
-            lang={lang} 
-            heroImagePath={activeDeviImage.url || heroImg}
+          <AboutSection
+            lang={lang}
+            heroImagePath={activeDeviImage.url}
             onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
           />
         )}
 
         {activeTab === 'darshan' && (
-          <LiveDarshanSection 
-            lang={lang} 
-            heroImagePath={activeDeviImage.url || heroImg} 
+          <LiveDarshanSection
+            lang={lang}
+            heroImagePath={activeDeviImage.url}
             onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
           />
         )}
 
         {activeTab === 'seva' && (
-          <DigitalSevaSection 
-            lang={lang} 
-            onNewBooking={handleNewBooking} 
-            userStreakPlus={handleBoostStreakSeva} 
+          <DigitalSevaSection
+            lang={lang}
+            onNewBooking={handleNewBooking}
+            userStreakPlus={handleBoostStreakSeva}
           />
         )}
 
         {activeTab === 'events' && (
-          <EventsSection 
-            lang={lang} 
-            events={events.length > 0 ? events : INITIAL_EVENTS} 
+          <EventsSection
+            lang={lang}
+            events={events.length > 0 ? events : INITIAL_EVENTS}
             onRsvp={(evtId, name) => {
               const matchedEvt = (events.length > 0 ? events : INITIAL_EVENTS).find(x => x.id === evtId);
               handleNewBooking({
@@ -1000,18 +997,18 @@ export default function App() {
         )}
 
         {activeTab === 'testimonials' && (
-          <DevoteeExperiencesSection 
-            lang={lang} 
-            experiences={experiences} 
-            onAddExperience={handleAddExperience} 
+          <DevoteeExperiencesSection
+            lang={lang}
+            experiences={experiences}
+            onAddExperience={handleAddExperience}
           />
         )}
 
         {activeTab === 'donation' && (
-          <DonationSection 
-            lang={lang} 
-            onNewDonation={handleNewDonation} 
-            userDonationPlus={(amt) => setUserProfile(p => ({ ...p, totalDonation: p.totalDonation + amt }))} 
+          <DonationSection
+            lang={lang}
+            onNewDonation={handleNewDonation}
+            userDonationPlus={(amt) => setUserProfile(p => ({ ...p, totalDonation: p.totalDonation + amt }))}
           />
         )}
 
@@ -1056,15 +1053,15 @@ export default function App() {
       {/* MAIN FOOTER */}
       <footer className="w-full bg-brand-maroon border-t border-brand-gold/25 text-white/95 py-10 pb-28 md:pb-12 select-none relative z-10 font-sans text-xs">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-          
+
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <SiteLogo size="md" withGlow className="drop-shadow-md" />
               <h4 className="font-sans font-extrabold sm:font-black text-brand-gold text-sm tracking-widest">{t.title}</h4>
             </div>
             <p className="text-gray-300 leading-normal">
-              {lang === 'EN' 
-                ? 'Registered non-profit public organization establishing social unity, moral spirituality, and cultural pride since 1974.' 
+              {lang === 'EN'
+                ? 'Registered non-profit public organization establishing social unity, moral spirituality, and cultural pride since 1974.'
                 : '१९७४ पासून कार्यरत अधिकृत धर्मादाय ट्रस्ट. समाजकार्य आणि शुद्ध भक्ती परंपरा जोपासणारे महाराष्ट्रातील अग्रगण्य मंडळ.'}
             </p>
           </div>
@@ -1113,8 +1110,8 @@ export default function App() {
       </footer>
 
       {/* Persistent Mobile Bottom Navigation Bar (visible only on mobile/tablet < md) */}
-      <nav 
-        aria-label="Mobile Bottom Navigation" 
+      <nav
+        aria-label="Mobile Bottom Navigation"
         className="fixed bottom-0 inset-x-0 z-40 bg-[#280101]/95 backdrop-blur-md border-t border-brand-gold/30 md:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.7)] py-1.5 px-2 select-none"
       >
         <div className="grid grid-cols-5 gap-1 max-w-md mx-auto items-center text-center">
@@ -1123,9 +1120,8 @@ export default function App() {
               setActiveTab('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
-              activeTab === 'home' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
-            }`}
+            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'home' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+              }`}
           >
             <span className="text-lg">🏠</span>
             <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Home' : 'मुख्य'}</span>
@@ -1136,9 +1132,8 @@ export default function App() {
               setActiveTab('darshan');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
-              activeTab === 'darshan' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
-            }`}
+            className={`relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'darshan' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+              }`}
           >
             <span className="text-lg">🎥</span>
             <span className="absolute top-1 right-3 h-2 w-2 rounded-full bg-green-400 animate-ping" />
@@ -1150,9 +1145,8 @@ export default function App() {
               setActiveTab('seva');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
-              activeTab === 'seva' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
-            }`}
+            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'seva' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+              }`}
           >
             <span className="text-lg">🕯️</span>
             <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Seva' : 'सेवा'}</span>
@@ -1163,9 +1157,8 @@ export default function App() {
               setActiveTab('donation');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
-              activeTab === 'donation' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
-            }`}
+            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'donation' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+              }`}
           >
             <span className="text-lg">💝</span>
             <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Donate' : 'देणगी'}</span>
@@ -1176,9 +1169,8 @@ export default function App() {
               setActiveTab('profile');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${
-              activeTab === 'profile' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
-            }`}
+            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'profile' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+              }`}
           >
             <span className="text-lg">🕉️</span>
             <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Streak' : 'भक्ती'}</span>
@@ -1187,8 +1179,8 @@ export default function App() {
       </nav>
 
       {/* GLOBAL HIGH-FIDELITY AUDIO CONTROLLER */}
-      <GlobalAudioController 
-        lang={lang} 
+      <GlobalAudioController
+        lang={lang}
         onNavigateToDarshan={() => {
           setActiveTab('darshan');
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1197,13 +1189,13 @@ export default function App() {
 
       {/* FULL-SCREEN IMMERSIVE SACRED DARSHAN MODAL */}
       {isFullDarshanOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn"
           role="dialog"
           aria-modal="true"
         >
           {/* Close button */}
-          <button 
+          <button
             onClick={() => setIsFullDarshanOpen(false)}
             className="absolute top-4 right-4 z-50 bg-brand-maroon/90 text-brand-gold hover:text-white border border-brand-gold/60 p-2 sm:p-2.5 rounded-full cursor-pointer shadow-2xl hover:scale-110 transition-transform"
             aria-label="Close full darshan"
@@ -1214,7 +1206,7 @@ export default function App() {
           {/* Floating Flower shower elements when clicked */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
             {Array.from({ length: 16 }).map((_, i) => (
-              <span 
+              <span
                 key={`flower-${i}-${flowerShowerCount}`}
                 className="absolute animate-flower-1 text-2xl select-none"
                 style={{
@@ -1230,7 +1222,7 @@ export default function App() {
           </div>
 
           <div className="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center text-center space-y-3 sm:space-y-4 my-auto py-4">
-            
+
             {/* Sacred Title */}
             <div className="space-y-1">
               <span className="text-xs sm:text-sm text-brand-saffron font-bold font-sans">
@@ -1242,9 +1234,9 @@ export default function App() {
             </div>
 
             {/* Sacred Image container with Pinch-to-Zoom, Fine Details Inspection & Overlays */}
-            <SacredDarshanZoomViewer 
-              src={activeDeviImage.url || heroImg}
-              lang={lang} 
+            <SacredDarshanZoomViewer
+              src={activeDeviImage.url}
+              lang={lang}
               alt={lang === 'EN' ? 'Shree Ishwatichi Mata Official Sacred Idol' : 'श्री इश्वटीची माता अधिकृत स्वयंभू दर्शन मूर्ती'}
             />
 
@@ -1270,7 +1262,7 @@ export default function App() {
                 <span>🌸</span>
                 <span>{lang === 'EN' ? 'Offer Flower Shower (पुष्पवृष्टी)' : 'पुष्पवृष्टी अर्पण करा'}</span>
               </button>
-              
+
               <button
                 onClick={() => {
                   aartiAudioEngine.playAarti();

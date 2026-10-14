@@ -4,20 +4,9 @@
  */
 
 import { DevoteeExperience, TempleEvent, Announcement } from './types';
-import heroImg from './assets/devotional/devi-mata-main-Day4-I1-20261014.webp';
-import sanctumHeroImg from './assets/images/ishwati_mata_darshan_widescreen_1790944258044.jpg';
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
-import authenticIdolImg from './assets/images/devi-mata-main-Day1-I1-20261011.jpg';
-import heroImgDayII from './assets/devotional/devi-mata-main-Day2-I1-20261012.jpg';
-import heroImgDayIII from './assets/devotional/devi-mata-main-Day3-I1-20261013.jpg';
-import heroImgDayIV from './assets/devotional/devi-mata-main-Day4-I1-20261014.jpg';
-import sanctumGrandImg from './assets/images/ishwati_mata_sanctum_hero_1790943891454.jpg';
-import alankritaDarshanImg from './assets/images/ishwati_mata_darshan_1790695775224.jpg';
-import navratriDarshanImg from './assets/devotional/devi-mata-main-Day4-I1-20261014.jpg';
-import mandalEmblemImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
-import agamanBannerImg from './assets/images/agaman_banner_initial_with_real_devi_1791626201136.jpg';
 
-export { logoImg, agamanBannerImg };
+export { logoImg };
 
 export const INITIAL_EVENTS: TempleEvent[] = [
   {
@@ -183,82 +172,12 @@ export const TIMELINE_MILESTONES = [
 
 export const GALLERY_ITEMS = [
   {
-    id: 'gal-authentic-idol',
-    category: 'Mata Darshan',
-    title: 'दिवस १ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
-    titleMarathi: 'दिवस १ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
-    url: authenticIdolImg
-  },
-  {
-    id: 'gal-official-mata-day-2',
-    category: 'Mata Darshan',
-    title: 'दिवस २ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
-    titleMarathi: 'दिवस २ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
-    url: heroImgDayII
-  },  
-  {
-    id: 'gal-official-mata-day-3',
-    category: 'Mata Darshan',
-    title: 'दिवस ३ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
-    titleMarathi: 'दिवस ३ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
-    url: heroImgDayIII
-  },  
-   {
-    id: 'gal-official-mata-day-4',
-    category: 'Mata Darshan',
-    title: 'दिवस ४ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
-    titleMarathi: 'दिवस ४ – श्री इश्वटी मातेच्या ५३ व्या वर्षातील मूर्तीचे अधिकृत दिव्य दर्शन',
-    url: heroImgDayIV
-  }, 
-  {
-    id: 'gal-sanctum-altar',
-    category: 'Mata Darshan',
-    title: 'श्री इश्वटीची माता मुख्य गर्भगृह व राजसिंहासन दर्शन',
-    titleMarathi: 'श्री इश्वटीची माता मुख्य गर्भगृह व राजसिंहासन दर्शन',
-    url: sanctumHeroImg
-  },
-  {
-    id: 'gal-agaman-banner-2026',
-    category: 'Festivals',
-    title: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव बॅनर',
-    titleMarathi: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव बॅनर',
-    url: agamanBannerImg
-  },
-  {
-    id: 'gal-sanctum-grand',
-    category: 'Decorations',
-    title: 'श्री इश्वटीची माता भव्य सुवर्ण मखर व गर्भगृह राजसिंहासन',
-    titleMarathi: 'श्री इश्वटीची माता भव्य सुवर्ण मखर व गर्भगृह राजसिंहासन',
-    url: sanctumGrandImg
-  },
-  // {
-  //   id: 'gal-alankrita-darshan',
-  //   category: 'Mata Darshan',
-  //   title: 'श्री इश्वटीची प्रातः अभिषेक व महापूजा अलंकार दर्शन',
-  //   titleMarathi: 'श्री इश्वटीची प्रातः अभिषेक व महापूजा अलंकार दर्शन',
-  //   url: alankritaDarshanImg
-  // },
-  // {
-  //   id: 'gal-navratri-utsav',
-  //   category: 'Festivals',
-  //   title: 'श्री इश्वटीची शारदीय नवरात्रौत्सव पावन दर्शन २०२५-२०२६',
-  //   titleMarathi: 'श्री इश्वटीची शारदीय नवरात्रौत्सव पावन दर्शन २०२५-२०२६',
-  //   url: navratriDarshanImg
-  // },
-  {
     id: 'gal-official-logo',
     category: 'Decorations',
     title: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ अधिकृत राजमुद्रा बोधचिन्ह',
     titleMarathi: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ अधिकृत राजमुद्रा बोधचिन्ह',
     url: logoImg
   },
-  // {
-  //   id: 'gal-mandal-emblem',
-  //   category: 'Festivals',
-  //   title: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ सुवर्ण प्रतीक व गौरव मुद्रा',
-  //   titleMarathi: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ सुवर्ण प्रतीक व गौरव मुद्रा',
-  //   url: mandalEmblemImg
-  // },
   {
     id: 'gal-community-health',
     category: 'Community Service',
