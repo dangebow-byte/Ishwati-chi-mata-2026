@@ -238,13 +238,13 @@ export const GALLERY_ITEMS = [
   //   titleMarathi: 'श्री इश्वटीची प्रातः अभिषेक व महापूजा अलंकार दर्शन',
   //   url: alankritaDarshanImg
   // },
-  {
-    id: 'gal-navratri-utsav',
-    category: 'Festivals',
-    title: 'श्री इश्वटीची शारदीय नवरात्रौत्सव पावन दर्शन २०२५-२०२६',
-    titleMarathi: 'श्री इश्वटीची शारदीय नवरात्रौत्सव पावन दर्शन २०२५-२०२६',
-    url: navratriDarshanImg
-  },
+  // {
+  //   id: 'gal-navratri-utsav',
+  //   category: 'Festivals',
+  //   title: 'श्री इश्वटीची शारदीय नवरात्रौत्सव पावन दर्शन २०२५-२०२६',
+  //   titleMarathi: 'श्री इश्वटीची शारदीय नवरात्रौत्सव पावन दर्शन २०२५-२०२६',
+  //   url: navratriDarshanImg
+  // },
   {
     id: 'gal-official-logo',
     category: 'Decorations',
