@@ -23,6 +23,7 @@ export interface GalleryMediaItem {
   type: GalleryMediaType;
   url: string; // Image URL or Video URL or Instagram URL
   embedUrl?: string; // Optional embed URL for YouTube/Instagram/direct video
+  localVideoId?: string; // Persistent ID in IndexedDB for device-uploaded video files
   titleMR: string;
   titleEN: string;
   category: string;
@@ -38,9 +39,21 @@ export interface GalleryMediaItem {
 const COLLECTION_NAME = 'gallery_media';
 const LOCAL_STORAGE_KEY = 'temple_gallery_media_cache';
 
-// Sort helper to sort items consistently by displayOrder first, then createdAt
+const TYPE_PRIORITY: Record<GalleryMediaType, number> = {
+  photo: 1,     // 1) Sacred Photos / Images first
+  video: 2,     // 2) Festival Videos & YouTube second
+  instagram: 3  // 3) Instagram Reels third
+};
+
+// Sort helper: Photos first -> Videos second -> Instagram Reels third, then displayOrder, then createdAt
 export function sortGalleryMediaItems(items: GalleryMediaItem[]): GalleryMediaItem[] {
   return [...items].sort((a, b) => {
+    const priorityA = TYPE_PRIORITY[a.type] ?? 99;
+    const priorityB = TYPE_PRIORITY[b.type] ?? 99;
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
     const orderA = typeof a.displayOrder === 'number' ? a.displayOrder : 999999;
     const orderB = typeof b.displayOrder === 'number' ? b.displayOrder : 999999;
     if (orderA !== orderB) {
@@ -149,6 +162,7 @@ export function subscribeGalleryMedia(
               type: (data.type as GalleryMediaType) || 'photo',
               url: data.url || '',
               embedUrl: data.embedUrl,
+              localVideoId: data.localVideoId,
               titleMR: data.titleMR || '',
               titleEN: data.titleEN || '',
               category: data.category || 'Mata Darshan',
@@ -283,6 +297,7 @@ export async function addGalleryMedia(item: {
   type: GalleryMediaType;
   url: string;
   embedUrl?: string;
+  localVideoId?: string;
   titleMR: string;
   titleEN: string;
   category: string;
@@ -305,6 +320,7 @@ export async function addGalleryMedia(item: {
   };
 
   if (item.embedUrl) newItem.embedUrl = item.embedUrl;
+  if (item.localVideoId) newItem.localVideoId = item.localVideoId;
   if (item.descriptionMR) newItem.descriptionMR = item.descriptionMR;
   if (item.descriptionEN) newItem.descriptionEN = item.descriptionEN;
   if (item.authorHandle) newItem.authorHandle = item.authorHandle;

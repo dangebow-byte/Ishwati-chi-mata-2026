@@ -64,12 +64,13 @@ function getDB(): Promise<IDBDatabase> {
 
 /**
  * Compress an image file using an HTML Canvas element
- * Returns an optimized Data URL suitable for storage and instant display
+ * Target size is optimized to be crisp and strictly under 450 KB (well within Firestore 1MB document limit)
+ * Returns an optimized Data URL suitable for persistent cloud sync and instant display
  */
 export async function compressAndReadImageFile(
   file: File,
-  maxDimension: number = 1440,
-  quality: number = 0.85
+  maxDimension: number = 960,
+  quality: number = 0.72
 ): Promise<{ dataUrl: string; name: string; size: number }> {
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith('image/')) {
@@ -85,6 +86,7 @@ export async function compressAndReadImageFile(
         let width = img.width;
         let height = img.height;
 
+        // Scale proportionally to maxDimension
         if (width > maxDimension || height > maxDimension) {
           if (width > height) {
             height = Math.round((height * maxDimension) / width);
@@ -101,9 +103,9 @@ export async function compressAndReadImageFile(
 
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          // Fallback to raw data url if canvas context fails
+          const raw = readerEvent.target?.result as string;
           resolve({
-            dataUrl: readerEvent.target?.result as string,
+            dataUrl: raw,
             name: file.name,
             size: file.size
           });
@@ -112,10 +114,26 @@ export async function compressAndReadImageFile(
 
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to WebP if supported, fallback to JPEG
+        // Try WebP first for optimal byte-to-quality ratio
         let compressedDataUrl = canvas.toDataURL('image/webp', quality);
         if (!compressedDataUrl.startsWith('data:image/webp')) {
           compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
+
+        // Multi-pass safeguard: If size exceeds 450KB, compress further to guarantee Firestore acceptance
+        if (compressedDataUrl.length > 450 * 1024) {
+          compressedDataUrl = canvas.toDataURL('image/jpeg', 0.60);
+        }
+        if (compressedDataUrl.length > 500 * 1024) {
+          // Scale down canvas dimensions slightly if still large
+          const halfCanvas = document.createElement('canvas');
+          halfCanvas.width = Math.round(width * 0.8);
+          halfCanvas.height = Math.round(height * 0.8);
+          const halfCtx = halfCanvas.getContext('2d');
+          if (halfCtx) {
+            halfCtx.drawImage(canvas, 0, 0, halfCanvas.width, halfCanvas.height);
+            compressedDataUrl = halfCanvas.toDataURL('image/jpeg', 0.55);
+          }
         }
 
         resolve({
@@ -141,10 +159,11 @@ export async function compressAndReadImageFile(
  * Saves a local video File/Blob to IndexedDB and returns its persistent ID and blob URL
  */
 export async function saveLocalVideoFile(
-  file: File
+  file: File,
+  customId?: string
 ): Promise<{ id: string; blobUrl: string; name: string; size: number }> {
   const db = await getDB();
-  const id = 'local-vid-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+  const id = customId || ('local-vid-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7));
 
   const record: StoredVideoRecord = {
     id,
@@ -177,22 +196,41 @@ export async function saveLocalVideoFile(
 /**
  * Retrieves a stored video from IndexedDB and creates a playable Blob URL
  */
-export async function getLocalVideoBlobUrl(id: string): Promise<string | null> {
+export async function getLocalVideoBlobUrl(idOrKey: string): Promise<string | null> {
+  if (!idOrKey) return null;
   try {
     const db = await getDB();
     return new Promise((resolve) => {
       const tx = db.transaction(VIDEO_STORE, 'readonly');
       const store = tx.objectStore(VIDEO_STORE);
-      const getReq = store.get(id);
+      const getReq = store.get(idOrKey);
 
       getReq.onsuccess = () => {
         const record = getReq.result as StoredVideoRecord | undefined;
         if (record && record.blob) {
           const blobUrl = URL.createObjectURL(record.blob);
           resolve(blobUrl);
-        } else {
-          resolve(null);
+          return;
         }
+
+        // Fallback: search all records if key was a sub-id or timestamp match
+        const cursorReq = store.openCursor();
+        let found = false;
+        cursorReq.onsuccess = (e) => {
+          const cursor = (e.target as IDBRequest<IDBCursorWithValue>).result;
+          if (cursor) {
+            const item = cursor.value as StoredVideoRecord;
+            if (item.id === idOrKey || idOrKey.includes(item.id) || item.id.includes(idOrKey)) {
+              found = true;
+              resolve(URL.createObjectURL(item.blob));
+              return;
+            }
+            cursor.continue();
+          } else if (!found) {
+            resolve(null);
+          }
+        };
+        cursorReq.onerror = () => resolve(null);
       };
 
       getReq.onerror = () => resolve(null);

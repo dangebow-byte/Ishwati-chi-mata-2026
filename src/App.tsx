@@ -115,7 +115,7 @@ export default function App() {
   const [deviImages, setDeviImages] = useState<DeviMataImageItem[]>(() => getCachedDeviImages());
   const [activeDeviImage, setActiveDeviImage] = useState<DeviMataImageItem>(() => {
     const cached = getCachedDeviImages();
-    return cached.find(x => x.isHeroDefault) || cached[0] || DEFAULT_DEVI_IMAGE;
+    return cached.find(x => x.isHeroDefault && x.url) || cached.find(x => x.url) || cached[0] || DEFAULT_DEVI_IMAGE;
   });
   const [isDeviImageManagerOpen, setIsDeviImageManagerOpen] = useState(false);
   const [currentCalendarDay, setCurrentCalendarDay] = useState<string>(() => new Date().toISOString().split('T')[0]);
@@ -125,7 +125,7 @@ export default function App() {
     const unsubscribe = subscribeDeviMataImages((imgs) => {
       if (imgs && imgs.length > 0) {
         setDeviImages(imgs);
-        const heroDefault = imgs.find(x => x.isHeroDefault) || imgs[0] || DEFAULT_DEVI_IMAGE;
+        const heroDefault = imgs.find(x => x.isHeroDefault && x.url) || imgs.find(x => x.url) || imgs[0] || DEFAULT_DEVI_IMAGE;
         setActiveDeviImage(heroDefault);
       }
     });
@@ -922,6 +922,7 @@ export default function App() {
             {/* General Highlights about the Temple Origin */}
             <AboutSection 
               lang={lang} 
+              heroImagePath={activeDeviImage.url || heroImg}
               onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
             />
 
@@ -948,6 +949,7 @@ export default function App() {
         {activeTab === 'about' && (
           <AboutSection 
             lang={lang} 
+            heroImagePath={activeDeviImage.url || heroImg}
             onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
           />
         )}

@@ -11,6 +11,7 @@ import { DeviImage } from './DeviImage';
 
 interface AboutSectionProps {
   lang: 'EN' | 'MR';
+  heroImagePath?: string;
   onManageDeviImage?: () => void;
   siteContent?: {
     headerDescEN: string;
@@ -45,7 +46,13 @@ interface AboutSectionProps {
   }[];
 }
 
-export const AboutSection: React.FC<AboutSectionProps> = ({ lang, onManageDeviImage, siteContent, milestones }) => {
+export const AboutSection: React.FC<AboutSectionProps> = ({ 
+  lang, 
+  heroImagePath, 
+  onManageDeviImage, 
+  siteContent, 
+  milestones 
+}) => {
   const finalMilestones = milestones || TIMELINE_MILESTONES;
   const [selectedMilestone, setSelectedMilestone] = useState(finalMilestones[0] || TIMELINE_MILESTONES[0]);
 
@@ -79,6 +86,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ lang, onManageDeviIm
         <div className="flex flex-col sm:flex-row items-center gap-6 flex-1 text-center sm:text-left">
           <div className="overflow-hidden rounded-2xl shrink-0 p-0.5 h-48 sm:h-56 md:h-64 w-auto flex items-center justify-center">
             <DeviImage
+              src={heroImagePath}
               aspectRatio="portrait"
               withFrame
               withAura

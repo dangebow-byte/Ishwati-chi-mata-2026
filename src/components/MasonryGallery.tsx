@@ -16,6 +16,7 @@ import {
   GalleryMediaItem, 
   GalleryMediaType,
   getCachedGalleryMedia,
+  setCachedGalleryMedia,
   INITIAL_GALLERY_MEDIA
 } from '../services/galleryMediaService';
 import { 
@@ -47,10 +48,12 @@ import {
   Globe,
   GripVertical,
   ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
   CheckCircle2,
   RotateCcw
 } from 'lucide-react';
-import { compressAndReadImageFile, saveLocalVideoFile, formatFileSize } from '../services/localMediaStorage';
+import { compressAndReadImageFile, saveLocalVideoFile, getLocalVideoBlobUrl, formatFileSize } from '../services/localMediaStorage';
 
 interface MasonryGalleryProps {
   lang: 'EN' | 'MR';
@@ -87,6 +90,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const [addForm, setAddForm] = useState<{
     type: GalleryMediaType;
     url: string;
+    localVideoId?: string;
     titleMR: string;
     titleEN: string;
     category: string;
@@ -111,6 +115,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const [editForm, setEditForm] = useState<{
     type: GalleryMediaType;
     url: string;
+    localVideoId?: string;
     titleMR: string;
     titleEN: string;
     category: string;
@@ -136,6 +141,32 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const [isProcessingMediaFile, setIsProcessingMediaFile] = useState<boolean>(false);
   const [uploadedMediaFileName, setUploadedMediaFileName] = useState<string>('');
   const [uploadedMediaFileSize, setUploadedMediaFileSize] = useState<number | null>(null);
+  const [resolvedVideoUrls, setResolvedVideoUrls] = useState<Record<string, string>>({});
+
+  // Restore playable blob URLs for device-uploaded videos from IndexedDB upon page reload / refresh
+  useEffect(() => {
+    let isMounted = true;
+    const resolveAllVideos = async () => {
+      const newUrls: Record<string, string> = {};
+      for (const item of mediaItems) {
+        if (item.type === 'video') {
+          const key = item.localVideoId || (item.url.startsWith('blob:') ? item.id : '');
+          if (key && !resolvedVideoUrls[item.id]) {
+            const blobUrl = await getLocalVideoBlobUrl(key);
+            if (blobUrl && isMounted) {
+              newUrls[item.id] = blobUrl;
+              if (item.localVideoId) newUrls[item.localVideoId] = blobUrl;
+            }
+          }
+        }
+      }
+      if (isMounted && Object.keys(newUrls).length > 0) {
+        setResolvedVideoUrls(prev => ({ ...prev, ...newUrls }));
+      }
+    };
+    resolveAllVideos();
+    return () => { isMounted = false; };
+  }, [mediaItems]);
 
   // File Upload Handler for Photo & Video
   const handleDeviceMediaUpload = async (
@@ -149,7 +180,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     setStatusError('');
     try {
       if (type === 'photo') {
-        const result = await compressAndReadImageFile(file, 1600, 0.85);
+        const result = await compressAndReadImageFile(file, 960, 0.72);
         if (isEdit) {
           setEditForm(prev => ({
             ...prev,
@@ -168,11 +199,13 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
         setUploadedMediaFileName(result.name);
         setUploadedMediaFileSize(result.size);
       } else if (type === 'video') {
-        const result = await saveLocalVideoFile(file);
+        const generatedVidId = 'local-vid-' + Date.now();
+        const result = await saveLocalVideoFile(file, generatedVidId);
         if (isEdit) {
           setEditForm(prev => ({
             ...prev,
             url: result.blobUrl,
+            localVideoId: result.id,
             titleMR: prev.titleMR || `महोत्सव व्हिडिओ: ${file.name}`,
             titleEN: prev.titleEN || `Festival Video: ${file.name}`
           }));
@@ -180,12 +213,14 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           setAddForm(prev => ({
             ...prev,
             url: result.blobUrl,
+            localVideoId: result.id,
             titleMR: prev.titleMR || `महोत्सव व्हिडिओ: ${file.name}`,
             titleEN: prev.titleEN || `Festival Video: ${file.name}`
           }));
         }
         setUploadedMediaFileName(result.name);
         setUploadedMediaFileSize(result.size);
+        setResolvedVideoUrls(prev => ({ ...prev, [result.id]: result.blobUrl }));
       }
     } catch (err: any) {
       setStatusError(err?.message || (lang === 'EN' ? 'Failed to process selected file.' : 'निवडलेली फाईल प्रक्रिया अयशस्वी झाली.'));
@@ -205,26 +240,40 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const addModalContainerRef = React.useRef<HTMLDivElement>(null);
   const editModalContainerRef = React.useRef<HTMLDivElement>(null);
 
-  // Auto-scroll modal container to top & lock document body scroll when modal opens
+  // Auto-scroll modal container to top, reset scroll, and focus modal when opened
   useEffect(() => {
     if (showAddModal) {
       document.body.style.overflow = 'hidden';
-      if (addModalContainerRef.current) {
-        addModalContainerRef.current.scrollTop = 0;
-      }
+      const timer = setTimeout(() => {
+        if (addModalContainerRef.current) {
+          addModalContainerRef.current.scrollTop = 0;
+          addModalContainerRef.current.focus();
+        }
+      }, 40);
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = '';
+      };
     } else if (editingItem) {
       document.body.style.overflow = 'hidden';
-      if (editModalContainerRef.current) {
-        editModalContainerRef.current.scrollTop = 0;
-      }
+      const timer = setTimeout(() => {
+        if (editModalContainerRef.current) {
+          editModalContainerRef.current.scrollTop = 0;
+          editModalContainerRef.current.focus();
+        }
+      }, 40);
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = '';
+      };
     } else if (deletingItem) {
       document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
     } else {
       document.body.style.overflow = '';
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [showAddModal, editingItem, deletingItem]);
 
   // Subscribe to real-time updates from Firestore 'gallery_media'
@@ -277,9 +326,34 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     return reelsList.find(r => r.id === activeFeaturedId) || reelsList[0];
   }, [reelsList, activeFeaturedId]);
 
-  // Filtered Media Items (By Year, Media Type, and Category)
+  // Priority ordering helper: Photos first, then direct Videos, then YouTube videos, then Instagram reels
+  const getMediaTypePriority = (item: GalleryMediaItem): number => {
+    if (item.type === 'photo') return 1;
+    if (item.type === 'video') {
+      const isYoutube = (item.url && (item.url.includes('youtube.com') || item.url.includes('youtu.be'))) || 
+                        (item.embedUrl && item.embedUrl.includes('youtube.com'));
+      return isYoutube ? 3 : 2;
+    }
+    if (item.type === 'instagram') return 4;
+    return 5;
+  };
+
+  // Helper to normalize media URL input without protocol issues
+  const normalizeMediaUrl = (raw: string, type: GalleryMediaType): string => {
+    let url = raw.trim();
+    if (!url) return '';
+    if (url.startsWith('data:') || url.startsWith('blob:') || url.startsWith('/')) {
+      return url;
+    }
+    if (!/^https?:\/\//i.test(url)) {
+      url = 'https://' + url;
+    }
+    return url;
+  };
+
+  // Filtered Media Items (By Year, Media Type, and Category with Images First ordering)
   const filteredItems = useMemo(() => {
-    return mediaItems.filter(item => {
+    const list = mediaItems.filter(item => {
       // 1. Filter by Year
       if (selectedYear !== 'All' && item.year !== selectedYear) {
         return false;
@@ -306,7 +380,29 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
 
       return true;
     });
-  }, [mediaItems, selectedYear, mediaTypeFilter, activeCategory]);
+
+    // When reorder mode is active, strictly follow current dragged displayOrder
+    if (isReorderMode) {
+      return [...list].sort((a, b) => {
+        const orderA = typeof a.displayOrder === 'number' ? a.displayOrder : 999999;
+        const orderB = typeof b.displayOrder === 'number' ? b.displayOrder : 999999;
+        return orderA - orderB;
+      });
+    }
+
+    // Default Section Display: Photos first, then Videos, then YouTube/Instagram Reels
+    return [...list].sort((a, b) => {
+      const prioA = getMediaTypePriority(a);
+      const prioB = getMediaTypePriority(b);
+      if (prioA !== prioB) return prioA - prioB;
+
+      const orderA = typeof a.displayOrder === 'number' ? a.displayOrder : 999999;
+      const orderB = typeof b.displayOrder === 'number' ? b.displayOrder : 999999;
+      if (orderA !== orderB) return orderA - orderB;
+
+      return (b.createdAt || '').localeCompare(a.createdAt || '');
+    });
+  }, [mediaItems, selectedYear, mediaTypeFilter, activeCategory, isReorderMode]);
 
   // Lightbox Handlers
   const handleOpenLightbox = (item: GalleryMediaItem) => {
@@ -497,9 +593,9 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     setStatusError('');
     setStatusSuccess('');
 
-    const cleanUrl = addForm.url.trim();
+    const cleanUrl = normalizeMediaUrl(addForm.url, addForm.type);
     if (!cleanUrl) {
-      setStatusError(lang === 'EN' ? 'Please enter a valid URL.' : 'कृपया वैध लिंक प्रविष्ट करा.');
+      setStatusError(lang === 'EN' ? 'Please provide a photo/video file or valid web link.' : 'कृपया फोटो/व्हिडिओ फाईल निवडा किंवा वैध लिंक प्रविष्ट करा.');
       return;
     }
 
@@ -521,6 +617,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
         type: addForm.type,
         url: cleanUrl,
         ...(embedUrl ? { embedUrl } : {}),
+        ...(addForm.localVideoId ? { localVideoId: addForm.localVideoId } : {}),
         titleMR: addForm.titleMR.trim() || 'श्री ईश्वटीची माता पावन दर्शन',
         titleEN: addForm.titleEN.trim() || 'Shree Ishwatichi Mata Sacred Darshan',
         category: addForm.category,
@@ -529,6 +626,14 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
         descriptionEN: addForm.descriptionEN.trim(),
         authorHandle: addForm.authorHandle.trim() || '@ishwatichi_mata'
       });
+
+      if (addForm.type === 'video' && addForm.url) {
+        setResolvedVideoUrls(prev => ({
+          ...prev,
+          [newItem.id]: addForm.url,
+          ...(newItem.localVideoId ? { [newItem.localVideoId]: addForm.url } : {})
+        }));
+      }
 
       setMediaItems(prev => [newItem, ...prev]);
       setStatusSuccess(lang === 'EN' ? 'Media added successfully!' : 'माध्यम यशस्वीरित्या गॅलरीमध्ये जोडले गेले!');
@@ -567,8 +672,12 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     try {
       setIsSubmitting(true);
 
+      let cleanEditUrl = normalizeMediaUrl(editForm.url, editForm.type);
+      if (!cleanEditUrl) {
+        cleanEditUrl = editingItem.url;
+      }
+
       let embedUrl: string | undefined = editingItem.embedUrl;
-      const cleanEditUrl = editForm.url.trim();
       if (editForm.type === 'instagram') {
         embedUrl = getInstagramEmbedUrl(cleanEditUrl);
       } else if (editForm.type === 'video' && cleanEditUrl.includes('youtube.com/watch?v=')) {
@@ -579,10 +688,13 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
         if (vidId) embedUrl = `https://www.youtube.com/embed/${vidId}`;
       }
 
+      const activeLocalVidId = editForm.localVideoId || editingItem.localVideoId;
+
       await updateGalleryMedia(editingItem.id, {
         type: editForm.type,
         url: cleanEditUrl,
         ...(embedUrl ? { embedUrl } : {}),
+        ...(activeLocalVidId ? { localVideoId: activeLocalVidId } : {}),
         titleMR: editForm.titleMR.trim() || editingItem.titleMR,
         titleEN: editForm.titleEN.trim() || editingItem.titleEN,
         category: editForm.category,
@@ -592,13 +704,22 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
         authorHandle: editForm.authorHandle.trim()
       });
 
+      if (editForm.type === 'video' && editForm.url) {
+        setResolvedVideoUrls(prev => ({
+          ...prev,
+          [editingItem.id]: editForm.url,
+          ...(activeLocalVidId ? { [activeLocalVidId]: editForm.url } : {})
+        }));
+      }
+
       setMediaItems(prev => prev.map(item => {
         if (item.id === editingItem.id) {
           return {
             ...item,
             type: editForm.type,
-            url: editForm.url.trim(),
+            url: cleanEditUrl,
             embedUrl,
+            localVideoId: activeLocalVidId,
             titleMR: editForm.titleMR.trim() || item.titleMR,
             titleEN: editForm.titleEN.trim() || item.titleEN,
             category: editForm.category,
@@ -671,7 +792,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           </p>
         </div>
 
-        {/* Action Toolbar: Add Media + Toggle Featured Altar */}
+        {/* Action Toolbar: Add Media + Reorder + Toggle Featured Altar */}
         <div className="flex items-center gap-2.5 self-start lg:self-auto shrink-0 flex-wrap">
           {mediaTypeFilter === 'instagram' && reelsList.length > 0 && (
             <button
@@ -687,6 +808,24 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               <span>{showFeaturedAltar ? (lang === 'EN' ? 'Hide Altar' : 'मंच लपवा') : (lang === 'EN' ? 'Featured Altar' : 'विशेष मंच')}</span>
             </button>
           )}
+
+          {/* Reorder Mode Toggle Button */}
+          <button
+            onClick={handleToggleReorderMode}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+              isReorderMode
+                ? 'bg-amber-400 text-brand-maroon border-brand-gold shadow-lg font-black ring-2 ring-amber-400/50'
+                : 'bg-black/50 text-gray-300 border-brand-gold/40 hover:border-brand-gold hover:text-white hover:bg-black/70'
+            }`}
+            title={lang === 'EN' ? 'Drag and drop to reorder gallery items' : 'गॅलरीतील साहित्यांचा क्रम बदलण्यासाठी ड्रॅग करा'}
+          >
+            <ArrowUpDown className="h-3.5 w-3.5" />
+            <span>
+              {isReorderMode 
+                ? (lang === 'EN' ? 'Exit Reorder' : 'क्रम पूर्ण') 
+                : (lang === 'EN' ? 'Reorder Items' : 'क्रम बदला (Reorder)')}
+            </span>
+          </button>
 
           <button
             onClick={() => {
@@ -994,6 +1133,96 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       {/* 5. RESPONSIVE GRID LAYOUT FOR PHOTOS, VIDEOS & REELS (BY YEAR)            */}
       {/* ========================================================================= */}
       <div>
+        {/* Reordering Control Banner (Active across All Sections & Filters) */}
+        {isReorderMode && (
+          <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#2a0e05] via-[#1a0505] to-[#2a0e05] border-2 border-brand-gold shadow-2xl space-y-3 animate-fade-in text-left">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-brand-gold/30 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-brand-maroon shadow-lg shrink-0">
+                  <ArrowUpDown className="h-5 w-5 stroke-[2.5]" />
+                </div>
+                <div>
+                  <h4 className="text-sm sm:text-base font-bold text-brand-gold flex items-center gap-2">
+                    <span>{lang === 'EN' ? 'Reordering Mode Active' : 'गॅलरी साहित्य क्रम बदलणे सक्रिय'}</span>
+                    <span className="text-[10px] bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded font-mono border border-brand-gold/40">
+                      {filteredItems.length} {lang === 'EN' ? 'items' : 'साहित्य'}
+                    </span>
+                  </h4>
+                  <p className="text-xs text-amber-200/90 mt-0.5">
+                    {lang === 'EN' 
+                      ? 'Drag and drop any card to reorder, or tap the ⬆️ ⬇️ buttons on each card. Click "Save Order" when finished.' 
+                      : 'कोणतेही कार्ड धरून इच्छित जागी ड्रॅग करा किंवा कार्डवरील ⬆️ ⬇️ बटनांचा वापर करा. बदल झाल्यावर "क्रम जतन करा" वर क्लिक करा.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleSaveOrder}
+                  disabled={isSavingOrder}
+                  className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-lg hover:shadow-green-500/30 disabled:opacity-50"
+                >
+                  {isSavingOrder ? (
+                    <>
+                      <div className="h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>{lang === 'EN' ? 'Saving...' : 'जतन होत आहे...'}</span>
+                    </>
+                  ) : saveOrderSuccess ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 text-emerald-200" />
+                      <span>{lang === 'EN' ? 'Order Saved!' : 'क्रम जतन झाला!'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>{lang === 'EN' ? 'Save Order' : 'क्रम जतन करा'}</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResetOrder}
+                  disabled={isSavingOrder}
+                  className="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-gray-200 px-3 py-2 rounded-xl text-xs font-semibold border border-white/10 transition-colors cursor-pointer"
+                  title={lang === 'EN' ? 'Reset to initial order' : 'मूळ क्रम पूर्ववत करा'}
+                >
+                  <RotateCcw className="h-3.5 w-3.5 text-gray-400" />
+                  <span>{lang === 'EN' ? 'Reset' : 'पूर्ववत करा'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleToggleReorderMode}
+                  className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl text-xs font-semibold border border-white/20 transition-colors cursor-pointer"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  <span>{lang === 'EN' ? 'Done' : 'पूर्ण'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Reorder Status Feedback Messages */}
+            {saveOrderSuccess && (
+              <div className="p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-xs flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                <span>
+                  {lang === 'EN' 
+                    ? '✓ Gallery order successfully updated and saved!' 
+                    : '✓ गॅलरीचा क्रम यशस्वीरित्या अद्यतनित व जतन करण्यात आला आहे!'}
+                </span>
+              </div>
+            )}
+            {statusError && (
+              <div className="p-2.5 rounded-xl bg-red-950/80 border border-red-500/50 text-red-300 text-xs flex items-center gap-2">
+                <span>{statusError}</span>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-4 px-1">
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-bold text-brand-gold uppercase tracking-wider">
@@ -1005,25 +1234,55 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           </div>
 
           <div className="text-[11px] text-gray-400 hidden sm:block font-mono">
-            {lang === 'EN' ? 'Tap photo to zoom • Tap video to watch' : 'मोठ्या दर्शनासाठी चित्रावर क्लिक करा • रील प्ले करा'}
+            {isReorderMode
+              ? (lang === 'EN' ? 'Reordering active • Drag to reorder' : 'क्रम बदल मोड चालू • ड्रॅग करून क्रम बदला')
+              : (lang === 'EN' ? 'Tap photo to zoom • Tap video to watch' : 'मोठ्या दर्शनासाठी चित्रावर क्लिक करा • रील प्ले करा')}
           </div>
         </div>
 
         {/* The Core Responsive Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-          {filteredItems.map((item) => {
+          {filteredItems.map((item, index) => {
             const isPhoto = item.type === 'photo';
             const isInstagram = item.type === 'instagram';
             const isVideo = item.type === 'video';
 
+            const isBeingDragged = draggedItemIndex === index;
+            const isDropTarget = dragOverIndex === index && draggedItemIndex !== index;
+
             return (
               <div
                 key={item.id}
-                className="flex flex-col rounded-2xl overflow-hidden border border-brand-gold/30 bg-gradient-to-b from-brand-maroon/20 via-black/60 to-black/90 shadow-xl hover:shadow-2xl hover:border-brand-gold/80 transition-all duration-300 group text-left relative"
+                draggable={isReorderMode}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={(e) => handleDragLeave(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`flex flex-col rounded-2xl overflow-hidden border transition-all duration-300 group text-left relative ${
+                  isBeingDragged
+                    ? 'opacity-40 scale-[0.97] border-dashed border-2 border-brand-gold ring-2 ring-brand-gold/50 shadow-2xl bg-amber-950/40'
+                    : isDropTarget
+                    ? 'border-amber-400 ring-4 ring-amber-400/60 scale-[1.02] shadow-2xl shadow-amber-500/40 bg-zinc-900 z-20'
+                    : isReorderMode
+                    ? 'border-brand-gold/60 bg-gradient-to-b from-[#250d05] via-black/80 to-black cursor-grab active:cursor-grabbing hover:border-brand-gold shadow-lg hover:shadow-brand-gold/20'
+                    : 'border-brand-gold/30 bg-gradient-to-b from-brand-maroon/20 via-black/60 to-black/90 shadow-xl hover:shadow-2xl hover:border-brand-gold/80'
+                }`}
               >
-                {/* Top Badge Strip (Type, Year, Actions) */}
+                {/* Top Badge Strip (Type, Year, Actions, Reorder Controls) */}
                 <div className="bg-black/80 px-3 py-2 border-b border-white/10 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Reorder Position Badge & Drag Handle */}
+                    {isReorderMode && (
+                      <div 
+                        className="flex items-center gap-1 bg-amber-500 text-brand-maroon px-2 py-0.5 rounded font-black text-[11px] shadow cursor-grab"
+                        title={lang === 'EN' ? 'Drag handle' : 'क्रम बदलण्यासाठी येथे धरा'}
+                      >
+                        <GripVertical className="h-3.5 w-3.5" />
+                        <span>#{index + 1}</span>
+                      </div>
+                    )}
+
                     <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
                       isPhoto 
                         ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' 
@@ -1038,34 +1297,65 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                     </span>
                   </div>
 
-                  {/* Edit & Delete Action Buttons */}
+                  {/* Reorder Buttons OR Edit/Delete Action Buttons */}
                   <div className="flex items-center gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenEdit(item);
-                      }}
-                      className="p-1 rounded text-gray-400 hover:text-brand-gold transition-colors cursor-pointer"
-                      title={lang === 'EN' ? 'Edit item' : 'संपादित करा'}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenDelete(item);
-                      }}
-                      className="p-1 rounded text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
-                      title={lang === 'EN' ? 'Delete item' : 'हटवा'}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    {isReorderMode ? (
+                      <div className="flex items-center gap-1 bg-black/70 px-1 py-0.5 rounded-lg border border-brand-gold/40">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMoveItem(index, 'up');
+                          }}
+                          disabled={index === 0}
+                          className="p-1 rounded text-gray-300 hover:text-amber-300 disabled:opacity-30 disabled:hover:text-gray-300 transition-colors cursor-pointer"
+                          title={lang === 'EN' ? 'Move Up' : 'वर हलवा'}
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMoveItem(index, 'down');
+                          }}
+                          disabled={index === filteredItems.length - 1}
+                          className="p-1 rounded text-gray-300 hover:text-amber-300 disabled:opacity-30 disabled:hover:text-gray-300 transition-colors cursor-pointer"
+                          title={lang === 'EN' ? 'Move Down' : 'खाली हलवा'}
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEdit(item);
+                          }}
+                          className="p-1 rounded text-gray-400 hover:text-brand-gold transition-colors cursor-pointer"
+                          title={lang === 'EN' ? 'Edit item' : 'संपादित करा'}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenDelete(item);
+                          }}
+                          className="p-1 rounded text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                          title={lang === 'EN' ? 'Delete item' : 'हटवा'}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 {/* Media Preview Container */}
                 {isInstagram ? (
-                  <div className="p-3 bg-black/90 flex justify-center">
+                  <div className="p-3 bg-black/90 flex justify-center relative">
                     <InstagramVideoEmbed
                       url={item.url}
                       title={lang === 'EN' ? item.titleEN : item.titleMR}
@@ -1075,31 +1365,56 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                       lang={lang}
                       className="w-full"
                     />
+                    {isReorderMode && (
+                      <div className="absolute inset-0 z-10 bg-black/20 pointer-events-none flex items-center justify-center">
+                        <span className="bg-black/80 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
+                          {lang === 'EN' ? 'Drag Card to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ) : isVideo && item.embedUrl ? (
-                  <div className="aspect-video w-full bg-black">
+                  <div className="aspect-video w-full bg-black relative">
                     <iframe
                       src={item.embedUrl}
                       title={item.titleMR}
                       className="w-full h-full"
                       allowFullScreen
                     />
+                    {isReorderMode && (
+                      <div className="absolute inset-0 z-10 bg-black/20 pointer-events-none flex items-center justify-center">
+                        <span className="bg-black/80 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
+                          {lang === 'EN' ? 'Drag Card to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ) : isVideo ? (
-                  <div className="aspect-video w-full bg-black flex items-center justify-center">
+                  <div className="aspect-video w-full bg-black flex items-center justify-center relative">
                     <video
                       src={item.url}
-                      controls
+                      controls={!isReorderMode}
                       playsInline
                       className="w-full h-full object-contain bg-black"
                     >
                       Your browser does not support HTML5 video playback.
                     </video>
+                    {isReorderMode && (
+                      <div className="absolute inset-0 z-10 bg-black/20 pointer-events-none flex items-center justify-center">
+                        <span className="bg-black/80 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
+                          {lang === 'EN' ? 'Drag Card to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div 
-                    onClick={() => handleOpenLightbox(item)}
-                    className="relative w-full aspect-[4/5] overflow-hidden bg-black/90 flex items-center justify-center cursor-pointer"
+                    onClick={() => {
+                      if (!isReorderMode) handleOpenLightbox(item);
+                    }}
+                    className={`relative w-full aspect-[4/5] overflow-hidden bg-black/90 flex items-center justify-center ${
+                      isReorderMode ? 'cursor-grab' : 'cursor-pointer'
+                    }`}
                   >
                     <img
                       src={item.url}
@@ -1115,19 +1430,30 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                       <span>श्री इश्वटीची • {item.year}</span>
                     </div>
 
-                    {/* Hover Overlay with Zoom Prompt */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                      <div className="flex items-center justify-between text-xs text-white">
-                        <span className="flex items-center gap-1.5 text-brand-gold font-bold">
-                          <ZoomIn className="h-4 w-4" />
-                          <span>{lang === 'EN' ? 'Click to View Full HD' : 'मोठ्या आकारात पहा'}</span>
-                        </span>
-                        <span className="flex items-center gap-1 text-brand-saffron">
-                          <Share2 className="h-3.5 w-3.5" />
-                          <span>{lang === 'EN' ? 'Share' : 'शेअर'}</span>
-                        </span>
+                    {/* Hover Overlay with Zoom Prompt (Hidden during reordering) */}
+                    {!isReorderMode && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                        <div className="flex items-center justify-between text-xs text-white">
+                          <span className="flex items-center gap-1.5 text-brand-gold font-bold">
+                            <ZoomIn className="h-4 w-4" />
+                            <span>{lang === 'EN' ? 'Click to View Full HD' : 'मोठ्या आकारात पहा'}</span>
+                          </span>
+                          <span className="flex items-center gap-1 text-brand-saffron">
+                            <Share2 className="h-3.5 w-3.5" />
+                            <span>{lang === 'EN' ? 'Share' : 'शेअर'}</span>
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
+
+                    {isReorderMode && (
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                        <div className="bg-black/90 text-brand-gold border border-brand-gold px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl">
+                          <GripVertical className="h-3.5 w-3.5" />
+                          <span>{lang === 'EN' ? 'Drag to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

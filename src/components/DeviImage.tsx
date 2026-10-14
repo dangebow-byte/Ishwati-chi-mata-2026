@@ -62,9 +62,14 @@ export const DeviImage: React.FC<DeviImageProps> = ({
   // Select optimal source
   const [imageError, setImageError] = useState(false);
 
-  // If a specific src prop is passed (e.g. heroImagePath), prioritize it everywhere;
-  // otherwise, default to the official new sacred idol portrait across PNG/WebP/JPEG
-  const activeImage = imageError ? (src || deviMainPng || deviMainJpg) : (src || deviMainPng || deviMainJpg);
+  // Reset error state whenever src prop updates (e.g. user adds or updates idol image)
+  React.useEffect(() => {
+    setImageError(false);
+  }, [src]);
+
+  // If a specific src prop is passed (e.g. heroImagePath), prioritize it;
+  // Fall back to bundled Day 4 sacred idol assets only if src fails or is empty
+  const activeImage = (!imageError && src) ? src : (deviMainWebp || deviMainPng || deviMainJpg);
   const activeWebp = src ? src : deviMainWebp;
   const activeMobileWebp = src ? src : deviMobileWebp;
 

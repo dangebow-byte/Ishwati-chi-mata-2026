@@ -23,7 +23,7 @@ import {
   MANDAL_PATRIKA_METADATA, 
   NavratriPatrikaDay 
 } from '../data/navratriPatrika2026';
-import { NAVRATRI_9_COLORS } from '../utils/navratriColorTheme';
+import { NAVRATRI_9_COLORS, getActiveNavratriTheme } from '../utils/navratriColorTheme';
 
 interface NavratriPatrikaSectionProps {
   lang: 'EN' | 'MR';
@@ -37,6 +37,11 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
   // Current date in YYYY-MM-DD
   const todayIso = useMemo(() => {
     return new Date().toISOString().split('T')[0];
+  }, []);
+
+  // Active daily festival color theme (matching My Profile dashboard)
+  const activeColorTheme = useMemo(() => {
+    return getActiveNavratriTheme('auto');
   }, []);
 
   const filteredDays = useMemo(() => {
@@ -168,39 +173,55 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
 
             {showColorChart && (
               <div className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2.5 pt-1">
-                {NAVRATRI_9_COLORS.map((col) => (
-                  <div
-                    key={col.dayIndex}
-                    className="p-2.5 rounded-xl border flex flex-col items-center text-center space-y-1.5 transition-all hover:scale-105 shadow-md"
-                    style={{
-                      background: `linear-gradient(135deg, ${col.hexPrimary}EE, ${col.hexSecondary}88)`,
-                      borderColor: col.accentGold
-                    }}
-                  >
-                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-black/70 text-brand-gold">
-                      Day {col.dayIndex}
-                    </span>
-
-                    {/* Swatch circle */}
+                {NAVRATRI_9_COLORS.map((col) => {
+                  const isTodayColor = col.dateStr === todayIso || col.dayIndex === activeColorTheme.dayIndex;
+                  return (
                     <div
-                      className="w-6 h-6 rounded-full border-2 border-white/60 shadow-md shrink-0 flex items-center justify-center"
-                      style={{ backgroundColor: col.swatchHex }}
-                      title={col.colorNameEn}
-                    />
+                      key={col.dayIndex}
+                      className={`p-2.5 rounded-xl border flex flex-col items-center text-center space-y-1.5 transition-all shadow-md relative ${
+                        isTodayColor
+                          ? 'ring-2 ring-brand-gold shadow-[0_0_20px_rgba(255,215,0,0.6)] scale-105 border-brand-gold z-10'
+                          : 'hover:scale-105 opacity-90 hover:opacity-100'
+                      }`}
+                      style={{
+                        background: `linear-gradient(135deg, ${col.hexPrimary}EE, ${col.hexSecondary}88)`,
+                        borderColor: isTodayColor ? '#FFD700' : col.accentGold
+                      }}
+                    >
+                      <div className="flex items-center gap-1 flex-wrap justify-center">
+                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-black/70 text-brand-gold">
+                          Day {col.dayIndex}
+                        </span>
+                        {isTodayColor && (
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-brand-gold text-brand-maroon shadow font-sans animate-pulse">
+                            ✨ {lang === 'EN' ? 'Today' : 'आजचा'}
+                          </span>
+                        )}
+                      </div>
 
-                    <strong className="text-xs font-bold text-white font-sans leading-tight">
-                      {lang === 'EN' ? col.colorNameEn : col.colorNameMr.split(' ')[0]}
-                    </strong>
+                      {/* Swatch circle */}
+                      <div
+                        className={`w-6 h-6 rounded-full border-2 border-white/60 shadow-md shrink-0 flex items-center justify-center ${
+                          isTodayColor ? 'ring-2 ring-yellow-400 ring-offset-1 ring-offset-black' : ''
+                        }`}
+                        style={{ backgroundColor: col.swatchHex }}
+                        title={col.colorNameEn}
+                      />
 
-                    <span className="text-[10px] text-brand-gold font-sans font-semibold leading-tight">
-                      {lang === 'EN' ? col.goddessFormEn : col.goddessFormMr}
-                    </span>
+                      <strong className="text-xs font-bold text-white font-sans leading-tight">
+                        {lang === 'EN' ? col.colorNameEn : col.colorNameMr.split(' ')[0]}
+                      </strong>
 
-                    <span className="text-[9px] text-gray-300 font-sans italic leading-tight line-clamp-2 pt-0.5">
-                      {lang === 'EN' ? col.descriptionEn : col.descriptionMr.split('(')[0]}
-                    </span>
-                  </div>
-                ))}
+                      <span className="text-[10px] text-brand-gold font-sans font-semibold leading-tight">
+                        {lang === 'EN' ? col.goddessFormEn : col.goddessFormMr}
+                      </span>
+
+                      <span className="text-[9px] text-gray-300 font-sans italic leading-tight line-clamp-2 pt-0.5">
+                        {lang === 'EN' ? col.descriptionEn : col.descriptionMr.split('(')[0]}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -442,20 +463,25 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
         {filteredDays.map((day) => {
           const isToday = day.dateIso === todayIso;
           const matchingColor = NAVRATRI_9_COLORS.find(c => c.dateStr === day.dateIso);
+          const isColorActiveToday = matchingColor && (matchingColor.dateStr === todayIso || matchingColor.dayIndex === activeColorTheme.dayIndex);
 
           return (
             <div 
               key={day.id}
               className={`rounded-2xl border-2 p-3.5 sm:p-4 space-y-3 transition-all ${
-                isToday
-                  ? 'bg-gradient-to-r from-red-950 via-brand-maroon to-black border-brand-gold shadow-xl'
+                isToday || isColorActiveToday
+                  ? 'bg-gradient-to-r from-red-950 via-brand-maroon to-black border-brand-gold shadow-xl ring-1 ring-brand-gold/50'
                   : 'bg-black/65 border-brand-gold/30 hover:border-brand-gold/60 shadow-lg'
               }`}
             >
               {/* Card Header: Day, Date, Tag */}
               <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="h-7 w-7 rounded-full bg-brand-gold/15 text-brand-gold border border-brand-gold/40 flex items-center justify-center font-sans font-black text-xs">
+                  <span className={`h-7 w-7 rounded-full flex items-center justify-center font-sans font-black text-xs ${
+                    isToday || isColorActiveToday
+                      ? 'bg-brand-gold text-brand-maroon ring-2 ring-brand-gold/60 shadow'
+                      : 'bg-brand-gold/15 text-brand-gold border border-brand-gold/40'
+                  }`}>
                     {day.dayIndex}
                   </span>
                   <div>
@@ -466,14 +492,23 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                       {lang === 'EN' ? day.dateStrEn : day.dateStrMr}
                     </span>
                     {matchingColor && (
-                      <div className="mt-1 flex items-center gap-1.5">
+                      <div className={`mt-1 flex items-center gap-1.5 ${
+                        isColorActiveToday
+                          ? 'bg-brand-gold/20 border border-brand-gold/60 px-2 py-0.5 rounded-lg ring-1 ring-brand-gold/40 inline-flex'
+                          : ''
+                      }`}>
                         <span 
-                          className="w-2 h-2 rounded-full border border-white/40 shadow-sm shrink-0" 
+                          className="w-2.5 h-2.5 rounded-full border border-white/60 shadow-sm shrink-0" 
                           style={{ backgroundColor: matchingColor.swatchHex }} 
                         />
                         <span className="text-[10px] font-bold text-yellow-300 font-sans">
                           {lang === 'EN' ? `${matchingColor.colorNameEn} (${matchingColor.goddessFormEn})` : `${matchingColor.colorNameMr.split(' ')[0]} (${matchingColor.goddessFormMr})`}
                         </span>
+                        {isColorActiveToday && (
+                          <span className="text-[9px] bg-brand-gold text-brand-maroon font-black px-1.5 py-0.2 rounded font-mono ml-1 shadow">
+                            ✨ {lang === 'EN' ? 'TODAY COLOR' : 'आजचा पावन रंग'}
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -483,8 +518,8 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
                   <span className="text-[9px] uppercase font-mono px-2 py-0.5 rounded-full bg-brand-maroon/70 text-brand-gold border border-brand-gold/30">
                     {lang === 'EN' ? day.categoryLabelEn : day.categoryLabelMr}
                   </span>
-                  {isToday && (
-                    <span className="block mt-1 text-[9px] font-mono font-bold text-red-400 animate-pulse">
+                  {(isToday || isColorActiveToday) && (
+                    <span className="block mt-1 text-[9px] font-mono font-bold text-yellow-300 animate-pulse">
                       ● LIVE TODAY
                     </span>
                   )}

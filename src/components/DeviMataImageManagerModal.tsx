@@ -112,7 +112,7 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
     setIsProcessingFile(true);
     setErrorMsg(null);
     try {
-      const result = await compressAndReadImageFile(file, 1600, 0.85);
+      const result = await compressAndReadImageFile(file, 1200, 0.75);
       setFormUrl(result.dataUrl);
       setUploadedFileName(result.name);
       setUploadedFileSize(result.size);
@@ -324,7 +324,7 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
 
           {/* Form for Add / Edit */}
           {(isAdding || editingId) && (
-            <form onSubmit={handleSave} className="bg-black/60 p-4 sm:p-5 rounded-xl border border-brand-gold/40 space-y-4 animate-fadeIn">
+            <form onSubmit={handleSave} noValidate className="bg-black/60 p-4 sm:p-5 rounded-xl border border-brand-gold/40 space-y-4 animate-fadeIn">
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <span className="font-bold text-brand-gold text-sm flex items-center gap-1.5">
                   <Edit3 className="h-4 w-4" />
@@ -427,7 +427,7 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
                     {lang === 'EN' ? 'Image Direct URL *' : 'प्रतिमा वेब लिंक (Image URL) *'}
                   </label>
                   <input
-                    type="url"
+                    type="text"
                     placeholder="https://example.com/devi-mata-darshan-today.jpg"
                     value={formUrl}
                     onChange={(e) => setFormUrl(e.target.value)}

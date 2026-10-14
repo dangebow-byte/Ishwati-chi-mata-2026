@@ -114,9 +114,27 @@ export function subscribeDeviMataImages(
           });
         });
 
-        // Ensure default image exists in collection
+        // Sort: Items with hero default first, then newest date/timestamp first
+        images.sort((a, b) => {
+          if (a.isHeroDefault && !b.isHeroDefault) return -1;
+          if (!a.isHeroDefault && b.isHeroDefault) return 1;
+          const dateComp = (b.dateStr || '').localeCompare(a.dateStr || '');
+          if (dateComp !== 0) return dateComp;
+          return (b.createdAt || '').localeCompare(a.createdAt || '');
+        });
+
+        // Check if any custom image is set as hero default
+        const hasCustomHero = images.some(img => img.isHeroDefault && img.id !== DEFAULT_DEVI_IMAGE.id && Boolean(img.url));
+
+        // Ensure default image exists in collection if list is empty or doesn't have it
         if (!images.some(img => img.id === DEFAULT_DEVI_IMAGE.id)) {
-          images.unshift(DEFAULT_DEVI_IMAGE);
+          images.push({
+            ...DEFAULT_DEVI_IMAGE,
+            isHeroDefault: !hasCustomHero
+          });
+        } else if (hasCustomHero) {
+          const def = images.find(img => img.id === DEFAULT_DEVI_IMAGE.id);
+          if (def) def.isHeroDefault = false;
         }
 
         setCachedDeviImages(images);
@@ -159,6 +177,7 @@ export async function addDeviMataImage(params: {
   const id = 'devi-img-' + Date.now();
   const dateStr = params.dateStr || new Date().toISOString().split('T')[0];
   const year = params.year || dateStr.split('-')[0] || '2026';
+  const isHero = Boolean(params.isHeroDefault);
 
   const newItem: DeviMataImageItem = {
     id,
@@ -169,13 +188,16 @@ export async function addDeviMataImage(params: {
     descriptionEN: params.descriptionEN?.trim() || '',
     dateStr,
     year,
-    isHeroDefault: Boolean(params.isHeroDefault),
+    isHeroDefault: isHero,
     createdAt: new Date().toISOString()
   };
 
   // Local storage update immediately
   const existing = getCachedDeviImages();
-  setCachedDeviImages([newItem, ...existing]);
+  const updatedExisting = isHero
+    ? existing.map(img => ({ ...img, isHeroDefault: false }))
+    : existing;
+  setCachedDeviImages([newItem, ...updatedExisting]);
 
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
@@ -209,6 +231,7 @@ export async function updateDeviMataImage(
   }
 ): Promise<void> {
   const existing = getCachedDeviImages();
+  const isHero = Boolean(params.isHeroDefault);
   const updatedList = existing.map(img => {
     if (img.id === id) {
       return {
@@ -217,18 +240,33 @@ export async function updateDeviMataImage(
         updatedAt: new Date().toISOString()
       };
     }
+    if (isHero) {
+      return {
+        ...img,
+        isHeroDefault: false
+      };
+    }
     return img;
   });
   setCachedDeviImages(updatedList);
 
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
-    const cleanedParams: Record<string, any> = {};
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined) cleanedParams[key] = value;
-    }
-    cleanedParams.updatedAt = new Date().toISOString();
-    await setDoc(docRef, cleanedParams, { merge: true });
+    const fullExisting = existing.find(img => img.id === id) || DEFAULT_DEVI_IMAGE;
+    const fullDocData: Record<string, any> = {
+      id,
+      url: params.url !== undefined ? params.url : fullExisting.url,
+      titleMR: params.titleMR !== undefined ? params.titleMR : fullExisting.titleMR,
+      titleEN: params.titleEN !== undefined ? params.titleEN : fullExisting.titleEN,
+      descriptionMR: params.descriptionMR !== undefined ? params.descriptionMR : (fullExisting.descriptionMR || ''),
+      descriptionEN: params.descriptionEN !== undefined ? params.descriptionEN : (fullExisting.descriptionEN || ''),
+      dateStr: params.dateStr !== undefined ? params.dateStr : fullExisting.dateStr,
+      year: params.year !== undefined ? params.year : (fullExisting.year || '2026'),
+      isHeroDefault: params.isHeroDefault !== undefined ? params.isHeroDefault : Boolean(fullExisting.isHeroDefault),
+      createdAt: fullExisting.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    await setDoc(docRef, fullDocData, { merge: true });
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, `${COLLECTION_NAME}/${id}`);
   }
