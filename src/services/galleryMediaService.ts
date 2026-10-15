@@ -177,6 +177,15 @@ export function subscribeGalleryMedia(
           }
         });
 
+        // Merge any locally added items from cache so nothing is lost if firestore is partial or syncing
+        const cached = getCachedGalleryMedia();
+        cached.forEach(cachedItem => {
+          if (!seenIds.has(cachedItem.id)) {
+            items.push(cachedItem);
+            seenIds.add(cachedItem.id);
+          }
+        });
+
         // Merge any bundled items not in firestore so nothing is lost
         INITIAL_GALLERY_MEDIA.forEach(initItem => {
           if (!seenIds.has(initItem.id)) {

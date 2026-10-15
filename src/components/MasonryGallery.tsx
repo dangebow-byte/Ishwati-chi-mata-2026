@@ -51,7 +51,8 @@ import {
   ArrowUp,
   ArrowDown,
   CheckCircle2,
-  RotateCcw
+  RotateCcw,
+  ChevronDown
 } from 'lucide-react';
 import { compressAndReadImageFile, saveLocalVideoFile, getLocalVideoBlobUrl, formatFileSize } from '../services/localMediaStorage';
 
@@ -84,6 +85,14 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const [isSavingOrder, setIsSavingOrder] = useState<boolean>(false);
   const [saveOrderSuccess, setSaveOrderSuccess] = useState<boolean>(false);
   const [originalOrderSnapshot, setOriginalOrderSnapshot] = useState<GalleryMediaItem[] | null>(null);
+
+  // Dedicated Instagram Reel Lightbox Modal State
+  const [selectedReel, setSelectedReel] = useState<GalleryMediaItem | null>(null);
+
+  // Progressive Lazy Loading State (12 items per batch for clean 3-col rows)
+  const [visibleCount, setVisibleCount] = useState<number>(12);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const ITEMS_PER_BATCH = 12;
 
   // Add Media Modal State
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -363,8 +372,9 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       if (mediaTypeFilter === 'photos' && item.type !== 'photo') {
         return false;
       }
-      if (mediaTypeFilter === 'videos' && item.type !== 'video') {
-        return false;
+      if (mediaTypeFilter === 'videos') {
+        const isVid = item.type === 'video' || item.type === 'instagram' || item.category === 'Videos & Reels';
+        if (!isVid) return false;
       }
       if (mediaTypeFilter === 'instagram' && item.type !== 'instagram') {
         return false;
@@ -403,6 +413,42 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       return (b.createdAt || '').localeCompare(a.createdAt || '');
     });
   }, [mediaItems, selectedYear, mediaTypeFilter, activeCategory, isReorderMode]);
+
+  // Reset lazy load counter when filters change
+  useEffect(() => {
+    setVisibleCount(12);
+  }, [selectedYear, mediaTypeFilter, activeCategory]);
+
+  // Paginated/Lazy slice of items to display
+  const displayedItems = useMemo(() => {
+    if (isReorderMode) return filteredItems;
+    return filteredItems.slice(0, visibleCount);
+  }, [filteredItems, visibleCount, isReorderMode]);
+
+  const hasMore = !isReorderMode && visibleCount < filteredItems.length;
+
+  // Auto-load next batch as user scrolls down
+  useEffect(() => {
+    if (!hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount(prev => Math.min(prev + ITEMS_PER_BATCH, filteredItems.length));
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    const sentinel = sentinelRef.current;
+    if (sentinel) {
+      observer.observe(sentinel);
+    }
+
+    return () => {
+      if (sentinel) observer.unobserve(sentinel);
+      observer.disconnect();
+    };
+  }, [hasMore, filteredItems.length]);
 
   // Lightbox Handlers
   const handleOpenLightbox = (item: GalleryMediaItem) => {
@@ -453,6 +499,39 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       ? `|| Shree Ishwatichi Mata Prasanna || ${item.titleEN || item.titleMR} (${item.year}): ${item.url}`
       : `|| श्री इश्वटीची माता प्रसन्न || ${item.titleMR || item.titleEN} (${item.year}): ${item.url}`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  // Complete reset helper for Add Media Modal to clear all previously uploaded files, titles, and paths
+  const resetAddForm = (preferredType: GalleryMediaType = 'photo') => {
+    setAddForm({
+      type: preferredType,
+      url: '',
+      localVideoId: undefined,
+      titleMR: '',
+      titleEN: '',
+      category: preferredType === 'video' || preferredType === 'instagram' ? 'Videos & Reels' : 'Mata Darshan',
+      year: selectedYear !== 'All' ? selectedYear : '2026',
+      descriptionMR: '',
+      descriptionEN: '',
+      authorHandle: '@ishwatichi_mata'
+    });
+    setAddUploadSource('device');
+    setUploadedMediaFileName('');
+    setUploadedMediaFileSize(null);
+    setIsProcessingMediaFile(false);
+    setStatusError('');
+    setStatusSuccess('');
+  };
+
+  const handleOpenAddModal = (preferredType?: GalleryMediaType) => {
+    const initialType = preferredType || (mediaTypeFilter === 'videos' ? 'video' : mediaTypeFilter === 'instagram' ? 'instagram' : 'photo');
+    resetAddForm(initialType);
+    setShowAddModal(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    resetAddForm('photo');
   };
 
   // Open Edit Modal
@@ -639,17 +718,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       setMediaItems(prev => [newItem, ...prev]);
       setStatusSuccess(lang === 'EN' ? 'Media added successfully!' : 'माध्यम यशस्वीरित्या गॅलरीमध्ये जोडले गेले!');
 
-      setAddForm({
-        type: 'photo',
-        url: '',
-        titleMR: '',
-        titleEN: '',
-        category: 'Mata Darshan',
-        year: '2026',
-        descriptionMR: '',
-        descriptionEN: '',
-        authorHandle: '@ishwatichi_mata'
-      });
+      resetAddForm('photo');
 
       setTimeout(() => {
         setShowAddModal(false);
@@ -829,11 +898,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           </button>
 
           <button
-            onClick={() => {
-              setStatusError('');
-              setStatusSuccess('');
-              setShowAddModal(true);
-            }}
+            onClick={() => handleOpenAddModal()}
             className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-500/90 via-amber-500 to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-brand-maroon px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer shadow-lg hover:shadow-brand-gold/30 border border-brand-gold"
           >
             <Plus className="h-4 w-4 stroke-[3]" />
