@@ -350,7 +350,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
     return aartiStatusList.filter(item => item.period === selectedFilter);
   }, [aartiStatusList, selectedFilter]);
 
-  const videoFeeds = {
+  const videoFeeds: Record<'sanctum' | 'arch' | 'food' | 'courtyard', { name: string; isLive: boolean; message?: string }> = {
     sanctum: {
       name: lang === 'EN' ? 'Garbhagriha (Main Sanctum) - UHD [60 FPS]' : 'मुख्य गर्भगृह गाभारा कॅमेरा',
       isLive: true
@@ -500,7 +500,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
             ) : (
               <div className="h-full w-full flex flex-col items-center justify-center bg-zinc-950 p-6 text-center text-gray-500">
                 <Music className="h-12 w-12 text-gray-700 mb-3 animate-bounce" />
-                <p className="text-sm font-semibold">{videoFeeds[activeCam].message}</p>
+                <p className="text-sm font-semibold">{videoFeeds[activeCam].message || (lang === 'EN' ? 'Feed Currently Unavailable' : 'प्रसारण सध्या उपलब्ध नाही')}</p>
                 <p className="text-xs text-gray-600 mt-1">
                   {lang === 'EN' ? 'Select Sanctum Camera or Entry Arch for live worship feed' : 'थेट दर्शन सुरू असलेल्या इतर गाभाऱ्याच्या कॅमेऱ्यावर स्विच करा'}
                 </p>

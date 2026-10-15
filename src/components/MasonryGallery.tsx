@@ -464,6 +464,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     setEditForm({
       type: item.type,
       url: item.url,
+      localVideoId: item.localVideoId,
       titleMR: item.titleMR,
       titleEN: item.titleEN,
       category: item.category || 'Mata Darshan',
@@ -1392,7 +1393,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                 ) : isVideo ? (
                   <div className="aspect-video w-full bg-black flex items-center justify-center relative">
                     <video
-                      src={item.url}
+                      src={resolvedVideoUrls[item.id] || (item.localVideoId ? resolvedVideoUrls[item.localVideoId] : '') || item.url}
                       controls={!isReorderMode}
                       playsInline
                       className="w-full h-full object-contain bg-black"
@@ -1611,7 +1612,8 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                   {lang === 'EN' ? 'Instagram Reel URL *' : 'इन्स्टाग्राम रील किंवा पोस्ट लिंक *'}
                 </label>
                 <input
-                  type="url"
+                  type="text"
+                  inputMode="url"
                   placeholder="https://www.instagram.com/reel/Cx0sn8AoN7l/..."
                   value={addForm.url}
                   onChange={(e) => setAddForm(prev => ({ ...prev, url: e.target.value }))}
@@ -1732,7 +1734,8 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                   /* Sub-mode B: Web URL Input */
                   <div>
                     <input
-                      type="url"
+                      type="text"
+                      inputMode="url"
                       placeholder={
                         addForm.type === 'photo'
                           ? 'https://example.com/festival-photo.jpg'
@@ -1921,7 +1924,9 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                   {lang === 'EN' ? 'Instagram Reel URL *' : 'इन्स्टाग्राम रील किंवा पोस्ट लिंक *'}
                 </label>
                 <input
-                  type="url"
+                  type="text"
+                  inputMode="url"
+                  placeholder="https://www.instagram.com/reel/..."
                   value={editForm.url}
                   onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value }))}
                   className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
@@ -2022,7 +2027,13 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                 ) : (
                   <div>
                     <input
-                      type="url"
+                      type="text"
+                      inputMode="url"
+                      placeholder={
+                        editForm.type === 'photo'
+                          ? 'https://example.com/festival-photo.jpg'
+                          : 'https://www.youtube.com/watch?v=...'
+                      }
                       value={editForm.url}
                       onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value }))}
                       className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"

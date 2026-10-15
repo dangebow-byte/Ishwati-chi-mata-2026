@@ -187,10 +187,13 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
     }
 
     // YouTube or Instagram
-    const cleanUrl = inputUrl.trim();
+    let cleanUrl = inputUrl.trim();
     if (!cleanUrl) {
       setErrorMsg(lang === 'EN' ? 'Please enter a valid video link.' : 'कृपया वैध व्हिडिओ लिंक प्रविष्ट करा.');
       return;
+    }
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = 'https://' + cleanUrl;
     }
 
     const embedUrl = computeEmbedUrl(selectedSourceType, cleanUrl);
@@ -508,7 +511,8 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
                     : (lang === 'EN' ? 'Instagram Reel / Post URL *' : 'इन्स्टाग्राम रील किंवा पोस्ट लिंक (Instagram URL) *')}
                 </label>
                 <input
-                  type="url"
+                  type="text"
+                  inputMode="url"
                   placeholder={
                     selectedSourceType === 'youtube'
                       ? 'https://www.youtube.com/watch?v=28TJIom9GFw'

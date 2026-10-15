@@ -418,6 +418,9 @@ CREATE TABLE IF NOT EXISTS gallery_media (
     type VARCHAR(32) NOT NULL CHECK (type IN ('photo', 'video', 'instagram')),
     url TEXT NOT NULL,
     embed_url TEXT,
+    local_video_id VARCHAR(128),
+    file_name VARCHAR(255),
+    file_size BIGINT,
     title_mr VARCHAR(500) NOT NULL,
     title_en VARCHAR(500) NOT NULL,
     category VARCHAR(100) NOT NULL,
@@ -436,6 +439,8 @@ CREATE INDEX IF NOT EXISTS idx_gallery_media_category
     ON gallery_media (category, display_order ASC);
 CREATE INDEX IF NOT EXISTS idx_gallery_media_year 
     ON gallery_media (year, display_order ASC);
+CREATE INDEX IF NOT EXISTS idx_gallery_media_local_video 
+    ON gallery_media (local_video_id);
 
 -- --------------------------------------------------------------------
 -- 13. Table: featured_ashtami_video_configs
@@ -483,5 +488,12 @@ ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS display_order INTEGER NOT NUL
 CREATE INDEX IF NOT EXISTS idx_gallery_media_order ON gallery_media (display_order ASC, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_gallery_media_category ON gallery_media (category, display_order ASC);
 CREATE INDEX IF NOT EXISTS idx_gallery_media_year ON gallery_media (year, display_order ASC);
+
+-- Migration: Add local video persistence columns to gallery_media
+ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS local_video_id VARCHAR(128);
+ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS file_name VARCHAR(255);
+ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS file_size BIGINT;
+CREATE INDEX IF NOT EXISTS idx_gallery_media_local_video ON gallery_media (local_video_id);
+
 
 

@@ -112,7 +112,7 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
     setIsProcessingFile(true);
     setErrorMsg(null);
     try {
-      const result = await compressAndReadImageFile(file, 1200, 0.75);
+      const result = await compressAndReadImageFile(file, 960, 0.72);
       setFormUrl(result.dataUrl);
       setUploadedFileName(result.name);
       setUploadedFileSize(result.size);

@@ -34,9 +34,16 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showColorChart, setShowColorChart] = useState<boolean>(true);
 
-  // Current date in YYYY-MM-DD
-  const todayIso = useMemo(() => {
-    return new Date().toISOString().split('T')[0];
+  // Current date in YYYY-MM-DD (both local and UTC for reliable worldwide and IST timezone matching)
+  const { todayLocal, todayUtc } = useMemo(() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return {
+      todayLocal: `${y}-${m}-${d}`,
+      todayUtc: now.toISOString().split('T')[0]
+    };
   }, []);
 
   // Active daily festival color theme (matching My Profile dashboard)
@@ -174,7 +181,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
             {showColorChart && (
               <div className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2.5 pt-1">
                 {NAVRATRI_9_COLORS.map((col) => {
-                  const isTodayColor = col.dateStr === todayIso || col.dayIndex === activeColorTheme.dayIndex;
+                  const isTodayColor = col.dateStr === todayLocal || col.dateStr === todayUtc || col.dayIndex === activeColorTheme.dayIndex;
                   return (
                     <div
                       key={col.dayIndex}
@@ -356,11 +363,16 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
           {/* Table Body */}
           <tbody className="divide-y divide-white/10 text-xs font-sans">
             {filteredDays.map((day, idx) => {
-              const isToday = day.dateIso === todayIso;
+              const isToday = day.dateIso === todayLocal || day.dateIso === todayUtc;
               const matchingColor = NAVRATRI_9_COLORS.find(c => c.dateStr === day.dateIso);
+              const isColorActiveToday = matchingColor && (
+                matchingColor.dateStr === todayLocal ||
+                matchingColor.dateStr === todayUtc ||
+                matchingColor.dayIndex === activeColorTheme.dayIndex
+              );
 
               let rowClass = 'transition-colors ';
-              if (isToday) {
+              if (isToday || isColorActiveToday) {
                 rowClass += 'bg-red-950/70 border-l-4 border-l-brand-gold ';
               } else if (idx % 2 === 0) {
                 rowClass += 'bg-black/50 hover:bg-brand-maroon/25 ';
@@ -461,9 +473,13 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
       {/* MOBILE CARD VIEW: Responsive Elegant Cards for Small Screens */}
       <div className="md:hidden space-y-3.5">
         {filteredDays.map((day) => {
-          const isToday = day.dateIso === todayIso;
+          const isToday = day.dateIso === todayLocal || day.dateIso === todayUtc;
           const matchingColor = NAVRATRI_9_COLORS.find(c => c.dateStr === day.dateIso);
-          const isColorActiveToday = matchingColor && (matchingColor.dateStr === todayIso || matchingColor.dayIndex === activeColorTheme.dayIndex);
+          const isColorActiveToday = matchingColor && (
+            matchingColor.dateStr === todayLocal ||
+            matchingColor.dateStr === todayUtc ||
+            matchingColor.dayIndex === activeColorTheme.dayIndex
+          );
 
           return (
             <div 
