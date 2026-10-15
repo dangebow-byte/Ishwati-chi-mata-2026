@@ -55,6 +55,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { compressAndReadImageFile, saveLocalVideoFile, getLocalVideoBlobUrl, formatFileSize } from '../services/localMediaStorage';
+import { uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
 
 interface MasonryGalleryProps {
   lang: 'EN' | 'MR';
@@ -148,6 +149,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const [addUploadSource, setAddUploadSource] = useState<'device' | 'url'>('device');
   const [editUploadSource, setEditUploadSource] = useState<'device' | 'url'>('url');
   const [isProcessingMediaFile, setIsProcessingMediaFile] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadedMediaFileName, setUploadedMediaFileName] = useState<string>('');
   const [uploadedMediaFileSize, setUploadedMediaFileSize] = useState<number | null>(null);
   const [resolvedVideoUrls, setResolvedVideoUrls] = useState<Record<string, string>>({});
@@ -186,6 +188,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     if (!file) return;
 
     setIsProcessingMediaFile(true);
+    setUploadProgress(null);
     setStatusError('');
     try {
       if (type === 'photo') {
@@ -208,33 +211,56 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
         setUploadedMediaFileName(result.name);
         setUploadedMediaFileSize(result.size);
       } else if (type === 'video') {
-        const generatedVidId = 'local-vid-' + Date.now();
-        const result = await saveLocalVideoFile(file, generatedVidId);
+        setUploadProgress(0);
+        let videoUrl = '';
+        let localVidId: string | undefined = undefined;
+
+        try {
+          // Primary: Upload directly to Firebase Cloud Storage for universal access across devices
+          const cloudResult = await uploadMediaToCloudStorage(file, 'gallery_videos', (pct) => {
+            setUploadProgress(pct);
+          });
+          videoUrl = cloudResult.url;
+        } catch (cloudErr: any) {
+          console.warn('Direct cloud upload failed, saving to local database fallback:', cloudErr);
+          // Fallback: Save to local IndexedDB if offline or permissions issue
+          localVidId = 'local-vid-' + Date.now();
+          const localResult = await saveLocalVideoFile(file, localVidId);
+          videoUrl = localResult.blobUrl;
+        }
+
         if (isEdit) {
           setEditForm(prev => ({
             ...prev,
-            url: result.blobUrl,
-            localVideoId: result.id,
+            url: videoUrl,
+            ...(localVidId ? { localVideoId: localVidId } : {}),
             titleMR: prev.titleMR || `महोत्सव व्हिडिओ: ${file.name}`,
             titleEN: prev.titleEN || `Festival Video: ${file.name}`
           }));
         } else {
           setAddForm(prev => ({
             ...prev,
-            url: result.blobUrl,
-            localVideoId: result.id,
+            url: videoUrl,
+            ...(localVidId ? { localVideoId: localVidId } : {}),
             titleMR: prev.titleMR || `महोत्सव व्हिडिओ: ${file.name}`,
             titleEN: prev.titleEN || `Festival Video: ${file.name}`
           }));
         }
-        setUploadedMediaFileName(result.name);
-        setUploadedMediaFileSize(result.size);
-        setResolvedVideoUrls(prev => ({ ...prev, [result.id]: result.blobUrl }));
+        setUploadedMediaFileName(file.name);
+        setUploadedMediaFileSize(file.size);
+        if (videoUrl) {
+          setResolvedVideoUrls(prev => ({
+            ...prev,
+            [videoUrl]: videoUrl,
+            ...(localVidId ? { [localVidId]: videoUrl } : {})
+          }));
+        }
       }
     } catch (err: any) {
       setStatusError(err?.message || (lang === 'EN' ? 'Failed to process selected file.' : 'निवडलेली फाईल प्रक्रिया अयशस्वी झाली.'));
     } finally {
       setIsProcessingMediaFile(false);
+      setTimeout(() => setUploadProgress(null), 1000);
     }
   };
 
@@ -1739,7 +1765,9 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                       <div>
                         <span className="font-bold text-brand-gold block text-xs">
                           {isProcessingMediaFile
-                            ? (lang === 'EN' ? 'Processing File...' : 'फाईल प्रक्रिया होत आहे...')
+                            ? (uploadProgress !== null
+                                ? `${lang === 'EN' ? 'Uploading to Cloud Storage...' : 'क्लाउडवर व्हिडिओ अपलोड होत आहे...'} ${uploadProgress}%`
+                                : (lang === 'EN' ? 'Processing File...' : 'फाईल प्रक्रिया होत आहे...'))
                             : addForm.type === 'photo'
                             ? (lang === 'EN' ? 'Click to Browse Photo from Device' : 'डिव्हाइसवरून फोटो निवडण्यासाठी येथे क्लिक करा')
                             : (lang === 'EN' ? 'Click to Browse Video from Device' : 'डिव्हाइसवरून व्हिडिओ फाईल निवडण्यासाठी येथे क्लिक करा')}
@@ -1747,10 +1775,26 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                         <span className="text-[10px] text-gray-400 block mt-0.5">
                           {addForm.type === 'photo'
                             ? (lang === 'EN' ? 'Supports JPG, PNG, WEBP' : 'JPG, PNG, WEBP फोटो फॉरमॅट')
-                            : (lang === 'EN' ? 'Supports MP4, WebM, MOV • Stored in local browser database' : 'MP4, WebM, MOV व्हिडिओ फॉरमॅट')}
+                            : (lang === 'EN' ? 'Supports MP4, WebM, MOV • Uploads to Cloud Storage (Global)' : 'MP4, WebM, MOV • क्लाउड स्टोरेजवर सेव्ह होईल (सर्वांसाठी उपलब्ध)')}
                         </span>
                       </div>
                     </label>
+
+                    {/* Cloud Upload Progress Bar */}
+                    {isProcessingMediaFile && uploadProgress !== null && (
+                      <div className="space-y-1 bg-black/60 p-2.5 rounded-xl border border-brand-gold/40">
+                        <div className="flex justify-between text-[11px] text-brand-gold font-bold">
+                          <span>{lang === 'EN' ? 'Uploading Video...' : 'व्हिडिओ अपलोड सुरू आहे...'}</span>
+                          <span>{uploadProgress}%</span>
+                        </div>
+                        <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
+                          <div 
+                            className="bg-gradient-to-r from-brand-gold to-brand-saffron h-full transition-all duration-200"
+                            style={{ width: `${uploadProgress}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {uploadedMediaFileName && (
                       <div className="text-[11px] text-emerald-400 flex items-center gap-1.5 bg-emerald-950/40 p-2 rounded-lg border border-emerald-500/30">
@@ -2049,14 +2093,34 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                       <div>
                         <span className="font-bold text-brand-gold block text-xs">
                           {isProcessingMediaFile
-                            ? (lang === 'EN' ? 'Processing File...' : 'नवीन फाईल प्रक्रिया होत आहे...')
+                            ? (uploadProgress !== null
+                                ? `${lang === 'EN' ? 'Uploading to Cloud Storage...' : 'क्लाउडवर व्हिडिओ अपलोड होत आहे...'} ${uploadProgress}%`
+                                : (lang === 'EN' ? 'Processing File...' : 'नवीन फाईल प्रक्रिया होत आहे...'))
                             : (lang === 'EN' ? 'Click to Browse Replacement File from Device' : 'डिव्हाइसवरून नवीन फाईल बदलण्यासाठी येथे क्लिक करा')}
                         </span>
                         <span className="text-[10px] text-gray-400 block mt-0.5">
-                          {editForm.type === 'photo' ? 'JPG, PNG, WEBP फोटो' : 'MP4, WebM, MOV व्हिडिओ'}
+                          {editForm.type === 'photo' 
+                            ? 'JPG, PNG, WEBP फोटो' 
+                            : (lang === 'EN' ? 'MP4, WebM, MOV • Uploads to Cloud Storage (Global)' : 'MP4, WebM, MOV • क्लाउड स्टोरेजवर सेव्ह होईल (सर्वांसाठी उपलब्ध)')}
                         </span>
                       </div>
                     </label>
+
+                    {/* Cloud Upload Progress Bar */}
+                    {isProcessingMediaFile && uploadProgress !== null && (
+                      <div className="space-y-1 bg-black/60 p-2.5 rounded-xl border border-brand-gold/40">
+                        <div className="flex justify-between text-[11px] text-brand-gold font-bold">
+                          <span>{lang === 'EN' ? 'Uploading Video...' : 'व्हिडिओ अपलोड सुरू आहे...'}</span>
+                          <span>{uploadProgress}%</span>
+                        </div>
+                        <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
+                          <div 
+                            className="bg-gradient-to-r from-brand-gold to-brand-saffron h-full transition-all duration-200"
+                            style={{ width: `${uploadProgress}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Instant Edit Preview */}
                     {editForm.url && (

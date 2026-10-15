@@ -1,0 +1,3 @@
+# Devasthan Static Videos
+Place local video files (e.g. maha-aarti.mp4, festival.mp4) here.
+They will be served directly at `/videos/<filename>.mp4` across all deployments.

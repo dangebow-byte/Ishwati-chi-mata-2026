@@ -18,10 +18,12 @@ import {
   Film,
   AlertCircle,
   ChevronDown,
-  ChevronUp
 } from 'lucide-react';
 import { saveLocalVideoFile, getLocalVideoBlobUrl, formatFileSize } from '../services/localMediaStorage';
+import { uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
 import { InstagramVideoEmbed, getInstagramEmbedUrl } from './InstagramVideoEmbed';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export type AshtamiVideoSourceType = 'official' | 'youtube' | 'instagram' | 'local';
 
@@ -81,8 +83,45 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
   const [inputTitleMR, setInputTitleMR] = useState('');
   const [inputTitleEN, setInputTitleEN] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [tempLocalVideo, setTempLocalVideo] = useState<{ id: string; blobUrl: string; name: string; size: number } | null>(null);
+
+  // Sync config to Firestore so all visitors across all devices see the updated video in real-time
+  const syncConfigToFirestore = async (cfg: AshtamiVideoConfig) => {
+    try {
+      await setDoc(doc(db, 'site_content', 'ashtami_featured_video'), {
+        id: 'ashtami_featured_video',
+        contentKey: 'ashtami_featured_video',
+        config: cfg,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    } catch (err) {
+      console.warn('Could not sync Ashtami video to Firestore:', err);
+    }
+  };
+
+  // Real-time synchronization with Firestore across all visitors and deployed instances
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'site_content', 'ashtami_featured_video'), (docSnap) => {
+      if (docSnap.exists()) {
+        const val = docSnap.data();
+        if (val && val.config && val.config.type) {
+          setConfig(val.config);
+          if (val.config.url) {
+            setResolvedLocalBlobUrl(val.config.url);
+          }
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(val.config));
+          } catch {}
+        }
+      }
+    }, (err) => {
+      console.warn('Ashtami featured video Firestore sync error:', err);
+    });
+
+    return () => unsub();
+  }, []);
 
   // Restore local video blob URL from IndexedDB on initial mount if local type
   useEffect(() => {
@@ -92,10 +131,14 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
           setResolvedLocalBlobUrl(blobUrl);
         } else if (config.url && config.url.startsWith('blob:')) {
           setResolvedLocalBlobUrl(config.url);
+        } else if (config.url) {
+          setResolvedLocalBlobUrl(config.url);
         }
       });
+    } else if (config.type === 'local' && config.url) {
+      setResolvedLocalBlobUrl(config.url);
     }
-  }, [config.type, config.localVideoId]);
+  }, [config.type, config.localVideoId, config.url]);
 
   // Handle local video file upload from device
   const handleLocalVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,21 +151,47 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
     }
 
     setIsUploading(true);
+    setUploadProgress(0);
     setErrorMsg(null);
 
     try {
-      const savedVideo = await saveLocalVideoFile(file);
-      setTempLocalVideo(savedVideo);
+      let finalUrl = '';
+      let storagePath = '';
+
+      try {
+        // Upload to Firebase Cloud Storage so all visitors across all devices see it immediately
+        const cloudResult = await uploadMediaToCloudStorage(file, 'ashtami_videos', (pct) => {
+          setUploadProgress(pct);
+        });
+        finalUrl = cloudResult.url;
+        storagePath = cloudResult.storagePath;
+      } catch (cloudErr: any) {
+        console.warn('Cloud upload failed, falling back to local database:', cloudErr);
+        // Fallback: local IndexedDB
+        const savedVideo = await saveLocalVideoFile(file);
+        finalUrl = savedVideo.blobUrl;
+        storagePath = savedVideo.id;
+      }
+
+      setTempLocalVideo({
+        id: storagePath || 'ashtami-video',
+        blobUrl: finalUrl,
+        name: file.name,
+        size: file.size
+      });
+      setResolvedLocalBlobUrl(finalUrl);
+
       if (!inputTitleMR) {
-        setInputTitleMR(`डिव्हाइस व्हिडिओ: ${file.name}`);
+        setInputTitleMR(`महोत्सव व्हिडिओ: ${file.name}`);
       }
       if (!inputTitleEN) {
-        setInputTitleEN(`Device Video: ${file.name}`);
+        setInputTitleEN(`Festival Video: ${file.name}`);
       }
     } catch (err: any) {
       setErrorMsg(err?.message || (lang === 'EN' ? 'Failed to process video file.' : 'व्हिडिओ फाईल प्रक्रिया अयशस्वी झाली.'));
     } finally {
       setIsUploading(false);
+      setTimeout(() => setUploadProgress(null), 1000);
     }
   };
 
@@ -152,12 +221,13 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
     if (selectedSourceType === 'official') {
       setConfig(DEFAULT_OFFICIAL_CONFIG);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_OFFICIAL_CONFIG));
+      syncConfigToFirestore(DEFAULT_OFFICIAL_CONFIG);
       setIsModalOpen(false);
       return;
     }
 
     if (selectedSourceType === 'local') {
-      if (!tempLocalVideo && !config.localVideoId) {
+      if (!tempLocalVideo && !config.localVideoId && !config.url) {
         setErrorMsg(lang === 'EN' ? 'Please select a video file from your device.' : 'कृपया तुमच्या डिव्हाइसवरून व्हिडिओ फाईल निवडा.');
         return;
       }
@@ -182,6 +252,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
       setResolvedLocalBlobUrl(activeLocal.blobUrl);
       setConfig(newConfig);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig));
+      syncConfigToFirestore(newConfig);
       setIsModalOpen(false);
       return;
     }
@@ -208,6 +279,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
 
     setConfig(newConfig);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig));
+    syncConfigToFirestore(newConfig);
     setIsModalOpen(false);
   };
 
@@ -215,6 +287,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
   const handleResetToOfficial = () => {
     setConfig(DEFAULT_OFFICIAL_CONFIG);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_OFFICIAL_CONFIG));
+    syncConfigToFirestore(DEFAULT_OFFICIAL_CONFIG);
     setResolvedLocalBlobUrl(null);
     setIsModalOpen(false);
   };
@@ -476,16 +549,34 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
                   <div>
                     <span className="font-bold text-brand-gold block text-xs">
                       {isUploading
-                        ? (lang === 'EN' ? 'Saving video to local storage...' : 'व्हिडिओ स्थानिक साठ्यात सेव्ह होत आहे...')
+                        ? (uploadProgress !== null
+                            ? `${lang === 'EN' ? 'Uploading to Cloud Storage...' : 'क्लाउडवर व्हिडिओ अपलोड होत आहे...'} ${uploadProgress}%`
+                            : (lang === 'EN' ? 'Processing video file...' : 'व्हिडिओ फाईल प्रक्रिया होत आहे...'))
                         : (lang === 'EN' ? 'Click to Browse Local Video File' : 'डिव्हाइसवरून व्हिडिओ फाईल निवडण्यासाठी क्लिक करा')}
                     </span>
                     <span className="text-[10px] text-gray-400 block mt-0.5">
                       {lang === 'EN'
-                        ? 'Supports MP4, WebM, MOV • Stored securely in your browser'
-                        : 'MP4, WebM, MOV समर्थित • सुरक्षित स्थानिक ब्राऊझर साठ्यात सेव्ह होईल'}
+                        ? 'Supports MP4, WebM, MOV • Uploads to Cloud Storage (Global)'
+                        : 'MP4, WebM, MOV समर्थित • क्लाउड स्टोरेजवर सेव्ह होईल (सर्वांसाठी उपलब्ध)'}
                     </span>
                   </div>
                 </label>
+
+                {/* Cloud Upload Progress Bar */}
+                {isUploading && uploadProgress !== null && (
+                  <div className="space-y-1 bg-black/60 p-2.5 rounded-xl border border-brand-gold/40">
+                    <div className="flex justify-between text-[11px] text-brand-gold font-bold">
+                      <span>{lang === 'EN' ? 'Uploading Video...' : 'व्हिडिओ अपलोड सुरू आहे...'}</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-brand-gold to-brand-saffron h-full transition-all duration-200"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {(tempLocalVideo || (config.type === 'local' && config.fileName)) && (
                   <div className="text-[11px] text-emerald-400 flex items-center gap-1.5 bg-emerald-950/40 p-2 rounded-lg border border-emerald-500/30">
