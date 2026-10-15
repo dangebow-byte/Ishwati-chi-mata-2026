@@ -9,6 +9,10 @@ import { DevoteeExperience, DigitalSevaBooking, DonationRecord, Announcement } f
 
 interface AdminPanelProps {
   lang: 'EN' | 'MR';
+  isAdminUser: boolean;
+  signedInEmail: string | null;
+  authMessage: string | null;
+  onAdminLogin: () => void;
   experiences: DevoteeExperience[];
   onApproveExperience: (id: string, approve: boolean) => void;
   bookings: DigitalSevaBooking[];
@@ -21,6 +25,10 @@ interface AdminPanelProps {
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
   lang,
+  isAdminUser,
+  signedInEmail,
+  authMessage,
+  onAdminLogin,
   experiences,
   onApproveExperience,
   bookings,
@@ -30,8 +38,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   siteContent,
   onSaveSiteContent
 }) => {
-  const [pin, setPin] = useState('');
-  const [unlocked, setUnlocked] = useState(false);
   const [activeTab, setActiveTab] = useState<'approvals' | 'bookings' | 'reports' | 'announcements' | 'cms'>('approvals');
 
   // Welcome Hero CMS states
@@ -96,16 +102,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [annContent, setAnnContent] = useState('');
   const [annContentMR, setAnnContentMR] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pin === '1234') {
-      setUnlocked(true);
-    } else {
-      alert(lang === 'EN' ? 'Incorrect pin. Hint: Use 1234 for testing purposes.' : 'चुकीचा पिन क्रमांक. संकेत: चाचणीसाठी १२३४ वापरा.');
-      setPin('');
-    }
-  };
-
   const handleCreateAnnouncement = (e: React.FormEvent) => {
     e.preventDefault();
     if (!annTitle || !annContent) return;
@@ -142,36 +138,27 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     amount: Number(val)
   }));
 
-  if (!unlocked) {
+  if (!isAdminUser) {
     return (
       <div className="max-w-md mx-auto bg-gradient-to-b from-brand-maroon/60 to-black p-6 md:p-8 rounded-xl border border-brand-gold/35 text-center space-y-6 font-sans shadow-2xl">
         <Lock className="h-12 w-12 text-brand-gold mx-auto animate-pulse" />
         <div className="space-y-1">
           <h3 className="text-xl font-sans font-black text-white">Administrator Secure Station</h3>
           <p className="text-xs text-gray-400">
-            {lang === 'EN' ? 'Enter the security PIN to access the Temple Control Center.' : 'मुख्य नियंत्रण कक्षेमध्ये प्रवेश मिळवण्यासाठी संकेत पासवर्ड टाका.'}
+            {lang === 'EN' ? 'Sign in with the authorized, verified Google account to manage site data.' : 'वेबसाइट माहिती व्यवस्थापित करण्यासाठी अधिकृत आणि सत्यापित Google खात्याने साइन इन करा.'}
           </p>
         </div>
-
-        <form onSubmit={handleLogin} className="space-y-3 text-xs">
-          <input
-            type="password"
-            maxLength={6}
-            placeholder="Passcode PIN (Hint: 1234)"
-            value={pin}
-            onChange={e => setPin(e.target.value)}
-            className="w-full bg-black/60 border border-brand-gold/25 rounded-lg py-2.5 px-3 text-center text-brand-gold text-lg tracking-widest font-mono font-bold focus:outline-none focus:border-brand-saffron"
-          />
-          <button
-            type="submit"
-            className="w-full py-2.5 bg-brand-gold text-brand-maroon font-sans font-bold text-xs rounded-lg hover:opacity-95 cursor-pointer shadow"
-          >
-            Authorize Access
-          </button>
-        </form>
-
+        {signedInEmail && <p className="text-xs text-amber-300">Signed in as {signedInEmail}. Use dangebow@gmail.com.</p>}
+        {authMessage && <p role="alert" className="text-xs text-red-300">{authMessage}</p>}
+        <button
+          type="button"
+          onClick={onAdminLogin}
+          className="w-full py-2.5 bg-brand-gold text-brand-maroon font-sans font-bold text-xs rounded-lg hover:opacity-95 cursor-pointer shadow"
+        >
+          Sign in with authorized Google account
+        </button>
         <p className="text-[10px] text-gray-500 italic leading-snug">
-          * Authorized only for Shree Ishwatichi Mata Mandal Trustee Officers. Input <strong>1234</strong> to review database updates.
+          * Access is enforced by Firebase for the verified account dangebow@gmail.com. A local PIN cannot grant database access.
         </p>
       </div>
     );
@@ -194,13 +181,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           </p>
         </div>
 
-        {/* Lock button */}
-        <button
-          onClick={() => setUnlocked(false)}
-          className="text-xs text-red-400 hover:underline cursor-pointer border border-red-500/25 px-2.5 py-1 rounded bg-red-950/20"
-        >
-          🔐 Terminate Session
-        </button>
+        <span className="text-xs text-emerald-300 border border-emerald-500/25 px-2.5 py-1 rounded bg-emerald-950/20">
+          🔐 Signed in as {signedInEmail}
+        </span>
       </div>
 
       {/* Admin Tabs Menu */}

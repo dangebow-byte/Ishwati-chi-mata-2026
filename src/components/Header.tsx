@@ -142,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({
       id: 'admin', 
       label: t.nav_admin, 
       icon: '⚙️', 
-      desc: lang === 'EN' ? 'Trustee control station (PIN: 1234)' : 'विश्वस्त मंडळ नियंत्रण कक्ष (PIN: 1234)' 
+      desc: lang === 'EN' ? 'Authorized trustee control station' : 'अधिकृत विश्वस्त नियंत्रण कक्ष' 
     }
   ];
 
@@ -373,11 +373,6 @@ export const Header: React.FC<HeaderProps> = ({
                   {item.id === 'darshan' && (
                     <span className="inline-block h-2 w-2 rounded-full bg-green-400 animate-ping ml-0.5" />
                   )}
-                  {item.id === 'admin' && (
-                    <span className="ml-1 text-[9px] px-1.5 py-0.5 bg-brand-saffron text-brand-maroon rounded font-mono font-bold">
-                      Pin
-                    </span>
-                  )}
                 </button>
               );
             })}
@@ -523,11 +518,6 @@ export const Header: React.FC<HeaderProps> = ({
                           <span className="font-sans text-sm font-bold truncate">{item.label}</span>
                           {item.id === 'darshan' && (
                             <span className="h-2 w-2 rounded-full bg-green-400 animate-ping shrink-0" />
-                          )}
-                          {item.id === 'admin' && (
-                            <span className="text-[8px] bg-brand-gold text-brand-maroon px-1 rounded font-bold font-mono">
-                              PIN
-                            </span>
                           )}
                         </div>
                         <p className="text-[10px] text-gray-400 truncate mt-0.5">{item.desc}</p>

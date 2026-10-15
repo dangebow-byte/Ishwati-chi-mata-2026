@@ -16,8 +16,7 @@ import {
   GalleryMediaItem, 
   GalleryMediaType,
   getCachedGalleryMedia,
-  setCachedGalleryMedia,
-  INITIAL_GALLERY_MEDIA
+  setCachedGalleryMedia
 } from '../services/galleryMediaService';
 import { 
   Instagram, 
@@ -54,16 +53,45 @@ import {
   RotateCcw,
   ChevronDown
 } from 'lucide-react';
-import { compressAndReadImageFile, saveLocalVideoFile, getLocalVideoBlobUrl, formatFileSize } from '../services/localMediaStorage';
-import { uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
+import { compressAndReadImageFile, formatFileSize } from '../services/localMediaStorage';
+import { deleteCloudMediaObject, uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
 
 interface MasonryGalleryProps {
   lang: 'EN' | 'MR';
+  canManageMedia: boolean;
+  signedInEmail: string | null;
+  authMessage: string | null;
 }
 
 type MediaTypeFilter = 'all' | 'photos' | 'videos' | 'instagram';
 
-export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
+function getYouTubeEmbedUrl(rawUrl: string): string | undefined {
+  try {
+    const parsed = new URL(rawUrl);
+    const host = parsed.hostname.toLowerCase();
+    let videoId = '';
+    if (host === 'youtu.be') videoId = parsed.pathname.split('/').filter(Boolean)[0] || '';
+    else if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com'].includes(host)) {
+      videoId = parsed.searchParams.get('v') || parsed.pathname.match(/^\/(?:embed|shorts|live)\/([^/?]+)/)?.[1] || '';
+    } else return undefined;
+    return /^[A-Za-z0-9_-]{11}$/.test(videoId)
+      ? `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function isYoutubeUrl(rawUrl: string): boolean {
+  try {
+    return ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com', 'youtu.be']
+      .includes(new URL(rawUrl).hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
+export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageMedia, signedInEmail, authMessage }) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaTypeFilter>('all');
   const [selectedYear, setSelectedYear] = useState<string>('All');
@@ -95,12 +123,17 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const ITEMS_PER_BATCH = 12;
 
+  useEffect(() => {
+    if (!canManageMedia) setIsReorderMode(false);
+  }, [canManageMedia]);
+
   // Add Media Modal State
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [addForm, setAddForm] = useState<{
     type: GalleryMediaType;
     url: string;
-    localVideoId?: string;
+    localVideoId?: string | null;
+    storagePath?: string | null;
     titleMR: string;
     titleEN: string;
     category: string;
@@ -125,7 +158,8 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const [editForm, setEditForm] = useState<{
     type: GalleryMediaType;
     url: string;
-    localVideoId?: string;
+    localVideoId?: string | null;
+    storagePath?: string | null;
     titleMR: string;
     titleEN: string;
     category: string;
@@ -153,31 +187,6 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const [uploadedMediaFileName, setUploadedMediaFileName] = useState<string>('');
   const [uploadedMediaFileSize, setUploadedMediaFileSize] = useState<number | null>(null);
   const [resolvedVideoUrls, setResolvedVideoUrls] = useState<Record<string, string>>({});
-
-  // Restore playable blob URLs for device-uploaded videos from IndexedDB upon page reload / refresh
-  useEffect(() => {
-    let isMounted = true;
-    const resolveAllVideos = async () => {
-      const newUrls: Record<string, string> = {};
-      for (const item of mediaItems) {
-        if (item.type === 'video') {
-          const key = item.localVideoId || (item.url.startsWith('blob:') ? item.id : '');
-          if (key && !resolvedVideoUrls[item.id]) {
-            const blobUrl = await getLocalVideoBlobUrl(key);
-            if (blobUrl && isMounted) {
-              newUrls[item.id] = blobUrl;
-              if (item.localVideoId) newUrls[item.localVideoId] = blobUrl;
-            }
-          }
-        }
-      }
-      if (isMounted && Object.keys(newUrls).length > 0) {
-        setResolvedVideoUrls(prev => ({ ...prev, ...newUrls }));
-      }
-    };
-    resolveAllVideos();
-    return () => { isMounted = false; };
-  }, [mediaItems]);
 
   // File Upload Handler for Photo & Video
   const handleDeviceMediaUpload = async (
@@ -213,37 +222,26 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       } else if (type === 'video') {
         setUploadProgress(0);
         let videoUrl = '';
-        let localVidId: string | undefined = undefined;
+        let storagePath: string | undefined;
 
         try {
-          // If the selected file matches our bundled HD arrival ceremony videos, use the permanent static path
-          const lowerName = file.name.toLowerCase();
-          if (lowerName.includes('aagman') || lowerName.includes('ishwati')) {
-            if (lowerName.includes('video1') || lowerName.includes('video_1') || lowerName.includes('video-1')) {
-              videoUrl = '/videos/Shri-Ishwati-Mata-Aagman-Video1-2026.mp4';
-            } else {
-              videoUrl = '/videos/Shri-Ishwati-Mata-Aagman-2026.mp4';
-            }
-          } else {
-            // Otherwise attempt Cloud Storage upload (with 5s CORS protection timeout)
-            const cloudResult = await uploadMediaToCloudStorage(file, 'gallery_videos', (pct) => {
-              setUploadProgress(pct);
-            });
-            videoUrl = cloudResult.url;
-          }
+          const cloudResult = await uploadMediaToCloudStorage(file, 'gallery_videos', (pct) => {
+            setUploadProgress(pct);
+          });
+          videoUrl = cloudResult.url;
+          storagePath = cloudResult.storagePath;
         } catch (cloudErr: any) {
-          console.warn('Cloud upload skipped/failed (CORS or network), saving to local database fallback:', cloudErr);
-          // Fallback: Save to local IndexedDB if offline or permissions issue
-          localVidId = 'local-vid-' + Date.now();
-          const localResult = await saveLocalVideoFile(file, localVidId);
-          videoUrl = localResult.blobUrl;
+          throw new Error(cloudErr?.message || (lang === 'EN'
+            ? 'Video upload failed. Check your connection and Firebase Storage permissions, then try again.'
+            : 'व्हिडिओ अपलोड अयशस्वी झाले. कनेक्शन आणि Firebase Storage परवानग्या तपासून पुन्हा प्रयत्न करा.'));
         }
 
         if (isEdit) {
           setEditForm(prev => ({
             ...prev,
             url: videoUrl,
-            ...(localVidId ? { localVideoId: localVidId } : {}),
+            storagePath,
+            localVideoId: null,
             titleMR: prev.titleMR || `महोत्सव व्हिडिओ: ${file.name}`,
             titleEN: prev.titleEN || `Festival Video: ${file.name}`
           }));
@@ -251,7 +249,8 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           setAddForm(prev => ({
             ...prev,
             url: videoUrl,
-            ...(localVidId ? { localVideoId: localVidId } : {}),
+            storagePath,
+            localVideoId: null,
             titleMR: prev.titleMR || `महोत्सव व्हिडिओ: ${file.name}`,
             titleEN: prev.titleEN || `Festival Video: ${file.name}`
           }));
@@ -262,7 +261,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           setResolvedVideoUrls(prev => ({
             ...prev,
             [videoUrl]: videoUrl,
-            ...(localVidId ? { [localVidId]: videoUrl } : {})
+            ...(storagePath ? { [storagePath]: videoUrl } : {})
           }));
         }
       }
@@ -387,7 +386,8 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
   const normalizeMediaUrl = (raw: string, type: GalleryMediaType): string => {
     let url = raw.trim();
     if (!url) return '';
-    if (url.startsWith('data:') || url.startsWith('blob:') || url.startsWith('/')) {
+    if (url.startsWith('blob:') || (type === 'video' && url.startsWith('data:'))) return '';
+    if (url.startsWith('data:') || (url.startsWith('/') && !url.startsWith('//') && !url.includes('..'))) {
       return url;
     }
     if (!/^https?:\/\//i.test(url)) {
@@ -537,12 +537,22 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   };
 
+  const discardPendingAddUpload = (storagePath?: string | null) => {
+    if (storagePath) {
+      void deleteCloudMediaObject(storagePath).catch((error) => {
+        console.warn('Could not clean up an abandoned gallery upload:', error);
+      });
+    }
+  };
+
   // Complete reset helper for Add Media Modal to clear all previously uploaded files, titles, and paths
-  const resetAddForm = (preferredType: GalleryMediaType = 'photo') => {
+  const resetAddForm = (preferredType: GalleryMediaType = 'photo', cleanupPendingUpload = true) => {
+    if (cleanupPendingUpload) discardPendingAddUpload(addForm.storagePath);
     setAddForm({
       type: preferredType,
       url: '',
       localVideoId: undefined,
+      storagePath: undefined,
       titleMR: '',
       titleEN: '',
       category: preferredType === 'video' || preferredType === 'instagram' ? 'Videos & Reels' : 'Mata Darshan',
@@ -580,6 +590,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       type: item.type,
       url: item.url,
       localVideoId: item.localVideoId,
+      storagePath: item.storagePath,
       titleMR: item.titleMR,
       titleEN: item.titleEN,
       category: item.category || 'Mata Darshan',
@@ -720,13 +731,11 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
 
       let embedUrl: string | undefined = undefined;
       if (addForm.type === 'instagram') {
+        if (!extractInstagramShortcode(cleanUrl)) throw new Error(lang === 'EN' ? 'Enter a valid Instagram Reel or post URL.' : 'वैध Instagram Reel किंवा पोस्ट लिंक प्रविष्ट करा.');
         embedUrl = getInstagramEmbedUrl(cleanUrl);
-      } else if (addForm.type === 'video' && cleanUrl.includes('youtube.com/watch?v=')) {
-        const vidId = cleanUrl.split('v=')[1]?.split('&')[0];
-        if (vidId) embedUrl = `https://www.youtube.com/embed/${vidId}`;
-      } else if (addForm.type === 'video' && cleanUrl.includes('youtu.be/')) {
-        const vidId = cleanUrl.split('youtu.be/')[1]?.split('?')[0];
-        if (vidId) embedUrl = `https://www.youtube.com/embed/${vidId}`;
+      } else if (addForm.type === 'video' && isYoutubeUrl(cleanUrl)) {
+        embedUrl = getYouTubeEmbedUrl(cleanUrl);
+        if (!embedUrl) throw new Error(lang === 'EN' ? 'Enter a valid YouTube video URL.' : 'वैध YouTube व्हिडिओ लिंक प्रविष्ट करा.');
       }
 
       const newItem = await addGalleryMedia({
@@ -734,6 +743,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
         url: cleanUrl,
         ...(embedUrl ? { embedUrl } : {}),
         ...(addForm.localVideoId ? { localVideoId: addForm.localVideoId } : {}),
+        ...(addForm.storagePath ? { storagePath: addForm.storagePath } : {}),
         titleMR: addForm.titleMR.trim() || 'श्री ईश्वटीची माता पावन दर्शन',
         titleEN: addForm.titleEN.trim() || 'Shree Ishwatichi Mata Sacred Darshan',
         category: addForm.category,
@@ -754,7 +764,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
       setMediaItems(prev => [newItem, ...prev]);
       setStatusSuccess(lang === 'EN' ? 'Media added successfully!' : 'माध्यम यशस्वीरित्या गॅलरीमध्ये जोडले गेले!');
 
-      resetAddForm('photo');
+      resetAddForm('photo', false);
 
       setTimeout(() => {
         setShowAddModal(false);
@@ -780,27 +790,32 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
 
       let cleanEditUrl = normalizeMediaUrl(editForm.url, editForm.type);
       if (!cleanEditUrl) {
+        if (editingItem.url.startsWith('blob:')) {
+          throw new Error(lang === 'EN'
+            ? 'This video exists only in a previous browser. Upload the original file again to save it in cloud storage.'
+            : 'हा व्हिडिओ फक्त जुन्या ब्राउजरमध्ये आहे. क्लाउडमध्ये जतन करण्यासाठी मूळ फाईल पुन्हा अपलोड करा.');
+        }
         cleanEditUrl = editingItem.url;
       }
 
-      let embedUrl: string | undefined = editingItem.embedUrl;
+      let embedUrl: string | undefined;
       if (editForm.type === 'instagram') {
+        if (!extractInstagramShortcode(cleanEditUrl)) throw new Error(lang === 'EN' ? 'Enter a valid Instagram Reel or post URL.' : 'वैध Instagram Reel किंवा पोस्ट लिंक प्रविष्ट करा.');
         embedUrl = getInstagramEmbedUrl(cleanEditUrl);
-      } else if (editForm.type === 'video' && cleanEditUrl.includes('youtube.com/watch?v=')) {
-        const vidId = cleanEditUrl.split('v=')[1]?.split('&')[0];
-        if (vidId) embedUrl = `https://www.youtube.com/embed/${vidId}`;
-      } else if (editForm.type === 'video' && cleanEditUrl.includes('youtu.be/')) {
-        const vidId = cleanEditUrl.split('youtu.be/')[1]?.split('?')[0];
-        if (vidId) embedUrl = `https://www.youtube.com/embed/${vidId}`;
+      } else if (editForm.type === 'video' && isYoutubeUrl(cleanEditUrl)) {
+        embedUrl = getYouTubeEmbedUrl(cleanEditUrl);
+        if (!embedUrl) throw new Error(lang === 'EN' ? 'Enter a valid YouTube video URL.' : 'वैध YouTube व्हिडिओ लिंक प्रविष्ट करा.');
       }
 
-      const activeLocalVidId = editForm.localVideoId || editingItem.localVideoId;
+      const activeLocalVidId = editForm.localVideoId === null ? null : (editForm.localVideoId || editingItem.localVideoId);
+      const activeStoragePath = editForm.storagePath === null ? null : (editForm.storagePath || editingItem.storagePath);
 
       await updateGalleryMedia(editingItem.id, {
         type: editForm.type,
         url: cleanEditUrl,
-        ...(embedUrl ? { embedUrl } : {}),
-        ...(activeLocalVidId ? { localVideoId: activeLocalVidId } : {}),
+        embedUrl: embedUrl || '',
+        localVideoId: activeLocalVidId,
+        storagePath: activeStoragePath,
         titleMR: editForm.titleMR.trim() || editingItem.titleMR,
         titleEN: editForm.titleEN.trim() || editingItem.titleEN,
         category: editForm.category,
@@ -824,8 +839,9 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             ...item,
             type: editForm.type,
             url: cleanEditUrl,
-            embedUrl,
-            localVideoId: activeLocalVidId,
+            embedUrl: embedUrl || '',
+            localVideoId: activeLocalVidId || undefined,
+            storagePath: activeStoragePath || undefined,
             titleMR: editForm.titleMR.trim() || item.titleMR,
             titleEN: editForm.titleEN.trim() || item.titleEN,
             category: editForm.category,
@@ -916,7 +932,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           )}
 
           {/* Reorder Mode Toggle Button */}
-          <button
+          {canManageMedia && <button
             onClick={handleToggleReorderMode}
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
               isReorderMode
@@ -931,15 +947,28 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                 ? (lang === 'EN' ? 'Exit Reorder' : 'क्रम पूर्ण') 
                 : (lang === 'EN' ? 'Reorder Items' : 'क्रम बदला (Reorder)')}
             </span>
-          </button>
+          </button>}
 
-          <button
+          {canManageMedia && <button
             onClick={() => handleOpenAddModal()}
             className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-500/90 via-amber-500 to-yellow-600 hover:from-yellow-400 hover:to-amber-500 text-brand-maroon px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer shadow-lg hover:shadow-brand-gold/30 border border-brand-gold"
           >
             <Plus className="h-4 w-4 stroke-[3]" />
             <span>{lang === 'EN' ? 'Add Photo / Video / Reel' : 'नवीन फोटो / व्हिडिओ / रील जोडा'}</span>
-          </button>
+          </button>}
+          {!canManageMedia && (
+            <div className="flex flex-col items-start gap-1">
+              <span className="text-xs font-bold text-brand-gold">
+                {lang === 'EN' ? 'Gallery management is controlled from Admin Console.' : 'गॅलरी व्यवस्थापन Admin Console मधून नियंत्रित केले जाते.'}
+              </span>
+              <span className="text-[10px] text-gray-400">
+                {signedInEmail
+                  ? `Signed in as ${signedInEmail}; verified dangebow@gmail.com access is required.`
+                  : 'Sign in from Admin Console with the verified dangebow@gmail.com account.'}
+              </span>
+              {authMessage && <span role="alert" className="text-[10px] text-red-300">{authMessage}</span>}
+            </div>
+          )}
         </div>
       </div>
 
@@ -1169,7 +1198,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {canManageMedia && <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleOpenEdit(activeFeaturedReel)}
                     className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-brand-gold transition-colors cursor-pointer"
@@ -1184,7 +1213,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
-                </div>
+                </div>}
               </div>
 
               {/* Title & Description */}
@@ -1400,7 +1429,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                   </div>
 
                   {/* Reorder Buttons OR Edit/Delete Action Buttons */}
-                  <div className="flex items-center gap-1">
+                  {canManageMedia && <div className="flex items-center gap-1">
                     {isReorderMode ? (
                       <div className="flex items-center gap-1 bg-black/70 px-1 py-0.5 rounded-lg border border-brand-gold/40">
                         <button
@@ -1452,7 +1481,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                         </button>
                       </>
                     )}
-                  </div>
+                  </div>}
                 </div>
 
                 {/* Media Preview Container */}
@@ -1493,14 +1522,22 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                   </div>
                 ) : isVideo ? (
                   <div className="aspect-video w-full bg-black flex items-center justify-center relative">
-                    <video
-                      src={resolvedVideoUrls[item.id] || (item.localVideoId ? resolvedVideoUrls[item.localVideoId] : '') || item.url}
-                      controls={!isReorderMode}
-                      playsInline
-                      className="w-full h-full object-contain bg-black"
-                    >
-                      Your browser does not support HTML5 video playback.
-                    </video>
+                    {item.url.startsWith('blob:') ? (
+                      <p className="p-5 text-center text-sm text-amber-200">
+                        {lang === 'EN'
+                          ? 'This video was saved only in the browser that uploaded it. An admin must upload the original file again.'
+                          : 'हा व्हिडिओ फक्त अपलोड केलेल्या ब्राउजरमध्ये जतन झाला होता. प्रशासकाने मूळ फाईल पुन्हा अपलोड करणे आवश्यक आहे.'}
+                      </p>
+                    ) : (
+                      <video
+                        src={resolvedVideoUrls[item.id] || item.url}
+                        controls={!isReorderMode}
+                        playsInline
+                        className="w-full h-full object-contain bg-black"
+                      >
+                        Your browser does not support HTML5 video playback.
+                      </video>
+                    )}
                     {isReorderMode && (
                       <div className="absolute inset-0 z-10 bg-black/20 pointer-events-none flex items-center justify-center">
                         <span className="bg-black/80 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
@@ -1603,7 +1640,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
           role="dialog"
           aria-modal="true"
           onClick={(e) => {
-            if (e.target === addModalContainerRef.current) setShowAddModal(false);
+            if (!isSubmitting && e.target === addModalContainerRef.current) handleCloseAddModal();
           }}
         >
           <form 
@@ -1618,7 +1655,8 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               </div>
               <button 
                 type="button" 
-                onClick={() => setShowAddModal(false)}
+                onClick={handleCloseAddModal}
+                disabled={isSubmitting}
                 className="text-gray-400 hover:text-white p-1 rounded-lg cursor-pointer"
               >
                 <X className="h-4 w-4" />
@@ -1633,7 +1671,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => setAddForm(prev => ({ ...prev, type: 'photo' }))}
+                  onClick={() => { discardPendingAddUpload(addForm.storagePath); setAddForm(prev => ({ ...prev, type: 'photo', storagePath: undefined, localVideoId: undefined })); }}
                   className={`p-2.5 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer flex flex-col items-center gap-1 ${
                     addForm.type === 'photo'
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500 shadow-md ring-1 ring-amber-500'
@@ -1646,7 +1684,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
 
                 <button
                   type="button"
-                  onClick={() => setAddForm(prev => ({ ...prev, type: 'video' }))}
+                  onClick={() => { discardPendingAddUpload(addForm.storagePath); setAddForm(prev => ({ ...prev, type: 'video', storagePath: undefined, localVideoId: undefined })); }}
                   className={`p-2.5 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer flex flex-col items-center gap-1 ${
                     addForm.type === 'video'
                       ? 'bg-blue-500/20 text-blue-300 border-blue-500 shadow-md ring-1 ring-blue-500'
@@ -1659,7 +1697,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
 
                 <button
                   type="button"
-                  onClick={() => setAddForm(prev => ({ ...prev, type: 'instagram' }))}
+                  onClick={() => { discardPendingAddUpload(addForm.storagePath); setAddForm(prev => ({ ...prev, type: 'instagram', storagePath: undefined, localVideoId: undefined })); }}
                   className={`p-2.5 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer flex flex-col items-center gap-1 ${
                     addForm.type === 'instagram'
                       ? 'bg-pink-500/20 text-pink-300 border-pink-500 shadow-md ring-1 ring-pink-500'
@@ -1717,7 +1755,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                   inputMode="url"
                   placeholder="https://www.instagram.com/reel/Cx0sn8AoN7l/..."
                   value={addForm.url}
-                  onChange={(e) => setAddForm(prev => ({ ...prev, url: e.target.value }))}
+                      onChange={(e) => { discardPendingAddUpload(addForm.storagePath); setAddForm(prev => ({ ...prev, url: e.target.value, storagePath: undefined, localVideoId: undefined })); }}
                   className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
                   required
                 />
@@ -1948,7 +1986,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
               <button
                 type="button"
-                onClick={() => setShowAddModal(false)}
+                onClick={handleCloseAddModal}
                 disabled={isSubmitting}
                 className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-gray-300 cursor-pointer disabled:opacity-50"
               >
@@ -2013,7 +2051,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                 </label>
                 <select
                   value={editForm.type}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, type: e.target.value as GalleryMediaType }))}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, type: e.target.value as GalleryMediaType, storagePath: null, localVideoId: null }))}
                   className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-gold text-xs"
                 >
                   <option value="photo">छायाचित्र (Photo)</option>
@@ -2174,7 +2212,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
                           : 'https://www.youtube.com/watch?v=...'
                       }
                       value={editForm.url}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value }))}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value, storagePath: null, localVideoId: null }))}
                       className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
                       required
                     />

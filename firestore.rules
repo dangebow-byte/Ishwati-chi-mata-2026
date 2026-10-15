@@ -85,7 +85,8 @@ service cloud.firestore {
     function isValidSiteContent(data) {
       return data.id is string && data.id.size() <= 128 &&
              data.contentKey is string && data.contentKey.size() <= 128 &&
-             data.data is map;
+             data.data is map &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 100));
     }
 
     function isValidPatrikaDay(data) {
@@ -142,6 +143,8 @@ service cloud.firestore {
              (!('authorHandle' in data) || (data.authorHandle is string && data.authorHandle.size() <= 100)) &&
              (!('displayOrder' in data) || (data.displayOrder is number)) &&
              (!('localVideoId' in data) || (data.localVideoId is string && data.localVideoId.size() <= 128)) &&
+             (!('storagePath' in data) || (data.storagePath is string && data.storagePath.size() <= 512)) &&
+             (!('isDeleted' in data) || data.isDeleted is bool) &&
              (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 100)) &&
              (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 100)) &&
              (!('serverCreated' in data) || (data.serverCreated is timestamp));
@@ -209,25 +212,25 @@ service cloud.firestore {
     // 8. GALLERY VIDEOS (Instagram Reels & Holy Videos)
     match /gallery_videos/{videoId} {
       allow read: if true;
-      allow create: if isValidGalleryVideo(request.resource.data) && isValidId(videoId);
-      allow update: if (isAdmin() || isValidGalleryVideo(request.resource.data)) && isValidId(videoId);
-      allow delete: if (isAdmin() || isValidId(videoId));
+      allow create: if isAdmin() && isValidGalleryVideo(request.resource.data) && isValidId(videoId);
+      allow update: if isAdmin() && isValidGalleryVideo(request.resource.data) && isValidId(videoId);
+      allow delete: if isAdmin() && isValidId(videoId);
     }
 
     // 9. DEVI MATA IMAGES (Daily Sacred Darshan Photos)
     match /devi_mata_images/{imageId} {
       allow read: if true;
-      allow create: if isValidDeviMataImage(request.resource.data) && isValidId(imageId);
-      allow update: if (isAdmin() || isValidDeviMataImage(request.resource.data)) && isValidId(imageId);
-      allow delete: if (isAdmin() || isValidId(imageId));
+      allow create: if isAdmin() && isValidDeviMataImage(request.resource.data) && isValidId(imageId);
+      allow update: if isAdmin() && isValidDeviMataImage(request.resource.data) && isValidId(imageId);
+      allow delete: if isAdmin() && isValidId(imageId);
     }
 
     // 10. GALLERY MEDIA (Photos, Videos, Reels)
     match /gallery_media/{mediaId} {
       allow read: if true;
-      allow create: if isValidGalleryMedia(request.resource.data) && isValidId(mediaId);
-      allow update: if (isAdmin() || isValidGalleryMedia(request.resource.data)) && isValidId(mediaId);
-      allow delete: if (isAdmin() || isValidId(mediaId));
+      allow create: if isAdmin() && isValidGalleryMedia(request.resource.data) && isValidId(mediaId);
+      allow update: if isAdmin() && isValidGalleryMedia(request.resource.data) && isValidId(mediaId);
+      allow delete: if isAdmin() && isValidId(mediaId);
     }
   }
 }

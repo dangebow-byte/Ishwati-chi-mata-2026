@@ -6,7 +6,8 @@
 import {
   ref,
   uploadBytesResumable,
-  getDownloadURL
+  getDownloadURL,
+  deleteObject
 } from 'firebase/storage';
 import { storage } from '../firebase';
 
@@ -34,8 +35,7 @@ function sanitizeFileName(name: string): string {
 
 /**
  * Uploads a media file (Video or Image) directly to Firebase Cloud Storage.
- * Includes CORS / connection timeout detection to prevent freezing at 0%.
- * 
+ * Uses Firebase's resumable upload task and reports progress until success or error.
  * @param file The File object selected from the user's device
  * @param folder The storage directory ('gallery_videos', 'ashtami_videos', 'gallery_photos')
  * @param onProgress Optional callback for real-time upload progress (0-100%)
@@ -49,13 +49,31 @@ export async function uploadMediaToCloudStorage(
     throw new Error('No file provided for upload.');
   }
 
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  const inferredType: Record<string, string> = {
+    mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', ogg: 'video/ogg',
+    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp'
+  };
+  const contentType = file.type || inferredType[extension || ''] || '';
+  const isPhoto = folder === 'gallery_photos';
+  const allowedTypes = isPhoto
+    ? ['image/jpeg', 'image/png', 'image/webp']
+    : ['video/mp4', 'video/webm', 'video/quicktime', 'video/ogg'];
+  const maxBytes = isPhoto ? 10 * 1024 * 1024 : 500 * 1024 * 1024;
+  if (!allowedTypes.includes(contentType)) {
+    throw new Error(`Unsupported media type: ${contentType || 'unknown'}.`);
+  }
+  if (file.size <= 0 || file.size > maxBytes) {
+    throw new Error(`File exceeds the ${isPhoto ? '10 MB image' : '500 MB video'} upload limit.`);
+  }
+
   const cleanName = sanitizeFileName(file.name || 'media_file');
-  const timestamp = Date.now();
-  const storagePath = `${folder}/${timestamp}_${cleanName}`;
+  const uniqueId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const storagePath = `${folder}/${uniqueId}_${cleanName}`;
   const storageRef = ref(storage, storagePath);
 
   const metadata = {
-    contentType: file.type || (cleanName.endsWith('.mp4') ? 'video/mp4' : 'application/octet-stream'),
+    contentType,
     customMetadata: {
       originalName: file.name,
       uploadedAt: new Date().toISOString()
@@ -65,42 +83,21 @@ export async function uploadMediaToCloudStorage(
   const uploadTask = uploadBytesResumable(storageRef, file, metadata);
 
   return new Promise((resolve, reject) => {
-    let isSettled = false;
-
-    // Safety timeout: If preflight request fails or zero progress is made within 5 seconds (typical CORS block),
-    // cancel the upload task and reject immediately so fallback can take over seamlessly.
-    const timeoutTimer = setTimeout(() => {
-      if (!isSettled && uploadTask.snapshot.bytesTransferred === 0) {
-        isSettled = true;
-        try {
-          uploadTask.cancel();
-        } catch {}
-        reject(new Error('Firebase Storage CORS block: Google Cloud Storage bucket requires CORS headers enabled. Using local fallback.'));
-      }
-    }, 5000);
-
     uploadTask.on(
       'state_changed',
       (snapshot) => {
-        if (snapshot.bytesTransferred > 0) {
-          clearTimeout(timeoutTimer);
-        }
-        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        const progress = snapshot.totalBytes > 0
+          ? Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+          : 0;
         if (onProgress) {
           onProgress(progress, snapshot.bytesTransferred, snapshot.totalBytes);
         }
       },
       (error) => {
-        clearTimeout(timeoutTimer);
-        if (isSettled) return;
-        isSettled = true;
         console.warn('Firebase Storage Upload Error / CORS:', error);
         reject(error);
       },
       async () => {
-        clearTimeout(timeoutTimer);
-        if (isSettled) return;
-        isSettled = true;
         try {
           const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
           resolve({
@@ -108,7 +105,7 @@ export async function uploadMediaToCloudStorage(
             storagePath,
             name: file.name,
             size: file.size,
-            contentType: file.type
+            contentType
           });
         } catch (urlError) {
           reject(urlError);
@@ -116,4 +113,9 @@ export async function uploadMediaToCloudStorage(
       }
     );
   });
+}
+
+export async function deleteCloudMediaObject(storagePath: string): Promise<void> {
+  if (!storagePath) return;
+  await deleteObject(ref(storage, storagePath));
 }

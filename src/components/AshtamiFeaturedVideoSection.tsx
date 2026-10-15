@@ -18,12 +18,16 @@ import {
   Film,
   AlertCircle,
   ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
-import { saveLocalVideoFile, getLocalVideoBlobUrl, formatFileSize } from '../services/localMediaStorage';
-import { uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
-import { InstagramVideoEmbed, getInstagramEmbedUrl } from './InstagramVideoEmbed';
+import { formatFileSize } from '../services/localMediaStorage';
+import { deleteCloudMediaObject, uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
+import { InstagramVideoEmbed, getInstagramEmbedUrl, extractInstagramShortcode } from './InstagramVideoEmbed';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { deleteObject, ref } from 'firebase/storage';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../firebase';
+import { storage } from '../firebase';
 
 export type AshtamiVideoSourceType = 'official' | 'youtube' | 'instagram' | 'local';
 
@@ -34,11 +38,10 @@ export interface AshtamiVideoConfig {
   title: string;
   titleMarathi: string;
   localVideoId?: string;
+  storagePath?: string;
   fileName?: string;
   fileSize?: number;
 }
-
-const STORAGE_KEY = 'temple_ashtami_featured_video_config';
 
 const DEFAULT_OFFICIAL_CONFIG: AshtamiVideoConfig = {
   type: 'official',
@@ -63,16 +66,8 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
   onToggleLyrics,
   className = ''
 }) => {
-  const [config, setConfig] = useState<AshtamiVideoConfig>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.type) return parsed;
-      }
-    } catch {}
-    return DEFAULT_OFFICIAL_CONFIG;
-  });
+  const [config, setConfig] = useState<AshtamiVideoConfig>(DEFAULT_OFFICIAL_CONFIG);
+  const [canManageVideo, setCanManageVideo] = useState(false);
 
   const [resolvedLocalBlobUrl, setResolvedLocalBlobUrl] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,20 +80,57 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [tempLocalVideo, setTempLocalVideo] = useState<{ id: string; blobUrl: string; name: string; size: number } | null>(null);
+  const [tempLocalVideo, setTempLocalVideo] = useState<{ storagePath: string; url: string; name: string; size: number } | null>(null);
 
   // Sync config to Firestore so all visitors across all devices see the updated video in real-time
   const syncConfigToFirestore = async (cfg: AshtamiVideoConfig) => {
+    await setDoc(doc(db, 'site_content', 'ashtami_featured_video'), {
+      id: 'ashtami_featured_video',
+      contentKey: 'ashtami_featured_video',
+      data: { config: cfg },
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+  };
+
+  const persistConfig = async (cfg: AshtamiVideoConfig) => {
     try {
-      await setDoc(doc(db, 'site_content', 'ashtami_featured_video'), {
-        id: 'ashtami_featured_video',
-        contentKey: 'ashtami_featured_video',
-        config: cfg,
-        updatedAt: new Date().toISOString()
-      }, { merge: true });
-    } catch (err) {
-      console.warn('Could not sync Ashtami video to Firestore:', err);
+      const previousStoragePath = config.storagePath;
+      const pendingStoragePath = tempLocalVideo?.storagePath;
+      await syncConfigToFirestore(cfg);
+      setConfig(cfg);
+      setTempLocalVideo(null);
+      setResolvedLocalBlobUrl(cfg.type === 'local' ? cfg.url : null);
+      setIsModalOpen(false);
+      if (previousStoragePath && previousStoragePath !== cfg.storagePath) {
+        try {
+          await deleteObject(ref(storage, previousStoragePath));
+        } catch (storageError) {
+          console.warn('Featured video updated, but its previous Storage object could not be deleted:', storageError);
+        }
+      }
+      if (pendingStoragePath && pendingStoragePath !== cfg.storagePath && pendingStoragePath !== previousStoragePath) {
+        try {
+          await deleteCloudMediaObject(pendingStoragePath);
+        } catch (storageError) {
+          console.warn('Featured video configuration saved, but its unused upload could not be deleted:', storageError);
+        }
+      }
+    } catch (err: any) {
+      setErrorMsg(err?.message || (lang === 'EN'
+        ? 'Could not save the video configuration. Please check admin access and try again.'
+        : 'व्हिडिओची माहिती जतन करता आली नाही. प्रशासक प्रवेश तपासून पुन्हा प्रयत्न करा.'));
     }
+  };
+
+  const cancelVideoEdit = () => {
+    if (tempLocalVideo?.storagePath && tempLocalVideo.storagePath !== config.storagePath) {
+      void deleteCloudMediaObject(tempLocalVideo.storagePath).catch((error) => {
+        console.warn('Could not clean up an abandoned featured video upload:', error);
+      });
+    }
+    setTempLocalVideo(null);
+    setResolvedLocalBlobUrl(config.type === 'local' ? config.url : null);
+    setIsModalOpen(false);
   };
 
   // Real-time synchronization with Firestore across all visitors and deployed instances
@@ -106,14 +138,10 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
     const unsub = onSnapshot(doc(db, 'site_content', 'ashtami_featured_video'), (docSnap) => {
       if (docSnap.exists()) {
         const val = docSnap.data();
-        if (val && val.config && val.config.type) {
-          setConfig(val.config);
-          if (val.config.url) {
-            setResolvedLocalBlobUrl(val.config.url);
-          }
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(val.config));
-          } catch {}
+        const savedConfig = val?.data?.config ?? val?.config;
+        if (savedConfig?.type) {
+          setConfig(savedConfig);
+          setResolvedLocalBlobUrl(savedConfig.type === 'local' ? (savedConfig.url || null) : null);
         }
       }
     }, (err) => {
@@ -123,29 +151,16 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
     return () => unsub();
   }, []);
 
-  // Restore local video blob URL from IndexedDB on initial mount if local type
-  useEffect(() => {
-    if (config.type === 'local' && config.localVideoId) {
-      getLocalVideoBlobUrl(config.localVideoId).then((blobUrl) => {
-        if (blobUrl) {
-          setResolvedLocalBlobUrl(blobUrl);
-        } else if (config.url && config.url.startsWith('blob:')) {
-          setResolvedLocalBlobUrl(config.url);
-        } else if (config.url) {
-          setResolvedLocalBlobUrl(config.url);
-        }
-      });
-    } else if (config.type === 'local' && config.url) {
-      setResolvedLocalBlobUrl(config.url);
-    }
-  }, [config.type, config.localVideoId, config.url]);
+  useEffect(() => onAuthStateChanged(auth, (user) => {
+    setCanManageVideo(Boolean(user?.email === 'dangebow@gmail.com' && user.emailVerified));
+  }), []);
 
   // Handle local video file upload from device
   const handleLocalVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('video/')) {
+    if (file.type && !file.type.startsWith('video/')) {
       setErrorMsg(lang === 'EN' ? 'Please select a valid video file (MP4, WebM, etc.).' : 'कृपया वैध व्हिडिओ फाईल निवडा (MP4, WebM इत्यादी).');
       return;
     }
@@ -155,42 +170,17 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
     setErrorMsg(null);
 
     try {
-      let finalUrl = '';
-      let storagePath = '';
-
-      // If file matches bundled arrival ceremony videos, use permanent static path
-      const lowerName = file.name.toLowerCase();
-      if (lowerName.includes('aagman') || lowerName.includes('ishwati')) {
-        if (lowerName.includes('video1') || lowerName.includes('video_1') || lowerName.includes('video-1')) {
-          finalUrl = '/videos/Shri-Ishwati-Mata-Aagman-Video1-2026.mp4';
-        } else {
-          finalUrl = '/videos/Shri-Ishwati-Mata-Aagman-2026.mp4';
-        }
-        storagePath = 'static-aagman-video';
-      } else {
-        try {
-          // Upload to Firebase Cloud Storage so all visitors across all devices see it immediately
-          const cloudResult = await uploadMediaToCloudStorage(file, 'ashtami_videos', (pct) => {
-            setUploadProgress(pct);
-          });
-          finalUrl = cloudResult.url;
-          storagePath = cloudResult.storagePath;
-        } catch (cloudErr: any) {
-          console.warn('Cloud upload failed, falling back to local database:', cloudErr);
-          // Fallback: local IndexedDB
-          const savedVideo = await saveLocalVideoFile(file);
-          finalUrl = savedVideo.blobUrl;
-          storagePath = savedVideo.id;
-        }
-      }
+      const cloudResult = await uploadMediaToCloudStorage(file, 'ashtami_videos', (pct) => {
+        setUploadProgress(pct);
+      });
 
       setTempLocalVideo({
-        id: storagePath || 'ashtami-video',
-        blobUrl: finalUrl,
+        storagePath: cloudResult.storagePath,
+        url: cloudResult.url,
         name: file.name,
         size: file.size
       });
-      setResolvedLocalBlobUrl(finalUrl);
+      setResolvedLocalBlobUrl(cloudResult.url);
 
       if (!inputTitleMR) {
         setInputTitleMR(`महोत्सव व्हिडिओ: ${file.name}`);
@@ -199,7 +189,9 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
         setInputTitleEN(`Festival Video: ${file.name}`);
       }
     } catch (err: any) {
-      setErrorMsg(err?.message || (lang === 'EN' ? 'Failed to process video file.' : 'व्हिडिओ फाईल प्रक्रिया अयशस्वी झाली.'));
+      setErrorMsg(err?.message || (lang === 'EN'
+        ? 'Video upload failed. Check your connection and Firebase Storage permissions, then try again.'
+        : 'व्हिडिओ अपलोड अयशस्वी झाले. कनेक्शन आणि Firebase Storage परवानग्या तपासून पुन्हा प्रयत्न करा.'));
     } finally {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(null), 1000);
@@ -209,62 +201,63 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
   // Convert raw URL to proper embed URL
   const computeEmbedUrl = (type: AshtamiVideoSourceType, rawUrl: string): string | undefined => {
     if (type === 'youtube' || type === 'official') {
-      if (rawUrl.includes('youtube.com/watch?v=')) {
-        const id = rawUrl.split('v=')[1]?.split('&')[0];
-        if (id) return `https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&rel=0&modestbranding=1`;
-      } else if (rawUrl.includes('youtu.be/')) {
-        const id = rawUrl.split('youtu.be/')[1]?.split('?')[0];
-        if (id) return `https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&rel=0&modestbranding=1`;
-      } else if (rawUrl.includes('youtube.com/embed/')) {
-        return rawUrl;
-      }
+      try {
+        const parsed = new URL(rawUrl);
+        const host = parsed.hostname.toLowerCase();
+        let id = '';
+        if (host === 'youtu.be') id = parsed.pathname.split('/').filter(Boolean)[0] || '';
+        else if (['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com'].includes(host)) {
+          id = parsed.searchParams.get('v') || parsed.pathname.match(/^\/(?:embed|shorts|live)\/([^/?]+)/)?.[1] || '';
+        }
+        if (/^[A-Za-z0-9_-]{11}$/.test(id)) {
+          return `https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&rel=0&modestbranding=1`;
+        }
+      } catch {}
     } else if (type === 'instagram') {
-      return getInstagramEmbedUrl(rawUrl);
+      try {
+        const parsed = new URL(rawUrl);
+        if (['instagram.com', 'www.instagram.com', 'm.instagram.com'].includes(parsed.hostname.toLowerCase()) && extractInstagramShortcode(rawUrl)) {
+          return getInstagramEmbedUrl(rawUrl);
+        }
+      } catch {}
     }
     return undefined;
   };
 
   // Save new video configuration
-  const handleSaveVideoConfig = (e: React.FormEvent) => {
+  const handleSaveVideoConfig = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
     if (selectedSourceType === 'official') {
-      setConfig(DEFAULT_OFFICIAL_CONFIG);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_OFFICIAL_CONFIG));
-      syncConfigToFirestore(DEFAULT_OFFICIAL_CONFIG);
-      setIsModalOpen(false);
+      await persistConfig(DEFAULT_OFFICIAL_CONFIG);
       return;
     }
 
     if (selectedSourceType === 'local') {
-      if (!tempLocalVideo && !config.localVideoId && !config.url) {
+      if (!tempLocalVideo && (config.type !== 'local' || !config.url || config.url.startsWith('blob:'))) {
         setErrorMsg(lang === 'EN' ? 'Please select a video file from your device.' : 'कृपया तुमच्या डिव्हाइसवरून व्हिडिओ फाईल निवडा.');
         return;
       }
 
       const activeLocal = tempLocalVideo || {
-        id: config.localVideoId || 'local-vid',
-        blobUrl: resolvedLocalBlobUrl || config.url,
+        storagePath: config.storagePath || '',
+        url: resolvedLocalBlobUrl || config.url,
         name: config.fileName || 'Local Video',
         size: config.fileSize || 0
       };
 
       const newConfig: AshtamiVideoConfig = {
         type: 'local',
-        url: activeLocal.blobUrl,
-        localVideoId: activeLocal.id,
+        url: activeLocal.url,
+        storagePath: activeLocal.storagePath || undefined,
         fileName: activeLocal.name,
         fileSize: activeLocal.size,
         title: inputTitleEN.trim() || activeLocal.name,
         titleMarathi: inputTitleMR.trim() || activeLocal.name
       };
 
-      setResolvedLocalBlobUrl(activeLocal.blobUrl);
-      setConfig(newConfig);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig));
-      syncConfigToFirestore(newConfig);
-      setIsModalOpen(false);
+      await persistConfig(newConfig);
       return;
     }
 
@@ -279,6 +272,12 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
     }
 
     const embedUrl = computeEmbedUrl(selectedSourceType, cleanUrl);
+    if (!embedUrl) {
+      setErrorMsg(lang === 'EN'
+        ? 'Enter a valid YouTube video or Instagram Reel URL.'
+        : 'वैध YouTube व्हिडिओ किंवा Instagram Reel लिंक प्रविष्ट करा.');
+      return;
+    }
 
     const newConfig: AshtamiVideoConfig = {
       type: selectedSourceType,
@@ -288,19 +287,12 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
       titleMarathi: inputTitleMR.trim() || (selectedSourceType === 'youtube' ? 'यूट्यूब पावन व्हिडिओ' : 'इन्स्टाग्राम पावन रील')
     };
 
-    setConfig(newConfig);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig));
-    syncConfigToFirestore(newConfig);
-    setIsModalOpen(false);
+    await persistConfig(newConfig);
   };
 
   // Reset back to Official Aarti
-  const handleResetToOfficial = () => {
-    setConfig(DEFAULT_OFFICIAL_CONFIG);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_OFFICIAL_CONFIG));
-    syncConfigToFirestore(DEFAULT_OFFICIAL_CONFIG);
-    setResolvedLocalBlobUrl(null);
-    setIsModalOpen(false);
+  const handleResetToOfficial = async () => {
+    await persistConfig(DEFAULT_OFFICIAL_CONFIG);
   };
 
   return (
@@ -321,7 +313,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
             {config.type === 'official' && <span>🪔 अधिकृत यूट्यूब (Official)</span>}
             {config.type === 'youtube' && <span>📺 यूट्यूब (YouTube)</span>}
             {config.type === 'instagram' && <span>📱 इन्स्टाग्राम (Instagram)</span>}
-            {config.type === 'local' && <span>📁 डिव्हाइस व्हिडिओ (Local Upload)</span>}
+            {config.type === 'local' && <span>☁️ क्लाउड व्हिडिओ (Cloud Upload)</span>}
           </span>
           <span className="text-[11px] text-gray-300 truncate hidden xs:inline max-w-[200px] sm:max-w-xs font-sans">
             {lang === 'EN' ? config.title : config.titleMarathi}
@@ -329,7 +321,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-          {config.type !== 'official' && (
+          {canManageVideo && config.type !== 'official' && (
             <button
               onClick={handleResetToOfficial}
               className="px-2 py-1 rounded-lg bg-black/50 hover:bg-black/80 text-gray-400 hover:text-brand-gold border border-white/10 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all"
@@ -340,7 +332,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
             </button>
           )}
 
-          <button
+          {canManageVideo && <button
             onClick={() => {
               setSelectedSourceType(config.type);
               setInputUrl(config.type !== 'official' && config.type !== 'local' ? config.url : '');
@@ -354,7 +346,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
           >
             <Upload className="h-3 w-3" />
             <span>{lang === 'EN' ? 'Upload / Change Video' : 'व्हिडिओ बदला / अपलोड करा'}</span>
-          </button>
+          </button>}
         </div>
       </div>
 
@@ -375,7 +367,9 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
             <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-gray-400 gap-2 bg-zinc-950">
               <Film className="h-8 w-8 text-brand-gold animate-pulse" />
               <p className="text-xs font-bold text-white">
-                {lang === 'EN' ? 'Loading local device video...' : 'स्थानिक डिव्हाइस व्हिडिओ लोड होत आहे...'}
+                {config.url.startsWith('blob:')
+                  ? (lang === 'EN' ? 'This video was saved only in another browser. Upload the original file again.' : 'हा व्हिडिओ फक्त दुसऱ्या ब्राउजरमध्ये जतन झाला होता. मूळ फाईल पुन्हा अपलोड करा.')
+                  : (lang === 'EN' ? 'Loading cloud video...' : 'क्लाउड व्हिडिओ लोड होत आहे...')}
               </p>
               <button
                 onClick={() => setIsModalOpen(true)}
@@ -436,7 +430,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
       {/* ========================================================================= */}
       {/* MODAL: UPLOAD LOCAL VIDEO, SET YOUTUBE OR INSTAGRAM VIDEO                 */}
       {/* ========================================================================= */}
-      {isModalOpen && (
+      {canManageVideo && isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
           <form
             onSubmit={handleSaveVideoConfig}
@@ -454,7 +448,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
               </div>
               <button
                 type="button"
-                onClick={() => setIsModalOpen(false)}
+                onClick={cancelVideoEdit}
                 className="text-gray-400 hover:text-white p-1 rounded-lg cursor-pointer"
               >
                 <X className="h-4 w-4" />
@@ -563,7 +557,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
                         ? (uploadProgress !== null
                             ? `${lang === 'EN' ? 'Uploading to Cloud Storage...' : 'क्लाउडवर व्हिडिओ अपलोड होत आहे...'} ${uploadProgress}%`
                             : (lang === 'EN' ? 'Processing video file...' : 'व्हिडिओ फाईल प्रक्रिया होत आहे...'))
-                        : (lang === 'EN' ? 'Click to Browse Local Video File' : 'डिव्हाइसवरून व्हिडिओ फाईल निवडण्यासाठी क्लिक करा')}
+                        : (lang === 'EN' ? 'Choose a video to upload to cloud storage' : 'क्लाउड स्टोरेजवर अपलोड करण्यासाठी व्हिडिओ निवडा')}
                     </span>
                     <span className="text-[10px] text-gray-400 block mt-0.5">
                       {lang === 'EN'
@@ -662,7 +656,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
               <button
                 type="button"
-                onClick={() => setIsModalOpen(false)}
+                onClick={cancelVideoEdit}
                 className="px-3.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-gray-300 font-bold cursor-pointer"
               >
                 {lang === 'EN' ? 'Cancel' : 'रद्द करा'}

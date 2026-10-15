@@ -8,7 +8,7 @@ import { TRANSLATIONS, INITIAL_EVENTS, INITIAL_ANNOUNCEMENTS, INITIAL_TESTIMONIA
 import { DevoteeExperience, DigitalSevaBooking, DonationRecord, Announcement, UserProfile, TempleEvent } from './types';
 import { collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, getDocs, query, where } from 'firebase/firestore';
 import { db, auth, handleFirestoreError, OperationType } from './firebase';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { onIdTokenChanged, getIdTokenResult, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 
 // Importing all modular devotional components
 import { Header } from './components/Header';
@@ -72,6 +72,8 @@ export default function App() {
   const [quotaWarning, setQuotaWarning] = useState<string | null>(null);
 
   const [user, setUser] = useState<any>(null);
+  const [authMessage, setAuthMessage] = useState<string | null>(null);
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
     try {
       const stored = localStorage.getItem('ishwatichi_profile') || localStorage.getItem('ishawati_profile');
@@ -233,7 +235,9 @@ export default function App() {
       handleFirestoreError(err, OperationType.GET, 'events');
     });
 
-    const unsubAuth = onAuthStateChanged(auth, (authUser) => {
+    let authRevision = 0;
+    const unsubAuth = onIdTokenChanged(auth, (authUser) => {
+      const revision = ++authRevision;
       if (authUser) {
         setUser(authUser);
         setUserProfile(prev => ({
@@ -241,8 +245,27 @@ export default function App() {
           name: authUser.displayName || prev.name,
           email: authUser.email || prev.email,
         }));
+        getIdTokenResult(authUser).then(({ claims }) => {
+          if (revision !== authRevision) return;
+          const tokenEmail = (typeof claims.email === 'string' ? claims.email : authUser.email || '').trim().toLowerCase();
+          const emailVerified = claims.email_verified === true;
+          const authorized = tokenEmail === 'dangebow@gmail.com' && emailVerified;
+          setIsAdminUser(authorized);
+          setAuthMessage(authorized
+            ? null
+            : tokenEmail !== 'dangebow@gmail.com'
+              ? `Signed in as ${tokenEmail || authUser.email || 'unknown account'}. Admin access requires dangebow@gmail.com.`
+              : 'The Firebase sign-in token does not report this account as verified. Sign out and sign in again with the verified Google account.');
+        }).catch((error: unknown) => {
+          if (revision !== authRevision) return;
+          setIsAdminUser(false);
+          const code = (error as { code?: string })?.code;
+          setAuthMessage(code ? `Could not verify admin access (${code}). Sign out and sign in again.` : 'Could not verify admin access. Sign out and sign in again.');
+        });
       } else {
         setUser(null);
+        setIsAdminUser(false);
+        setAuthMessage(null);
       }
     });
 
@@ -279,14 +302,13 @@ export default function App() {
       unsubContent();
       unsubAnn();
       unsubEvt();
+      authRevision++;
       unsubAuth();
     };
   }, []);
 
   // Separate useEffect to handle subscriptions which depend on the user check
   useEffect(() => {
-    const isAdminUser = user && user.email === 'dangebow@gmail.com';
-
     // 4. Testimonials Sub: Admins see everything, Standard/visitor only see approved ones
     const testimonialsRef = collection(db, 'testimonials');
     const testimonialsQuery = isAdminUser
@@ -365,33 +387,30 @@ export default function App() {
       unsubBook();
       unsubDon();
     };
-  }, [user]);
+  }, [user, isAdminUser]);
 
   const handleLogin = async () => {
     try {
+      setAuthMessage(null);
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (e: any) {
-      const errorCode = e?.code || '';
-      const errorMsg = e?.message || '';
-      // Gracefully handle normal user actions (closing or cancelling the popup window)
-      if (
-        errorCode === 'auth/popup-closed-by-user' ||
-        errorCode === 'auth/cancelled-popup-request' ||
-        errorMsg.includes('auth/popup-closed-by-user') ||
-        errorMsg.includes('auth/cancelled-popup-request')
-      ) {
-        // Normal user cancellation - do not alert or console.error
-        return;
-      }
-      if (errorCode === 'auth/popup-blocked' || errorMsg.includes('popup-blocked')) {
-        alert(lang === 'EN'
-          ? 'Browser popup blocked. Please allow popups for this site to sign in.'
-          : 'ब्राउझर पॉपअप ब्लॉक केले आहे. कृपया लॉगिन करण्यासाठी पॉपअपची परवानगी द्या.');
-        return;
-      }
-      console.warn('Authentication status:', errorCode || errorMsg);
+      const credential = await signInWithPopup(auth, provider);
+      setUser(credential.user);
+      const { claims } = await getIdTokenResult(credential.user);
+      const tokenEmail = (typeof claims.email === 'string' ? claims.email : credential.user.email || '').trim().toLowerCase();
+      const authorized = tokenEmail === 'dangebow@gmail.com' && claims.email_verified === true;
+      setIsAdminUser(authorized);
+      setAuthMessage(authorized
+        ? null
+        : tokenEmail !== 'dangebow@gmail.com'
+          ? `Signed in as ${tokenEmail || 'unknown account'}. Admin access requires dangebow@gmail.com.`
+          : 'The Firebase sign-in token does not report this account as verified. Sign out and sign in again with the verified Google account.');
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      console.error('Google sign-in failed:', error);
+      setAuthMessage(code
+        ? `Google sign-in failed (${code}). Check that localhost is authorized in Firebase Authentication, then try again.`
+        : 'Google sign-in failed. Check Firebase Authentication settings and try again.');
     }
   };
 
@@ -443,6 +462,7 @@ export default function App() {
   const handleSaveSiteContent = async (key: string, data: any) => {
     try {
       await setDoc(doc(db, 'site_content', key), {
+        id: key,
         contentKey: key,
         data: cleanDevanagariSpelling(data)
       });
@@ -761,8 +781,8 @@ export default function App() {
                       objectFit="contain"
                       objectPosition="center center"
                       priority
-                      onManageClick={() => setIsDeviImageManagerOpen(true)}
-                      showManageButton={true}
+                      onManageClick={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+                      showManageButton={isAdminUser}
                       className="w-full h-auto max-h-[380px] xs:max-h-[440px] sm:max-h-[500px] md:max-h-[540px] lg:max-h-[560px] xl:max-h-[600px] flex items-center justify-center"
                       imageClassName="w-auto h-auto max-h-[380px] xs:max-h-[440px] sm:max-h-[500px] md:max-h-[540px] lg:max-h-[560px] xl:max-h-[600px] object-contain mx-auto transition-transform duration-700 group-hover:scale-[1.03] drop-shadow-[0_8px_25px_rgba(0,0,0,0.9)]"
                     />
@@ -784,7 +804,7 @@ export default function App() {
                   </div>
 
                   {/* Daily Darshan Idol Manager Action Button */}
-                  <button
+                  {isAdminUser && <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -794,7 +814,7 @@ export default function App() {
                   >
                     <span>📸</span>
                     <span>{lang === 'EN' ? 'Manage Daily Idol (Add / Edit / Delete)' : 'आजचे दर्शन व्यवस्थापन (फोटो जोडा / बदला / हटवा)'}</span>
-                  </button>
+                  </button>}
 
                   {/* Sacred footer banner of the frame */}
                   <div className="mt-2 pt-1.5 border-t border-brand-gold/25 flex items-center justify-between text-[10px] sm:text-[11px] text-gray-300 px-1">
@@ -913,14 +933,14 @@ export default function App() {
             <LiveDarshanSection
               lang={lang}
               heroImagePath={activeDeviImage.url}
-              onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
+              onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
             />
 
             {/* General Highlights about the Temple Origin */}
             <AboutSection
               lang={lang}
               heroImagePath={activeDeviImage.url}
-              onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
+              onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
             />
 
             {/* Fast Quick Buttons to contact & locations */}
@@ -947,7 +967,7 @@ export default function App() {
           <AboutSection
             lang={lang}
             heroImagePath={activeDeviImage.url}
-            onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
+            onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
           />
         )}
 
@@ -955,7 +975,7 @@ export default function App() {
           <LiveDarshanSection
             lang={lang}
             heroImagePath={activeDeviImage.url}
-            onManageDeviImage={() => setIsDeviImageManagerOpen(true)}
+            onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
           />
         )}
 
@@ -993,7 +1013,12 @@ export default function App() {
         )}
 
         {activeTab === 'gallery' && (
-          <MasonryGallery lang={lang} />
+          <MasonryGallery
+            lang={lang}
+            canManageMedia={isAdminUser}
+            signedInEmail={user?.email || null}
+            authMessage={authMessage}
+          />
         )}
 
         {activeTab === 'testimonials' && (
@@ -1033,6 +1058,10 @@ export default function App() {
         {activeTab === 'admin' && (
           <AdminPanel
             lang={lang}
+            isAdminUser={isAdminUser}
+            signedInEmail={user?.email || null}
+            authMessage={authMessage}
+            onAdminLogin={handleLogin}
             experiences={experiences}
             onApproveExperience={handleApproveExperience}
             bookings={bookings}
@@ -1096,7 +1125,7 @@ export default function App() {
             </p>
             <div className="flex gap-2">
               <button onClick={() => setActiveTab('admin')} className="text-brand-gold underline font-mono tracking-wider font-bold cursor-pointer">
-                [ {lang === 'EN' ? 'Admin Access Code: 1234' : 'प्रशासकीय लॉगिन कोड: 1234'} ]
+                [ {lang === 'EN' ? 'Administrator Sign In' : 'प्रशासकीय साइन इन'} ]
               </button>
             </div>
           </div>
@@ -1247,13 +1276,13 @@ export default function App() {
 
             {/* Action buttons */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-              <button
+              {isAdminUser && <button
                 onClick={() => setIsDeviImageManagerOpen(true)}
                 className="px-4 py-2 bg-black/60 text-brand-gold border border-brand-gold/60 rounded-xl hover:bg-brand-maroon hover:text-white text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95"
               >
                 <span>📸</span>
                 <span>{lang === 'EN' ? 'Manage Idol Photo (CRUD)' : 'दर्शन फोटो व्यवस्थापन'}</span>
-              </button>
+              </button>}
 
               <button
                 onClick={() => setFlowerShowerCount(prev => prev + 1)}
@@ -1288,7 +1317,7 @@ export default function App() {
       {/* DEVI MATA DAILY DARSHAN IMAGE MANAGER MODAL (CRUD) */}
       <DeviMataImageManagerModal
         lang={lang}
-        isOpen={isDeviImageManagerOpen}
+        isOpen={isDeviImageManagerOpen && isAdminUser}
         onClose={() => setIsDeviImageManagerOpen(false)}
         images={deviImages}
         activeImageId={activeDeviImage.id}

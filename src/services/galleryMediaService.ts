@@ -6,14 +6,16 @@
 import {
   collection,
   doc,
+  deleteField,
   setDoc,
-  deleteDoc,
   onSnapshot,
   query,
   serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
+import { deleteObject, ref } from 'firebase/storage';
 import { db, handleFirestoreError, OperationType } from '../firebase';
+import { storage } from '../firebase';
 import { GALLERY_ITEMS, OFFICIAL_INSTAGRAM_REELS, OFFICIAL_FESTIVAL_VIDEOS } from '../data';
 
 export type GalleryMediaType = 'photo' | 'video' | 'instagram';
@@ -23,7 +25,9 @@ export interface GalleryMediaItem {
   type: GalleryMediaType;
   url: string; // Image URL or Video URL or Instagram URL
   embedUrl?: string; // Optional embed URL for YouTube/Instagram/direct video
-  localVideoId?: string; // Persistent ID in IndexedDB for device-uploaded video files
+  localVideoId?: string; // Legacy browser-local field; new uploads must use Storage URLs.
+  storagePath?: string;
+  isDeleted?: boolean;
   titleMR: string;
   titleEN: string;
   category: string;
@@ -36,8 +40,13 @@ export interface GalleryMediaItem {
   updatedAt?: string;
 }
 
+type UpdateGalleryMediaParams = Partial<Omit<GalleryMediaItem, 'storagePath' | 'localVideoId'>> & {
+  storagePath?: string | null;
+  localVideoId?: string | null;
+};
+
 const COLLECTION_NAME = 'gallery_media';
-const LOCAL_STORAGE_KEY = 'temple_gallery_media_cache';
+let inMemoryGalleryCache: GalleryMediaItem[] | null = null;
 
 const TYPE_PRIORITY: Record<GalleryMediaType, number> = {
   photo: 1,     // 1) Sacred Photos / Images first
@@ -113,33 +122,11 @@ export const INITIAL_GALLERY_MEDIA: GalleryMediaItem[] = [
 ];
 
 export function getCachedGalleryMedia(): GalleryMediaItem[] {
-  try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const seen = new Set<string>();
-        const uniqueItems: GalleryMediaItem[] = [];
-        parsed.forEach((item, idx) => {
-          let itemId = item.id;
-          if (!itemId || seen.has(itemId)) {
-            itemId = itemId ? `${itemId}-dup-${idx}` : `gal-item-${idx}`;
-            item = { ...item, id: itemId };
-          }
-          seen.add(itemId);
-          uniqueItems.push(item);
-        });
-        return sortGalleryMediaItems(uniqueItems);
-      }
-    }
-  } catch {}
-  return sortGalleryMediaItems(INITIAL_GALLERY_MEDIA);
+  return sortGalleryMediaItems(inMemoryGalleryCache ?? INITIAL_GALLERY_MEDIA);
 }
 
 export function setCachedGalleryMedia(items: GalleryMediaItem[]): void {
-  try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
-  } catch {}
+  inMemoryGalleryCache = sortGalleryMediaItems(items);
 }
 
 /**
@@ -157,8 +144,9 @@ export function subscribeGalleryMedia(
       q,
       (snapshot) => {
         if (snapshot.empty) {
-          const cached = getCachedGalleryMedia();
-          onUpdate(cached);
+          const initial = sortGalleryMediaItems(INITIAL_GALLERY_MEDIA);
+          setCachedGalleryMedia(initial);
+          onUpdate(initial);
           return;
         }
 
@@ -170,12 +158,14 @@ export function subscribeGalleryMedia(
           const docId = docSnap.id;
           if (!seenIds.has(docId)) {
             seenIds.add(docId);
+            if (data.isDeleted === true) return;
             items.push({
               id: docId,
               type: (data.type as GalleryMediaType) || 'photo',
               url: data.url || '',
               embedUrl: data.embedUrl,
               localVideoId: data.localVideoId,
+              storagePath: data.storagePath,
               titleMR: data.titleMR || '',
               titleEN: data.titleEN || '',
               category: data.category || 'Mata Darshan',
@@ -185,17 +175,9 @@ export function subscribeGalleryMedia(
               authorHandle: data.authorHandle,
               displayOrder: typeof data.displayOrder === 'number' ? data.displayOrder : undefined,
               createdAt: data.createdAt || new Date().toISOString(),
-              updatedAt: data.updatedAt
+              updatedAt: data.updatedAt,
+              isDeleted: data.isDeleted === true
             });
-          }
-        });
-
-        // Merge any locally added items from cache so nothing is lost if firestore is partial or syncing
-        const cached = getCachedGalleryMedia();
-        cached.forEach(cachedItem => {
-          if (!seenIds.has(cachedItem.id)) {
-            items.push(cachedItem);
-            seenIds.add(cachedItem.id);
           }
         });
 
@@ -212,16 +194,25 @@ export function subscribeGalleryMedia(
         onUpdate(sortedItems);
       },
       (error) => {
-        handleFirestoreError(error, OperationType.LIST, COLLECTION_NAME);
         onUpdate(getCachedGalleryMedia());
         if (onError) onError(error);
+        try {
+          handleFirestoreError(error, OperationType.LIST, COLLECTION_NAME);
+        } catch (reportedError) {
+          console.error('Gallery subscription failed; showing in-memory content:', reportedError);
+        }
       }
     );
 
     return unsubscribe;
   } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, COLLECTION_NAME);
     onUpdate(getCachedGalleryMedia());
+    if (onError && error instanceof Error) onError(error);
+    try {
+      handleFirestoreError(error, OperationType.LIST, COLLECTION_NAME);
+    } catch (reportedError) {
+      console.error('Gallery subscription could not be started:', reportedError);
+    }
     return () => {};
   }
 }
@@ -320,6 +311,7 @@ export async function addGalleryMedia(item: {
   url: string;
   embedUrl?: string;
   localVideoId?: string;
+  storagePath?: string;
   titleMR: string;
   titleEN: string;
   category: string;
@@ -328,7 +320,7 @@ export async function addGalleryMedia(item: {
   descriptionEN?: string;
   authorHandle?: string;
 }): Promise<GalleryMediaItem> {
-  const id = `media-${Date.now()}`;
+  const id = `media-${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`;
   const newItem: GalleryMediaItem = {
     id,
     type: item.type,
@@ -343,6 +335,7 @@ export async function addGalleryMedia(item: {
 
   if (item.embedUrl) newItem.embedUrl = item.embedUrl;
   if (item.localVideoId) newItem.localVideoId = item.localVideoId;
+  if (item.storagePath) newItem.storagePath = item.storagePath;
   if (item.descriptionMR) newItem.descriptionMR = item.descriptionMR;
   if (item.descriptionEN) newItem.descriptionEN = item.descriptionEN;
   if (item.authorHandle) newItem.authorHandle = item.authorHandle;
@@ -360,6 +353,14 @@ export async function addGalleryMedia(item: {
     await setDoc(docRef, firestorePayload);
     return newItem;
   } catch (error) {
+    setCachedGalleryMedia(current);
+    if (newItem.storagePath) {
+      try {
+        await deleteObject(ref(storage, newItem.storagePath));
+      } catch (storageError) {
+        console.warn('Gallery metadata could not be saved and its uploaded file could not be cleaned up:', storageError);
+      }
+    }
     handleFirestoreError(error, OperationType.CREATE, `${COLLECTION_NAME}/${id}`);
     return newItem;
   }
@@ -370,16 +371,19 @@ export async function addGalleryMedia(item: {
  */
 export async function updateGalleryMedia(
   id: string,
-  params: Partial<GalleryMediaItem>
+  params: UpdateGalleryMediaParams
 ): Promise<void> {
   const current = getCachedGalleryMedia();
+  const previousItem = current.find(item => item.id === id);
   const updated = current.map(item => {
     if (item.id === id) {
       return {
         ...item,
         ...params,
+        storagePath: params.storagePath === null ? undefined : (params.storagePath ?? item.storagePath),
+        localVideoId: params.localVideoId === null ? undefined : (params.localVideoId ?? item.localVideoId),
         updatedAt: new Date().toISOString()
-      };
+      } as GalleryMediaItem;
     }
     return item;
   });
@@ -391,8 +395,18 @@ export async function updateGalleryMedia(
       ...params,
       updatedAt: new Date().toISOString()
     });
+    if (params.storagePath === null) firestorePayload.storagePath = deleteField();
+    if (params.localVideoId === null) firestorePayload.localVideoId = deleteField();
     await setDoc(docRef, firestorePayload, { merge: true });
+    if (previousItem?.storagePath && params.storagePath !== undefined && previousItem.storagePath !== params.storagePath) {
+      try {
+        await deleteObject(ref(storage, previousItem.storagePath));
+      } catch (storageError) {
+        console.warn('Gallery item updated, but its previous Storage object could not be deleted:', storageError);
+      }
+    }
   } catch (error) {
+    setCachedGalleryMedia(current);
     handleFirestoreError(error, OperationType.UPDATE, `${COLLECTION_NAME}/${id}`);
   }
 }
@@ -402,12 +416,24 @@ export async function updateGalleryMedia(
  */
 export async function deleteGalleryMedia(id: string): Promise<void> {
   const current = getCachedGalleryMedia();
-  setCachedGalleryMedia(current.filter(item => item.id !== id));
+  const item = current.find(candidate => candidate.id === id);
+  if (!item) return;
+
+  const tombstone = { ...item, isDeleted: true, updatedAt: new Date().toISOString() };
+  setCachedGalleryMedia(current.filter(candidate => candidate.id !== id));
 
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
-    await deleteDoc(docRef);
+    await setDoc(docRef, cleanFirestoreData(tombstone), { merge: true });
+    if (item.storagePath) {
+      try {
+        await deleteObject(ref(storage, item.storagePath));
+      } catch (storageError) {
+        console.warn('Gallery item removed, but its Storage object could not be deleted:', storageError);
+      }
+    }
   } catch (error) {
+    setCachedGalleryMedia(current);
     handleFirestoreError(error, OperationType.DELETE, `${COLLECTION_NAME}/${id}`);
   }
 }

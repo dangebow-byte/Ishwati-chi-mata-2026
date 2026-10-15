@@ -4,63 +4,8 @@
  */
 
 /**
- * Local Media Storage Service
- * Handles device file uploads (Images & Videos) using native browser IndexedDB & Canvas.
- * Supports:
- * - High-resolution client-side image compression (returns compressed Data URL)
- * - Large video file storage in IndexedDB with Blob URL resolution for smooth HTML5 playback
- * - Automatic persistence across browser sessions
+ * Client-side image processing helpers. Uploaded media files are stored in Firebase Storage.
  */
-
-const DB_NAME = 'IshwatiMataMediaDB';
-const DB_VERSION = 1;
-const VIDEO_STORE = 'local_videos';
-
-interface StoredVideoRecord {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  blob: Blob;
-  createdAt: string;
-}
-
-let dbInstance: IDBDatabase | null = null;
-
-/**
- * Opens or initializes the native IndexedDB database
- */
-function getDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    if (dbInstance) {
-      resolve(dbInstance);
-      return;
-    }
-
-    if (typeof window === 'undefined' || !window.indexedDB) {
-      reject(new Error('IndexedDB is not supported in this browser environment.'));
-      return;
-    }
-
-    const request = window.indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(VIDEO_STORE)) {
-        db.createObjectStore(VIDEO_STORE, { keyPath: 'id' });
-      }
-    };
-
-    request.onsuccess = (event) => {
-      dbInstance = (event.target as IDBOpenDBRequest).result;
-      resolve(dbInstance);
-    };
-
-    request.onerror = (event) => {
-      reject((event.target as IDBOpenDBRequest).error);
-    };
-  });
-}
 
 /**
  * Compress an image file using an HTML Canvas element
@@ -153,91 +98,6 @@ export async function compressAndReadImageFile(
     reader.onerror = () => reject(new Error('Failed to read image file.'));
     reader.readAsDataURL(file);
   });
-}
-
-/**
- * Saves a local video File/Blob to IndexedDB and returns its persistent ID and blob URL
- */
-export async function saveLocalVideoFile(
-  file: File,
-  customId?: string
-): Promise<{ id: string; blobUrl: string; name: string; size: number }> {
-  const db = await getDB();
-  const id = customId || ('local-vid-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7));
-
-  const record: StoredVideoRecord = {
-    id,
-    name: file.name,
-    type: file.type || 'video/mp4',
-    size: file.size,
-    blob: file,
-    createdAt: new Date().toISOString()
-  };
-
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(VIDEO_STORE, 'readwrite');
-    const store = tx.objectStore(VIDEO_STORE);
-    const putRequest = store.put(record);
-
-    putRequest.onsuccess = () => {
-      const blobUrl = URL.createObjectURL(file);
-      resolve({
-        id,
-        blobUrl,
-        name: file.name,
-        size: file.size
-      });
-    };
-
-    putRequest.onerror = () => reject(putRequest.error);
-  });
-}
-
-/**
- * Retrieves a stored video from IndexedDB and creates a playable Blob URL
- */
-export async function getLocalVideoBlobUrl(idOrKey: string): Promise<string | null> {
-  if (!idOrKey) return null;
-  try {
-    const db = await getDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction(VIDEO_STORE, 'readonly');
-      const store = tx.objectStore(VIDEO_STORE);
-      const getReq = store.get(idOrKey);
-
-      getReq.onsuccess = () => {
-        const record = getReq.result as StoredVideoRecord | undefined;
-        if (record && record.blob) {
-          const blobUrl = URL.createObjectURL(record.blob);
-          resolve(blobUrl);
-          return;
-        }
-
-        // Fallback: search all records if key was a sub-id or timestamp match
-        const cursorReq = store.openCursor();
-        let found = false;
-        cursorReq.onsuccess = (e) => {
-          const cursor = (e.target as IDBRequest<IDBCursorWithValue>).result;
-          if (cursor) {
-            const item = cursor.value as StoredVideoRecord;
-            if (item.id === idOrKey || idOrKey.includes(item.id) || item.id.includes(idOrKey)) {
-              found = true;
-              resolve(URL.createObjectURL(item.blob));
-              return;
-            }
-            cursor.continue();
-          } else if (!found) {
-            resolve(null);
-          }
-        };
-        cursorReq.onerror = () => resolve(null);
-      };
-
-      getReq.onerror = () => resolve(null);
-    });
-  } catch {
-    return null;
-  }
 }
 
 /**
