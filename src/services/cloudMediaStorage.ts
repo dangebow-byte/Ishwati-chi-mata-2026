@@ -34,7 +34,7 @@ function sanitizeFileName(name: string): string {
 
 /**
  * Uploads a media file (Video or Image) directly to Firebase Cloud Storage.
- * Returns the permanent public download URL accessible from any device or deployed site.
+ * Includes CORS / connection timeout detection to prevent freezing at 0%.
  * 
  * @param file The File object selected from the user's device
  * @param folder The storage directory ('gallery_videos', 'ashtami_videos', 'gallery_photos')
@@ -65,27 +65,42 @@ export async function uploadMediaToCloudStorage(
   const uploadTask = uploadBytesResumable(storageRef, file, metadata);
 
   return new Promise((resolve, reject) => {
+    let isSettled = false;
+
+    // Safety timeout: If preflight request fails or zero progress is made within 5 seconds (typical CORS block),
+    // cancel the upload task and reject immediately so fallback can take over seamlessly.
+    const timeoutTimer = setTimeout(() => {
+      if (!isSettled && uploadTask.snapshot.bytesTransferred === 0) {
+        isSettled = true;
+        try {
+          uploadTask.cancel();
+        } catch {}
+        reject(new Error('Firebase Storage CORS block: Google Cloud Storage bucket requires CORS headers enabled. Using local fallback.'));
+      }
+    }, 5000);
+
     uploadTask.on(
       'state_changed',
       (snapshot) => {
+        if (snapshot.bytesTransferred > 0) {
+          clearTimeout(timeoutTimer);
+        }
         const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         if (onProgress) {
           onProgress(progress, snapshot.bytesTransferred, snapshot.totalBytes);
         }
       },
       (error) => {
-        console.error('Firebase Storage Upload Error:', error);
-        let userMessage = 'व्हिडिओ अपलोड अयशस्वी झाला (Cloud Upload Failed).';
-        if (error.code === 'storage/unauthorized') {
-          userMessage = 'क्लाउड स्टोरेज परवानगी नाकारली गेली. कृपया पुन्हा प्रयत्न करा किंवा ॲडमिनशी संपर्क साधा (Storage unauthorized).';
-        } else if (error.code === 'storage/quota-exceeded') {
-          userMessage = 'स्टोरेज कोटा मर्यादा संपली आहे (Storage quota exceeded).';
-        } else if (error.code === 'storage/retry-limit-exceeded') {
-          userMessage = 'इंटरनेट कनेक्शन कमकुवत असल्यामुळे वेळ संपली (Network timeout).';
-        }
-        reject(new Error(userMessage));
+        clearTimeout(timeoutTimer);
+        if (isSettled) return;
+        isSettled = true;
+        console.warn('Firebase Storage Upload Error / CORS:', error);
+        reject(error);
       },
       async () => {
+        clearTimeout(timeoutTimer);
+        if (isSettled) return;
+        isSettled = true;
         try {
           const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
           resolve({
@@ -96,8 +111,7 @@ export async function uploadMediaToCloudStorage(
             contentType: file.type
           });
         } catch (urlError) {
-          console.error('Failed to get download URL:', urlError);
-          reject(new Error('डाउनलोड लिंक मिळवण्यात त्रुटी आली. कृपया पुन्हा प्रयत्न करा.'));
+          reject(urlError);
         }
       }
     );

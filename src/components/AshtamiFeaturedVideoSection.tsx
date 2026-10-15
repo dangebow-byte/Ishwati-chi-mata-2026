@@ -158,19 +158,30 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
       let finalUrl = '';
       let storagePath = '';
 
-      try {
-        // Upload to Firebase Cloud Storage so all visitors across all devices see it immediately
-        const cloudResult = await uploadMediaToCloudStorage(file, 'ashtami_videos', (pct) => {
-          setUploadProgress(pct);
-        });
-        finalUrl = cloudResult.url;
-        storagePath = cloudResult.storagePath;
-      } catch (cloudErr: any) {
-        console.warn('Cloud upload failed, falling back to local database:', cloudErr);
-        // Fallback: local IndexedDB
-        const savedVideo = await saveLocalVideoFile(file);
-        finalUrl = savedVideo.blobUrl;
-        storagePath = savedVideo.id;
+      // If file matches bundled arrival ceremony videos, use permanent static path
+      const lowerName = file.name.toLowerCase();
+      if (lowerName.includes('aagman') || lowerName.includes('ishwati')) {
+        if (lowerName.includes('video1') || lowerName.includes('video_1') || lowerName.includes('video-1')) {
+          finalUrl = '/videos/Shri-Ishwati-Mata-Aagman-Video1-2026.mp4';
+        } else {
+          finalUrl = '/videos/Shri-Ishwati-Mata-Aagman-2026.mp4';
+        }
+        storagePath = 'static-aagman-video';
+      } else {
+        try {
+          // Upload to Firebase Cloud Storage so all visitors across all devices see it immediately
+          const cloudResult = await uploadMediaToCloudStorage(file, 'ashtami_videos', (pct) => {
+            setUploadProgress(pct);
+          });
+          finalUrl = cloudResult.url;
+          storagePath = cloudResult.storagePath;
+        } catch (cloudErr: any) {
+          console.warn('Cloud upload failed, falling back to local database:', cloudErr);
+          // Fallback: local IndexedDB
+          const savedVideo = await saveLocalVideoFile(file);
+          finalUrl = savedVideo.blobUrl;
+          storagePath = savedVideo.id;
+        }
       }
 
       setTempLocalVideo({

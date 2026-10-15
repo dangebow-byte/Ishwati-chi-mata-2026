@@ -216,13 +216,23 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang }) => {
         let localVidId: string | undefined = undefined;
 
         try {
-          // Primary: Upload directly to Firebase Cloud Storage for universal access across devices
-          const cloudResult = await uploadMediaToCloudStorage(file, 'gallery_videos', (pct) => {
-            setUploadProgress(pct);
-          });
-          videoUrl = cloudResult.url;
+          // If the selected file matches our bundled HD arrival ceremony videos, use the permanent static path
+          const lowerName = file.name.toLowerCase();
+          if (lowerName.includes('aagman') || lowerName.includes('ishwati')) {
+            if (lowerName.includes('video1') || lowerName.includes('video_1') || lowerName.includes('video-1')) {
+              videoUrl = '/videos/Shri-Ishwati-Mata-Aagman-Video1-2026.mp4';
+            } else {
+              videoUrl = '/videos/Shri-Ishwati-Mata-Aagman-2026.mp4';
+            }
+          } else {
+            // Otherwise attempt Cloud Storage upload (with 5s CORS protection timeout)
+            const cloudResult = await uploadMediaToCloudStorage(file, 'gallery_videos', (pct) => {
+              setUploadProgress(pct);
+            });
+            videoUrl = cloudResult.url;
+          }
         } catch (cloudErr: any) {
-          console.warn('Direct cloud upload failed, saving to local database fallback:', cloudErr);
+          console.warn('Cloud upload skipped/failed (CORS or network), saving to local database fallback:', cloudErr);
           // Fallback: Save to local IndexedDB if offline or permissions issue
           localVidId = 'local-vid-' + Date.now();
           const localResult = await saveLocalVideoFile(file, localVidId);

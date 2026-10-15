@@ -222,6 +222,43 @@ export const OFFICIAL_INSTAGRAM_REELS: GalleryVideoReel[] = [
   }
 ];
 
+export interface FestivalVideoItem {
+  id: string;
+  url: string;
+  titleEN: string;
+  titleMR: string;
+  category: string;
+  year: string;
+  descriptionEN: string;
+  descriptionMR: string;
+  date?: string;
+}
+
+export const OFFICIAL_FESTIVAL_VIDEOS: FestivalVideoItem[] = [
+  {
+    id: 'vid-aagman-2026-ceremony',
+    url: '/videos/Shri-Ishwati-Mata-Aagman-2026.mp4',
+    titleEN: 'Shree Ishwatichi Mata 53rd Year – Sacred Arrival Ceremony Official Video (2026)',
+    titleMR: 'श्री इश्वटीची माता ५३ वे वर्ष – पावन आगमन सोहळा अधिकृत व्हिडिओ (२०२६)',
+    category: 'Mata Darshan',
+    year: '2026',
+    descriptionEN: 'Grand 53rd year sacred arrival procession and divine darshan of Shree Ishwatichi Mata.',
+    descriptionMR: 'श्री इश्वटीची माता ५३ व्या वर्षातील आगमन सोहळ्याचे विहंगम व पावन दर्शन.',
+    date: '13 October 2026'
+  },
+  {
+    id: 'vid-aagman-2026-procession',
+    url: '/videos/Shri-Ishwati-Mata-Aagman-Video1-2026.mp4',
+    titleEN: 'Shree Ishwatichi Mata 53rd Year – Grand Arrival Procession & Devotee Darshan (2026)',
+    titleMR: 'श्री इश्वटीची माता ५३ वे वर्ष – भव्य आगमन मिरवणूक व भक्त दर्शन (२०२६)',
+    category: 'Mata Darshan',
+    year: '2026',
+    descriptionEN: 'Divine celebration and grand arrival ceremony of Shree Ishwatichi Mata with devotional fervor.',
+    descriptionMR: 'ढोल-ताशांच्या गजरात आणि अथांग भक्तीत पार पडलेला पावन आगमन सोहळा.',
+    date: '12 October 2026'
+  }
+];
+
 export const TRANSLATIONS = {
   EN: {
     title: 'Shree Ishwatichi Mata Mandal',

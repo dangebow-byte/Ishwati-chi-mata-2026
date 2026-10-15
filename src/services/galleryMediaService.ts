@@ -14,7 +14,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
-import { GALLERY_ITEMS, OFFICIAL_INSTAGRAM_REELS } from '../data';
+import { GALLERY_ITEMS, OFFICIAL_INSTAGRAM_REELS, OFFICIAL_FESTIVAL_VIDEOS } from '../data';
 
 export type GalleryMediaType = 'photo' | 'video' | 'instagram';
 
@@ -65,6 +65,19 @@ export function sortGalleryMediaItems(items: GalleryMediaItem[]): GalleryMediaIt
 
 // Transform initial bundled data to standard items with default displayOrder
 export const INITIAL_GALLERY_MEDIA: GalleryMediaItem[] = [
+  ...OFFICIAL_FESTIVAL_VIDEOS.map((vid, idx) => ({
+    id: vid.id,
+    type: 'video' as GalleryMediaType,
+    url: vid.url,
+    titleMR: vid.titleMR,
+    titleEN: vid.titleEN,
+    category: vid.category,
+    year: vid.year,
+    descriptionMR: vid.descriptionMR,
+    descriptionEN: vid.descriptionEN,
+    displayOrder: idx,
+    createdAt: new Date().toISOString()
+  })),
   ...GALLERY_ITEMS.map((item, idx) => {
     let year = '2026';
     if (item.id.includes('2025')) year = '2025';
@@ -78,7 +91,7 @@ export const INITIAL_GALLERY_MEDIA: GalleryMediaItem[] = [
       titleEN: item.title,
       category: item.category || 'Mata Darshan',
       year,
-      displayOrder: idx,
+      displayOrder: OFFICIAL_FESTIVAL_VIDEOS.length + idx,
       createdAt: new Date().toISOString()
     };
   }),
@@ -94,7 +107,7 @@ export const INITIAL_GALLERY_MEDIA: GalleryMediaItem[] = [
     descriptionMR: reel.descriptionMR,
     descriptionEN: reel.descriptionEN,
     authorHandle: reel.authorHandle || '@ishwatichi_mata',
-    displayOrder: GALLERY_ITEMS.length + idx,
+    displayOrder: OFFICIAL_FESTIVAL_VIDEOS.length + GALLERY_ITEMS.length + idx,
     createdAt: new Date().toISOString()
   }))
 ];
