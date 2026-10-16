@@ -1062,6 +1062,7 @@ export default function App() {
             signedInEmail={user?.email || null}
             authMessage={authMessage}
             onAdminLogin={handleLogin}
+            onAdminLogout={handleLogout}
             experiences={experiences}
             onApproveExperience={handleApproveExperience}
             bookings={bookings}

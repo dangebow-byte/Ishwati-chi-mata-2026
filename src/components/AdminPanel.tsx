@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Lock, Eye, CheckCircle, XCircle, Trash2, ShieldCheck, Download, PlusCircle, BarChart3, Users, Flame, Sparkles } from 'lucide-react';
+import { Lock, Eye, CheckCircle, XCircle, Trash2, ShieldCheck, Download, PlusCircle, BarChart3, Users, Flame, Sparkles, LogOut } from 'lucide-react';
 import { DevoteeExperience, DigitalSevaBooking, DonationRecord, Announcement } from '../types';
 
 interface AdminPanelProps {
@@ -13,6 +13,7 @@ interface AdminPanelProps {
   signedInEmail: string | null;
   authMessage: string | null;
   onAdminLogin: () => void;
+  onAdminLogout?: () => void;
   experiences: DevoteeExperience[];
   onApproveExperience: (id: string, approve: boolean) => void;
   bookings: DigitalSevaBooking[];
@@ -29,6 +30,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   signedInEmail,
   authMessage,
   onAdminLogin,
+  onAdminLogout,
   experiences,
   onApproveExperience,
   bookings,
@@ -148,7 +150,25 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             {lang === 'EN' ? 'Sign in with the authorized, verified Google account to manage site data.' : 'वेबसाइट माहिती व्यवस्थापित करण्यासाठी अधिकृत आणि सत्यापित Google खात्याने साइन इन करा.'}
           </p>
         </div>
-        {signedInEmail && <p className="text-xs text-amber-300">Signed in as {signedInEmail}. Use dangebow@gmail.com.</p>}
+        {signedInEmail && (
+          <div className="bg-amber-950/40 p-3 rounded-xl border border-amber-500/30 space-y-2">
+            <p className="text-xs text-amber-300">
+              {lang === 'EN'
+                ? `Signed in as ${signedInEmail}. Only dangebow@gmail.com has administrator access.`
+                : `साइन इन केलेले खाते: ${signedInEmail}. केवळ dangebow@gmail.com कडे प्रशासकीय अधिकार आहेत.`}
+            </p>
+            {onAdminLogout && (
+              <button
+                type="button"
+                onClick={onAdminLogout}
+                className="px-3 py-1.5 bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-500/40 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 shadow"
+              >
+                <LogOut className="h-3.5 w-3.5 text-red-300" />
+                <span>{lang === 'EN' ? 'Sign Out / Switch Account' : 'बाहेर पडा / दुसरे खाते वापरा'}</span>
+              </button>
+            )}
+          </div>
+        )}
         {authMessage && <p role="alert" className="text-xs text-red-300">{authMessage}</p>}
         <button
           type="button"
@@ -181,9 +201,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           </p>
         </div>
 
-        <span className="text-xs text-emerald-300 border border-emerald-500/25 px-2.5 py-1 rounded bg-emerald-950/20">
-          🔐 Signed in as {signedInEmail}
-        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-emerald-300 border border-emerald-500/25 px-2.5 py-1 rounded bg-emerald-950/20">
+            🔐 Signed in as {signedInEmail}
+          </span>
+          {onAdminLogout && (
+            <button
+              type="button"
+              onClick={onAdminLogout}
+              className="px-2.5 py-1 bg-red-950/60 hover:bg-red-900/80 text-red-300 hover:text-white border border-red-500/40 rounded text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow"
+              title={lang === 'EN' ? 'Sign out of Admin Console' : 'अॅडमिन पॅनेलमधून बाहेर पडा'}
+            >
+              <LogOut className="h-3 w-3" />
+              <span>{lang === 'EN' ? 'Sign Out' : 'लॉगआउट'}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Admin Tabs Menu */}

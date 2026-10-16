@@ -495,5 +495,10 @@ ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS file_name VARCHAR(255);
 ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS file_size BIGINT;
 CREATE INDEX IF NOT EXISTS idx_gallery_media_local_video ON gallery_media (local_video_id);
 
+-- Migration: Add Firebase Cloud Storage path column for global media access
+ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS storage_path VARCHAR(512);
+ALTER TABLE featured_ashtami_video_configs ADD COLUMN IF NOT EXISTS storage_path VARCHAR(512);
+CREATE INDEX IF NOT EXISTS idx_gallery_media_storage_path ON gallery_media (storage_path);
+
 
 

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, 
   Video, 
@@ -81,6 +81,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [tempLocalVideo, setTempLocalVideo] = useState<{ storagePath: string; url: string; name: string; size: number } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Sync config to Firestore so all visitors across all devices see the updated video in real-time
   const syncConfigToFirestore = async (cfg: AshtamiVideoConfig) => {
@@ -339,6 +340,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
               setInputTitleMR(config.titleMarathi || '');
               setInputTitleEN(config.title || '');
               setTempLocalVideo(null);
+              if (fileInputRef.current) fileInputRef.current.value = '';
               setErrorMsg(null);
               setIsModalOpen(true);
             }}
@@ -543,6 +545,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
                 </label>
                 <label className="border-2 border-dashed border-brand-gold/40 hover:border-brand-gold bg-black/40 hover:bg-black/60 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors text-center">
                   <input
+                    ref={fileInputRef}
                     type="file"
                     accept="video/mp4,video/webm,video/ogg,video/quicktime,video/*"
                     onChange={handleLocalVideoUpload}
@@ -557,7 +560,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
                         ? (uploadProgress !== null
                             ? `${lang === 'EN' ? 'Uploading to Cloud Storage...' : 'क्लाउडवर व्हिडिओ अपलोड होत आहे...'} ${uploadProgress}%`
                             : (lang === 'EN' ? 'Processing video file...' : 'व्हिडिओ फाईल प्रक्रिया होत आहे...'))
-                        : (lang === 'EN' ? 'Choose a video to upload to cloud storage' : 'क्लाउड स्टोरेजवर अपलोड करण्यासाठी व्हिडिओ निवडा')}
+                        : (lang === 'EN' ? 'Choose a new video to upload to cloud storage' : 'क्लाउड स्टोरेजवर अपलोड करण्यासाठी नवीन व्हिडिओ निवडा')}
                     </span>
                     <span className="text-[10px] text-gray-400 block mt-0.5">
                       {lang === 'EN'
@@ -583,15 +586,44 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
                   </div>
                 )}
 
-                {(tempLocalVideo || (config.type === 'local' && config.fileName)) && (
-                  <div className="text-[11px] text-emerald-400 flex items-center gap-1.5 bg-emerald-950/40 p-2 rounded-lg border border-emerald-500/30">
-                    <Check className="h-4 w-4 shrink-0" />
-                    <span className="font-mono truncate">
-                      {tempLocalVideo ? tempLocalVideo.name : config.fileName}
+                {/* Newly selected video ready for saving */}
+                {tempLocalVideo && (
+                  <div className="text-[11px] text-emerald-400 flex items-center justify-between gap-1.5 bg-emerald-950/40 p-2 rounded-lg border border-emerald-500/30">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Check className="h-4 w-4 shrink-0 text-emerald-400" />
+                      <span className="font-mono truncate">{tempLocalVideo.name}</span>
+                      {tempLocalVideo.size && (
+                        <span className="text-[10px] text-gray-300 font-mono">
+                          ({formatFileSize(tempLocalVideo.size)})
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (tempLocalVideo?.storagePath && tempLocalVideo.storagePath !== config.storagePath) {
+                          void deleteCloudMediaObject(tempLocalVideo.storagePath);
+                        }
+                        setTempLocalVideo(null);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      }}
+                      className="text-red-400 hover:text-red-300 text-[10px] px-1.5 py-0.5 rounded border border-red-500/30 hover:bg-red-950/60 cursor-pointer shrink-0 transition-colors"
+                    >
+                      {lang === 'EN' ? '✕ Remove' : '✕ काढा'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Current active video indicator when no new file has been chosen yet */}
+                {!tempLocalVideo && config.type === 'local' && config.fileName && (
+                  <div className="text-[11px] text-amber-300/90 flex items-center gap-1.5 bg-amber-950/30 p-2 rounded-lg border border-amber-500/20">
+                    <Film className="h-3.5 w-3.5 shrink-0 text-brand-gold" />
+                    <span className="truncate">
+                      {lang === 'EN' ? `Active Video: ${config.fileName}` : `सध्याचा सक्रिय व्हिडिओ: ${config.fileName}`}
                     </span>
-                    {(tempLocalVideo?.size || config.fileSize) && (
-                      <span className="text-[10px] text-gray-300 font-mono ml-auto">
-                        ({formatFileSize(tempLocalVideo?.size || config.fileSize || 0)})
+                    {config.fileSize && (
+                      <span className="text-[10px] text-gray-400 font-mono ml-auto">
+                        ({formatFileSize(config.fileSize)})
                       </span>
                     )}
                   </div>

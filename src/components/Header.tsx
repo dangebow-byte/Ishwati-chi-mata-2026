@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Sunset, Languages, Moon, Sun, ShieldAlert, Award, Sparkles, Volume2, VolumeX, Menu, X, ChevronRight, Video, Heart, Calendar, BookOpen, Users, Phone, Settings, Sparkle } from 'lucide-react';
+import { Sunset, Languages, Moon, Sun, ShieldAlert, Award, Sparkles, Volume2, VolumeX, Menu, X, ChevronRight, Video, Heart, Calendar, BookOpen, Users, Phone, Settings, Sparkle, LogOut } from 'lucide-react';
 import { TRANSLATIONS } from '../data';
 import { SiteLogo } from './SiteLogo';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
@@ -261,29 +261,31 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Google Authentication */}
             {user ? (
-              <div className="flex items-center gap-1 sm:gap-1.5 bg-black/40 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-brand-gold/20 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-black/60 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-brand-gold/40 shrink-0 shadow-inner">
                 <img
                   src={user.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=50&q=80'}
                   alt={user.displayName || 'Devotee'}
-                  className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 rounded-full border border-brand-gold/40 shrink-0"
+                  className="h-4 w-4 sm:h-5 sm:w-5 rounded-full border border-brand-gold/50 shrink-0"
                   referrerPolicy="no-referrer"
                 />
-                <span className="hidden xl:inline text-[9px] text-white max-w-[80px] truncate">
-                  {user.displayName?.split(' ')[0] || 'Devotee'}
+                <span className="hidden xl:inline text-[10px] text-brand-gold font-bold max-w-[90px] truncate">
+                  {user.displayName?.split(' ')[0] || user.email?.split('@')[0] || 'Devotee'}
                 </span>
                 <button
                   onClick={onLogout}
-                  className="text-[8px] font-bold text-brand-saffron hover:underline cursor-pointer border-l border-white/20 pl-1"
+                  className="text-[9px] sm:text-[10px] font-bold text-red-300 hover:text-white bg-red-950/70 hover:bg-red-900 px-1.5 sm:px-2 py-0.5 rounded-full border border-red-500/30 transition-all flex items-center gap-1 cursor-pointer active:scale-95"
+                  title={lang === 'EN' ? 'Sign Out / Logout' : 'लॉगआउट / बाहेर पडा'}
                 >
-                  {lang === 'EN' ? 'Out' : 'बाहेर'}
+                  <LogOut className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  <span>{lang === 'EN' ? 'Logout' : 'बाहेर'}</span>
                 </button>
               </div>
             ) : (
               <button
                 onClick={onLogin}
-                className="flex items-center gap-1 bg-brand-gold hover:bg-brand-saffron text-brand-maroon px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-sans font-extrabold sm:font-black text-[9px] sm:text-[10px] shadow border border-brand-gold/50 cursor-pointer shrink-0"
+                className="flex items-center gap-1 bg-brand-gold hover:bg-brand-saffron text-brand-maroon px-2 sm:px-3 py-1 rounded-full font-sans font-extrabold sm:font-black text-[9px] sm:text-[10px] shadow border border-brand-gold/50 cursor-pointer shrink-0 transition-all active:scale-95"
               >
-                🔐 <span className="hidden xs:inline">{lang === 'EN' ? 'Login' : 'लॉगिन'}</span>
+                🔐 <span>{lang === 'EN' ? 'Login' : 'लॉगिन'}</span>
               </button>
             )}
 
@@ -468,6 +470,55 @@ export const Header: React.FC<HeaderProps> = ({
                   <X className="h-5 w-5" />
                 </button>
               </div>
+            </div>
+
+            {/* Mobile Drawer Devotee Account & Logout Station */}
+            <div className="p-3 bg-black/60 border-b border-brand-gold/20 flex items-center justify-between gap-2.5">
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <img
+                      src={user.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=50&q=80'}
+                      alt={user.displayName || 'Devotee'}
+                      className="h-9 w-9 rounded-full border border-brand-gold/60 shadow shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-sans font-bold text-xs text-white truncate">
+                          {user.displayName || 'Devotee'}
+                        </span>
+                        {user.email === 'dangebow@gmail.com' && (
+                          <span className="text-[9px] bg-brand-gold text-brand-maroon px-1.5 py-0.2 rounded font-black">Admin</span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-gray-400 truncate block">
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="px-3 py-1.5 bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shrink-0 shadow active:scale-95 transition-all"
+                  >
+                    <LogOut className="h-3.5 w-3.5 text-red-300" />
+                    <span>{lang === 'EN' ? 'Logout' : 'बाहेर पडा'}</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => {
+                    onLogin();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2 bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow hover:opacity-95 transition-all active:scale-95"
+                >
+                  <span>🔐 {lang === 'EN' ? 'Devotee / Admin Sign In with Google' : 'Google ने भक्त / विश्वस्त लॉगिन करा'}</span>
+                </button>
+              )}
             </div>
 
             {/* Quick Actions Bar inside mobile drawer */}

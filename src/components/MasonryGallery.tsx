@@ -188,6 +188,10 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
   const [uploadedMediaFileSize, setUploadedMediaFileSize] = useState<number | null>(null);
   const [resolvedVideoUrls, setResolvedVideoUrls] = useState<Record<string, string>>({});
 
+  // File input refs for complete clean resets
+  const addFileInputRef = useRef<HTMLInputElement | null>(null);
+  const editFileInputRef = useRef<HTMLInputElement | null>(null);
+
   // File Upload Handler for Photo & Video
   const handleDeviceMediaUpload = async (
     file: File | undefined, 
@@ -370,6 +374,11 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
     return reelsList.find(r => r.id === activeFeaturedId) || reelsList[0];
   }, [reelsList, activeFeaturedId]);
 
+  // Total count of videos/reels across all years for clear user feedback
+  const totalVideosCount = useMemo(() => {
+    return mediaItems.filter(i => i.type === 'video' || i.type === 'instagram' || i.category === 'Videos & Reels').length;
+  }, [mediaItems]);
+
   // Priority ordering helper: Photos first, then direct Videos, then YouTube videos, then Instagram reels
   const getMediaTypePriority = (item: GalleryMediaItem): number => {
     if (item.type === 'photo') return 1;
@@ -547,7 +556,12 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
 
   // Complete reset helper for Add Media Modal to clear all previously uploaded files, titles, and paths
   const resetAddForm = (preferredType: GalleryMediaType = 'photo', cleanupPendingUpload = true) => {
-    if (cleanupPendingUpload) discardPendingAddUpload(addForm.storagePath);
+    if (cleanupPendingUpload && addForm.storagePath) {
+      discardPendingAddUpload(addForm.storagePath);
+    }
+    if (addFileInputRef.current) {
+      addFileInputRef.current.value = '';
+    }
     setAddForm({
       type: preferredType,
       url: '',
@@ -565,8 +579,73 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
     setUploadedMediaFileName('');
     setUploadedMediaFileSize(null);
     setIsProcessingMediaFile(false);
+    setUploadProgress(null);
     setStatusError('');
     setStatusSuccess('');
+  };
+
+  // Switch Media Type inside Add Modal with clean slate
+  const handleSwitchAddType = (newType: GalleryMediaType) => {
+    if (addForm.storagePath) {
+      discardPendingAddUpload(addForm.storagePath);
+    }
+    if (addFileInputRef.current) {
+      addFileInputRef.current.value = '';
+    }
+    setUploadedMediaFileName('');
+    setUploadedMediaFileSize(null);
+    setIsProcessingMediaFile(false);
+    setUploadProgress(null);
+    setStatusError('');
+    setAddForm(prev => ({
+      ...prev,
+      type: newType,
+      url: '',
+      storagePath: undefined,
+      localVideoId: undefined,
+      titleMR: '',
+      titleEN: '',
+      category: newType === 'video' || newType === 'instagram' 
+        ? 'Videos & Reels' 
+        : (prev.category === 'Videos & Reels' ? 'Mata Darshan' : prev.category)
+    }));
+  };
+
+  // Clear currently selected device upload in Add Modal
+  const handleClearSelectedAddFile = () => {
+    if (addForm.storagePath) {
+      discardPendingAddUpload(addForm.storagePath);
+    }
+    if (addFileInputRef.current) {
+      addFileInputRef.current.value = '';
+    }
+    setUploadedMediaFileName('');
+    setUploadedMediaFileSize(null);
+    setIsProcessingMediaFile(false);
+    setUploadProgress(null);
+    setAddForm(prev => ({
+      ...prev,
+      url: '',
+      storagePath: undefined,
+      localVideoId: undefined
+    }));
+  };
+
+  // Clear currently selected device upload in Edit Modal
+  const handleClearSelectedEditFile = () => {
+    if (editFileInputRef.current) {
+      editFileInputRef.current.value = '';
+    }
+    setUploadedMediaFileName('');
+    setUploadedMediaFileSize(null);
+    setIsProcessingMediaFile(false);
+    setUploadProgress(null);
+    setEditForm(prev => ({
+      ...prev,
+      url: '',
+      storagePath: null,
+      localVideoId: null
+    }));
   };
 
   const handleOpenAddModal = (preferredType?: GalleryMediaType) => {
@@ -1047,7 +1126,10 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
           </button>
 
           <button
-            onClick={() => { setMediaTypeFilter('videos'); }}
+            onClick={() => { 
+              setMediaTypeFilter('videos'); 
+              setActiveCategory('All'); 
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
               mediaTypeFilter === 'videos'
                 ? 'bg-blue-600 text-white shadow font-black'
@@ -1059,7 +1141,10 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
           </button>
 
           <button
-            onClick={() => { setMediaTypeFilter('instagram'); }}
+            onClick={() => { 
+              setMediaTypeFilter('instagram'); 
+              setActiveCategory('All'); 
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
               mediaTypeFilter === 'instagram'
                 ? 'bg-gradient-to-r from-rose-600 to-purple-600 text-white shadow font-black'
@@ -1371,9 +1456,30 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
           </div>
         </div>
 
-        {/* The Core Responsive Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-          {filteredItems.map((item, index) => {
+        {/* Video Filter Assistant Banner when year filter restricts video results */}
+        {mediaTypeFilter === 'videos' && selectedYear !== 'All' && totalVideosCount > filteredItems.length && (
+          <div className="mb-5 p-3 rounded-xl bg-blue-950/70 border border-blue-500/40 text-xs text-blue-200 flex items-center justify-between gap-3 flex-wrap shadow-md">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🎥</span>
+              <span>
+                {lang === 'EN'
+                  ? `Showing ${filteredItems.length} videos from festival year ${selectedYear}. Total ${totalVideosCount} videos uploaded across all years.`
+                  : `वर्ष ${selectedYear} मधील ${filteredItems.length} व्हिडिओ दिसत आहेत. सर्व वर्षे मिळून एकूण ${totalVideosCount} व्हिडिओ उपलब्ध आहेत.`}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedYear('All')}
+              className="px-3 py-1.5 bg-brand-gold hover:bg-yellow-400 text-brand-maroon font-bold text-xs rounded-lg cursor-pointer shadow transition-all active:scale-95"
+            >
+              {lang === 'EN' ? `Show All ${totalVideosCount} Videos` : `सर्व ${totalVideosCount} व्हिडिओ पहा`}
+            </button>
+          </div>
+        )}
+
+        {/* The Core Responsive Grid - Uniform width & height across photos, videos, and reels */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+          {displayedItems.map((item, index) => {
             const isPhoto = item.type === 'photo';
             const isInstagram = item.type === 'instagram';
             const isVideo = item.type === 'video';
@@ -1390,7 +1496,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                 onDragLeave={(e) => handleDragLeave(e, index)}
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
-                className={`flex flex-col rounded-2xl overflow-hidden border transition-all duration-300 group text-left relative ${
+                className={`flex flex-col h-full rounded-2xl overflow-hidden border transition-all duration-300 group text-left relative ${
                   isBeingDragged
                     ? 'opacity-40 scale-[0.97] border-dashed border-2 border-brand-gold ring-2 ring-brand-gold/50 shadow-2xl bg-amber-950/40'
                     : isDropTarget
@@ -1401,7 +1507,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                 }`}
               >
                 {/* Top Badge Strip (Type, Year, Actions, Reorder Controls) */}
-                <div className="bg-black/80 px-3 py-2 border-b border-white/10 flex items-center justify-between text-xs">
+                <div className="bg-black/80 px-3 py-2 border-b border-white/10 flex items-center justify-between text-xs shrink-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {/* Reorder Position Badge & Drag Handle */}
                     {isReorderMode && (
@@ -1484,46 +1590,58 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                   </div>}
                 </div>
 
-                {/* Media Preview Container */}
+                {/* Uniform Media Viewport: Standard 16:9 Aspect Ratio for ALL Videos, Photos, YouTube & Instagram Reels */}
                 {isInstagram ? (
-                  <div className="p-3 bg-black/90 flex justify-center relative">
-                    <InstagramVideoEmbed
-                      url={item.url}
-                      title={lang === 'EN' ? item.titleEN : item.titleMR}
-                      caption={lang === 'EN' ? item.descriptionEN : item.descriptionMR}
-                      authorHandle={item.authorHandle}
-                      establishedYear={item.year}
-                      lang={lang}
-                      className="w-full"
-                    />
+                  <div className="relative w-full aspect-video bg-gradient-to-tr from-[#2b0818] via-black to-[#1a0510] overflow-hidden flex items-center justify-center shrink-0">
+                    {item.embedUrl ? (
+                      <iframe
+                        src={item.embedUrl}
+                        title={item.titleMR || 'Instagram Reel'}
+                        className="w-full h-full border-0 object-cover"
+                        scrolling="no"
+                        allowFullScreen
+                        loading="lazy"
+                        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center space-y-1">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-yellow-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-md">
+                          <Instagram className="h-5 w-5" />
+                        </div>
+                        <span className="text-xs font-bold text-white line-clamp-1">{item.titleMR}</span>
+                        <span className="text-[10px] text-gray-400 font-mono">{item.authorHandle || '@ishwatichi_mata'}</span>
+                      </div>
+                    )}
                     {isReorderMode && (
-                      <div className="absolute inset-0 z-10 bg-black/20 pointer-events-none flex items-center justify-center">
-                        <span className="bg-black/80 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
+                      <div className="absolute inset-0 z-10 bg-black/30 pointer-events-none flex items-center justify-center">
+                        <span className="bg-black/90 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
                           {lang === 'EN' ? 'Drag Card to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}
                         </span>
                       </div>
                     )}
                   </div>
                 ) : isVideo && item.embedUrl ? (
-                  <div className="aspect-video w-full bg-black relative">
+                  <div className="relative w-full aspect-video bg-black overflow-hidden flex items-center justify-center shrink-0">
                     <iframe
                       src={item.embedUrl}
                       title={item.titleMR}
-                      className="w-full h-full"
+                      className="w-full h-full border-0"
                       allowFullScreen
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     />
                     {isReorderMode && (
-                      <div className="absolute inset-0 z-10 bg-black/20 pointer-events-none flex items-center justify-center">
-                        <span className="bg-black/80 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
+                      <div className="absolute inset-0 z-10 bg-black/30 pointer-events-none flex items-center justify-center">
+                        <span className="bg-black/90 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
                           {lang === 'EN' ? 'Drag Card to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}
                         </span>
                       </div>
                     )}
                   </div>
                 ) : isVideo ? (
-                  <div className="aspect-video w-full bg-black flex items-center justify-center relative">
+                  <div className="relative w-full aspect-video bg-black overflow-hidden flex items-center justify-center shrink-0">
                     {item.url.startsWith('blob:') ? (
-                      <p className="p-5 text-center text-sm text-amber-200">
+                      <p className="p-3 text-center text-xs text-amber-200">
                         {lang === 'EN'
                           ? 'This video was saved only in the browser that uploaded it. An admin must upload the original file again.'
                           : 'हा व्हिडिओ फक्त अपलोड केलेल्या ब्राउजरमध्ये जतन झाला होता. प्रशासकाने मूळ फाईल पुन्हा अपलोड करणे आवश्यक आहे.'}
@@ -1533,14 +1651,15 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                         src={resolvedVideoUrls[item.id] || item.url}
                         controls={!isReorderMode}
                         playsInline
+                        preload="metadata"
                         className="w-full h-full object-contain bg-black"
                       >
                         Your browser does not support HTML5 video playback.
                       </video>
                     )}
                     {isReorderMode && (
-                      <div className="absolute inset-0 z-10 bg-black/20 pointer-events-none flex items-center justify-center">
-                        <span className="bg-black/80 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
+                      <div className="absolute inset-0 z-10 bg-black/30 pointer-events-none flex items-center justify-center">
+                        <span className="bg-black/90 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
                           {lang === 'EN' ? 'Drag Card to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}
                         </span>
                       </div>
@@ -1551,7 +1670,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                     onClick={() => {
                       if (!isReorderMode) handleOpenLightbox(item);
                     }}
-                    className={`relative w-full aspect-[4/5] overflow-hidden bg-black/90 flex items-center justify-center ${
+                    className={`relative w-full aspect-video overflow-hidden bg-black flex items-center justify-center shrink-0 ${
                       isReorderMode ? 'cursor-grab' : 'cursor-pointer'
                     }`}
                   >
@@ -1564,29 +1683,23 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                     />
 
                     {/* Sacred Emblem Corner Badge */}
-                    <div className="absolute top-3 left-3 z-10 bg-black/80 backdrop-blur-md border border-brand-gold/60 text-brand-gold text-[10px] font-sans font-black px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 pointer-events-none">
+                    <div className="absolute top-2.5 left-2.5 z-10 bg-black/80 backdrop-blur-md border border-brand-gold/60 text-brand-gold text-[10px] font-sans font-black px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 pointer-events-none">
                       <span>🌸</span>
                       <span>श्री इश्वटीची • {item.year}</span>
                     </div>
 
-                    {/* Hover Overlay with Zoom Prompt (Hidden during reordering) */}
+                    {/* Hover Overlay with Zoom Prompt */}
                     {!isReorderMode && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                        <div className="flex items-center justify-between text-xs text-white">
-                          <span className="flex items-center gap-1.5 text-brand-gold font-bold">
-                            <ZoomIn className="h-4 w-4" />
-                            <span>{lang === 'EN' ? 'Click to View Full HD' : 'मोठ्या आकारात पहा'}</span>
-                          </span>
-                          <span className="flex items-center gap-1 text-brand-saffron">
-                            <Share2 className="h-3.5 w-3.5" />
-                            <span>{lang === 'EN' ? 'Share' : 'शेअर'}</span>
-                          </span>
-                        </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+                        <span className="flex items-center gap-1 text-brand-gold font-bold text-xs">
+                          <ZoomIn className="h-3.5 w-3.5" />
+                          <span>{lang === 'EN' ? 'Full HD' : 'मोठे दर्शन'}</span>
+                        </span>
                       </div>
                     )}
 
                     {isReorderMode && (
-                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
                         <div className="bg-black/90 text-brand-gold border border-brand-gold px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl">
                           <GripVertical className="h-3.5 w-3.5" />
                           <span>{lang === 'EN' ? 'Drag to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}</span>
@@ -1596,25 +1709,71 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                   </div>
                 )}
 
-                {/* Card Bottom Meta */}
-                <div className="p-3.5 text-left border-t border-white/10 space-y-1">
-                  <div className="flex items-center justify-between text-[10px] text-gray-400 font-mono">
-                    <span>{item.category}</span>
-                    <span className="text-brand-gold font-bold">वर्ष: {item.year}</span>
+                {/* Card Bottom Meta - Uniform Flexbox Layout for aligned row heights */}
+                <div className="p-3.5 text-left border-t border-white/10 flex-1 flex flex-col justify-between space-y-2">
+                  <div>
+                    <div className="flex items-center justify-between text-[10px] text-gray-400 font-mono mb-1">
+                      <span className="truncate max-w-[150px]">{item.category}</span>
+                      <span className="text-brand-gold font-bold shrink-0">वर्ष: {item.year}</span>
+                    </div>
+                    <h4 className="text-xs sm:text-sm font-sans font-black text-white group-hover:text-brand-gold transition-colors line-clamp-2">
+                      {lang === 'EN' ? (item.titleEN || item.titleMR) : item.titleMR}
+                    </h4>
+                    {item.descriptionMR && (
+                      <p className="text-[11px] text-gray-300 line-clamp-2 leading-relaxed mt-1">
+                        {lang === 'EN' ? (item.descriptionEN || item.descriptionMR) : item.descriptionMR}
+                      </p>
+                    )}
                   </div>
-                  <h4 className="text-xs sm:text-sm font-sans font-black text-white group-hover:text-brand-gold transition-colors line-clamp-2">
-                    {lang === 'EN' ? (item.titleEN || item.titleMR) : item.titleMR}
-                  </h4>
-                  {item.descriptionMR && (
-                    <p className="text-[11px] text-gray-300 line-clamp-2 leading-relaxed">
-                      {lang === 'EN' ? (item.descriptionEN || item.descriptionMR) : item.descriptionMR}
-                    </p>
-                  )}
+                  <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+                    <button
+                      onClick={() => handleShareWhatsApp(item)}
+                      className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold cursor-pointer"
+                    >
+                      <span>💬 WhatsApp</span>
+                    </button>
+                    <button
+                      onClick={() => handleCopyLink(item.url)}
+                      className="text-gray-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                    >
+                      <Copy className="h-3 w-3" />
+                      <span>{lang === 'EN' ? 'Copy Link' : 'लिंक'}</span>
+                    </button>
+                  </div>
                 </div>
 
               </div>
             );
           })}
+        </div>
+
+        {/* Lazy Loading Sentinel & Progressive Loader */}
+        <div ref={sentinelRef} className="w-full py-6 flex flex-col items-center justify-center gap-2">
+          {hasMore ? (
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2 text-brand-gold text-xs font-mono">
+                <Loader2 className="h-4 w-4 animate-spin text-brand-gold" />
+                <span>
+                  {lang === 'EN'
+                    ? `Loading more sacred media (${displayedItems.length} of ${filteredItems.length})...`
+                    : `अधिक पावन दर्शन लोड होत आहे (${displayedItems.length} पैकी ${filteredItems.length})...`}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setVisibleCount(prev => Math.min(prev + 12, filteredItems.length))}
+                className="px-4 py-1.5 rounded-xl bg-black/60 hover:bg-black/90 border border-brand-gold/40 text-brand-gold text-xs font-bold transition-all cursor-pointer shadow hover:scale-105"
+              >
+                {lang === 'EN' ? 'Load Next Batch' : 'पुढील छायाचित्रे व व्हिडिओ दाखवा'}
+              </button>
+            </div>
+          ) : filteredItems.length > 12 ? (
+            <span className="text-[11px] text-gray-500 font-mono">
+              {lang === 'EN'
+                ? `✓ All ${filteredItems.length} media items loaded`
+                : `✓ सर्व ${filteredItems.length} साहित्य प्रदर्शित झाले आहेत`}
+            </span>
+          ) : null}
         </div>
 
         {filteredItems.length === 0 && (
@@ -1671,7 +1830,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => { discardPendingAddUpload(addForm.storagePath); setAddForm(prev => ({ ...prev, type: 'photo', storagePath: undefined, localVideoId: undefined })); }}
+                  onClick={() => handleSwitchAddType('photo')}
                   className={`p-2.5 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer flex flex-col items-center gap-1 ${
                     addForm.type === 'photo'
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500 shadow-md ring-1 ring-amber-500'
@@ -1684,7 +1843,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
 
                 <button
                   type="button"
-                  onClick={() => { discardPendingAddUpload(addForm.storagePath); setAddForm(prev => ({ ...prev, type: 'video', storagePath: undefined, localVideoId: undefined })); }}
+                  onClick={() => handleSwitchAddType('video')}
                   className={`p-2.5 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer flex flex-col items-center gap-1 ${
                     addForm.type === 'video'
                       ? 'bg-blue-500/20 text-blue-300 border-blue-500 shadow-md ring-1 ring-blue-500'
@@ -1697,7 +1856,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
 
                 <button
                   type="button"
-                  onClick={() => { discardPendingAddUpload(addForm.storagePath); setAddForm(prev => ({ ...prev, type: 'instagram', storagePath: undefined, localVideoId: undefined })); }}
+                  onClick={() => handleSwitchAddType('instagram')}
                   className={`p-2.5 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer flex flex-col items-center gap-1 ${
                     addForm.type === 'instagram'
                       ? 'bg-pink-500/20 text-pink-300 border-pink-500 shadow-md ring-1 ring-pink-500'
@@ -1802,6 +1961,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                   <div className="space-y-2">
                     <label className="border-2 border-dashed border-brand-gold/40 hover:border-brand-gold bg-black/40 hover:bg-black/60 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors text-center">
                       <input
+                        ref={addFileInputRef}
                         type="file"
                         accept={addForm.type === 'photo' ? 'image/png,image/jpeg,image/webp,image/jpg' : 'video/mp4,video/webm,video/ogg,video/quicktime,video/*'}
                         onChange={(e) => handleDeviceMediaUpload(e.target.files?.[0], addForm.type, false)}
@@ -1845,14 +2005,23 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                     )}
 
                     {uploadedMediaFileName && (
-                      <div className="text-[11px] text-emerald-400 flex items-center gap-1.5 bg-emerald-950/40 p-2 rounded-lg border border-emerald-500/30">
-                        <Check className="h-4 w-4 shrink-0" />
-                        <span className="font-mono truncate">{uploadedMediaFileName}</span>
-                        {uploadedMediaFileSize !== null && (
-                          <span className="text-[10px] text-gray-300 font-mono ml-auto">
-                            ({formatFileSize(uploadedMediaFileSize)})
-                          </span>
-                        )}
+                      <div className="text-[11px] text-emerald-400 flex items-center justify-between gap-1.5 bg-emerald-950/40 p-2 rounded-lg border border-emerald-500/30">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Check className="h-4 w-4 shrink-0 text-emerald-400" />
+                          <span className="font-mono truncate">{uploadedMediaFileName}</span>
+                          {uploadedMediaFileSize !== null && (
+                            <span className="text-[10px] text-gray-300 font-mono ml-auto">
+                              ({formatFileSize(uploadedMediaFileSize)})
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleClearSelectedAddFile}
+                          className="text-red-400 hover:text-red-300 text-[10px] px-1.5 py-0.5 rounded border border-red-500/30 hover:bg-red-950/60 cursor-pointer shrink-0 transition-colors"
+                        >
+                          {lang === 'EN' ? '✕ Remove' : '✕ काढा'}
+                        </button>
                       </div>
                     )}
 
@@ -2130,6 +2299,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                   <div className="space-y-2">
                     <label className="border-2 border-dashed border-brand-gold/40 hover:border-brand-gold bg-black/40 hover:bg-black/60 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors text-center">
                       <input
+                        ref={editFileInputRef}
                         type="file"
                         accept={editForm.type === 'photo' ? 'image/png,image/jpeg,image/webp,image/jpg' : 'video/mp4,video/webm,video/ogg,video/quicktime,video/*'}
                         onChange={(e) => handleDeviceMediaUpload(e.target.files?.[0], editForm.type, true)}
