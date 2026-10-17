@@ -72,4 +72,5 @@ export interface UserProfile {
   milestonesReached: { id: string; title: string; date: string }[];
   totalDonation: number;
   navratriThemeDay?: number | 'auto'; // Day 1 to 9 or 'auto'
+  navratriThemeDate?: string; // IST date (YYYY-MM-DD) when manual theme was set
 }

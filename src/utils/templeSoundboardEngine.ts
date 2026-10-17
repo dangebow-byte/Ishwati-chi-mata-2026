@@ -12,6 +12,9 @@ export interface SacredMantra {
   frequencyHz: number;
   descriptionMR: string;
   descriptionEN: string;
+  audioUrl?: string;
+  category?: string;
+  isActive?: boolean;
 }
 
 export const SACRED_MANTRAS: SacredMantra[] = [
@@ -105,6 +108,10 @@ class TempleSoundboardEngine {
   // Web Speech Utterance
   private speechUtterance: SpeechSynthesisUtterance | null = null;
   private speechLoopTimer: number | null = null;
+
+  // Dynamic Mantras list managed by Admin CRUD
+  private dynamicMantras: SacredMantra[] = [...SACRED_MANTRAS];
+  private customAudioEl: HTMLAudioElement | null = null;
 
   // Listeners & visualizer polling
   private listeners: Set<(state: SoundboardState) => void> = new Set();
@@ -247,6 +254,22 @@ class TempleSoundboardEngine {
   }
 
   /**
+   * Sets dynamic soundboard mantras managed by Admin
+   */
+  public setDynamicMantras(mantras: SacredMantra[]) {
+    if (Array.isArray(mantras) && mantras.length > 0) {
+      this.dynamicMantras = mantras;
+    }
+  }
+
+  /**
+   * Gets current dynamic soundboard mantras
+   */
+  public getDynamicMantras(): SacredMantra[] {
+    return this.dynamicMantras;
+  }
+
+  /**
    * Accessible volume control with persistent storage
    */
   public setVolume(vol: number) {
@@ -256,6 +279,9 @@ class TempleSoundboardEngine {
     }
     if (this.masterGain && this.audioCtx) {
       this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.audioCtx.currentTime);
+    }
+    if (this.customAudioEl) {
+      this.customAudioEl.volume = this.isMuted ? 0 : this.volume;
     }
     try {
       localStorage.setItem('temple_audio_volume', this.volume.toString());
@@ -270,6 +296,9 @@ class TempleSoundboardEngine {
     this.isMuted = !this.isMuted;
     if (this.masterGain && this.audioCtx) {
       this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.audioCtx.currentTime);
+    }
+    if (this.customAudioEl) {
+      this.customAudioEl.volume = this.isMuted ? 0 : this.volume;
     }
     this.notify();
   }
@@ -437,7 +466,25 @@ class TempleSoundboardEngine {
       const ctx = this.initPipeline();
       if (!ctx) return;
 
-      const matchedMantra = SACRED_MANTRAS.find(m => m.id === mantraId) || SACRED_MANTRAS[0];
+      const matchedMantra = this.dynamicMantras.find(m => m.id === mantraId) || SACRED_MANTRAS.find(m => m.id === mantraId) || this.dynamicMantras[0] || SACRED_MANTRAS[0];
+
+      // Custom audio track playback if audioUrl is provided
+      if (matchedMantra.audioUrl) {
+        this.stopMantraChant(false);
+        this.activeMantraId = mantraId;
+        this.isMantraPlaying = true;
+        this.notify();
+
+        try {
+          this.customAudioEl = new Audio(matchedMantra.audioUrl);
+          this.customAudioEl.loop = true;
+          this.customAudioEl.volume = this.isMuted ? 0 : this.volume;
+          this.customAudioEl.play().catch(e => console.warn('Custom audio playback notice:', e));
+        } catch (e) {
+          console.warn('Custom audio initialization notice:', e);
+        }
+        return;
+      }
 
       // Seamless crossfading if already chanting a different mantra
       if (this.isMantraPlaying && this.activeMantraId !== mantraId) {
@@ -472,6 +519,14 @@ class TempleSoundboardEngine {
    */
   public stopMantraChant(fadeFull: boolean = true) {
     this.isMantraPlaying = false;
+
+    if (this.customAudioEl) {
+      try {
+        this.customAudioEl.pause();
+        this.customAudioEl.currentTime = 0;
+      } catch (e) {}
+      this.customAudioEl = null;
+    }
 
     // Fade out drone
     if (this.droneGain && this.audioCtx && fadeFull) {

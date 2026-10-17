@@ -4,8 +4,21 @@
  */
 
 import React, { useState } from 'react';
-import { Lock, Eye, CheckCircle, XCircle, Trash2, ShieldCheck, Download, PlusCircle, BarChart3, Users, Flame, Sparkles, LogOut } from 'lucide-react';
+import { 
+  Lock, Eye, CheckCircle, XCircle, Trash2, ShieldCheck, Download, PlusCircle, 
+  BarChart3, Users, Flame, Sparkles, LogOut, Disc, Volume2, VolumeX, Play, 
+  Pause, Edit2, Music, Radio, Plus, RotateCcw, RefreshCw 
+} from 'lucide-react';
 import { DevoteeExperience, DigitalSevaBooking, DonationRecord, Announcement } from '../types';
+import { 
+  SoundboardItem, 
+  subscribeSoundboardItems, 
+  addSoundboardItem, 
+  updateSoundboardItem, 
+  deleteSoundboardItem, 
+  toggleSoundboardItemActive 
+} from '../services/soundboardService';
+import { templeSoundboardEngine } from '../utils/templeSoundboardEngine';
 
 interface AdminPanelProps {
   lang: 'EN' | 'MR';
@@ -40,7 +53,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   siteContent,
   onSaveSiteContent
 }) => {
-  const [activeTab, setActiveTab] = useState<'approvals' | 'bookings' | 'reports' | 'announcements' | 'cms'>('approvals');
+  const [activeTab, setActiveTab] = useState<'approvals' | 'bookings' | 'reports' | 'announcements' | 'cms' | 'soundboard'>('approvals');
 
   // Welcome Hero CMS states
   const [welcomeTitleEN, setWelcomeTitleEN] = useState(siteContent?.welcome?.titleEN ?? '');
@@ -96,6 +109,170 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       }
     }
   }, [siteContent]);
+
+  // Soundboard (पवित्र ध्वनी) CRUD Management states
+  const [soundboardItems, setSoundboardItems] = useState<SoundboardItem[]>([]);
+  const [isSoundboardLoading, setIsSoundboardLoading] = useState(true);
+  const [isSoundboardFormOpen, setIsSoundboardFormOpen] = useState(false);
+  const [editingSoundboardItem, setEditingSoundboardItem] = useState<SoundboardItem | null>(null);
+  const [isSoundboardSubmitting, setIsSoundboardSubmitting] = useState(false);
+  const [soundboardSubmitError, setSoundboardSubmitError] = useState<string | null>(null);
+  const [previewChantId, setPreviewChantId] = useState<string | null>(null);
+
+  // Form input fields for Soundboard
+  const [sbNameMR, setSbNameMR] = useState('');
+  const [sbNameEN, setSbNameEN] = useState('');
+  const [sbChantTextMR, setSbChantTextMR] = useState('');
+  const [sbChantTextEN, setSbChantTextEN] = useState('');
+  const [sbCategory, setSbCategory] = useState<'mantra' | 'stuti' | 'instrument' | 'aarti'>('mantra');
+  const [sbFrequencyHz, setSbFrequencyHz] = useState<number>(136.1);
+  const [sbAudioUrl, setSbAudioUrl] = useState('');
+  const [sbDescriptionMR, setSbDescriptionMR] = useState('');
+  const [sbDescriptionEN, setSbDescriptionEN] = useState('');
+  const [sbDisplayOrder, setSbDisplayOrder] = useState<number>(1);
+  const [sbIsActive, setSbIsActive] = useState<boolean>(true);
+
+  // Subscribe to real-time Soundboard items
+  React.useEffect(() => {
+    const unsub = subscribeSoundboardItems(
+      (items) => {
+        setSoundboardItems(items);
+        setIsSoundboardLoading(false);
+      },
+      (err) => {
+        console.warn('Soundboard items fetch error:', err);
+        setIsSoundboardLoading(false);
+      }
+    );
+    return () => unsub();
+  }, []);
+
+  const resetSoundboardForm = () => {
+    setSbNameMR('');
+    setSbNameEN('');
+    setSbChantTextMR('');
+    setSbChantTextEN('');
+    setSbCategory('mantra');
+    setSbFrequencyHz(136.1);
+    setSbAudioUrl('');
+    setSbDescriptionMR('');
+    setSbDescriptionEN('');
+    setSbDisplayOrder(soundboardItems.length + 1);
+    setSbIsActive(true);
+    setEditingSoundboardItem(null);
+    setSoundboardSubmitError(null);
+  };
+
+  const handleOpenAddSoundboard = () => {
+    resetSoundboardForm();
+    setIsSoundboardFormOpen(true);
+  };
+
+  const handleOpenEditSoundboard = (item: SoundboardItem) => {
+    setEditingSoundboardItem(item);
+    setSbNameMR(item.nameMR);
+    setSbNameEN(item.nameEN);
+    setSbChantTextMR(item.chantTextMR);
+    setSbChantTextEN(item.chantTextEN || '');
+    setSbCategory(item.category || 'mantra');
+    setSbFrequencyHz(item.frequencyHz || 136.1);
+    setSbAudioUrl(item.audioUrl || '');
+    setSbDescriptionMR(item.descriptionMR || '');
+    setSbDescriptionEN(item.descriptionEN || '');
+    setSbDisplayOrder(item.displayOrder ?? 1);
+    setSbIsActive(item.isActive !== false);
+    setSoundboardSubmitError(null);
+    setIsSoundboardFormOpen(true);
+  };
+
+  const handleSaveSoundboardItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sbNameMR.trim() || !sbNameEN.trim() || !sbChantTextMR.trim()) {
+      setSoundboardSubmitError(lang === 'EN' ? 'Please fill in Name (Marathi & English) and Chanting text.' : 'कृपया मराठी व इंग्रजी नाव आणि मंत्राचे बोल भरावे.');
+      return;
+    }
+
+    setIsSoundboardSubmitting(true);
+    setSoundboardSubmitError(null);
+
+    try {
+      if (editingSoundboardItem) {
+        await updateSoundboardItem(editingSoundboardItem.id, {
+          nameMR: sbNameMR.trim(),
+          nameEN: sbNameEN.trim(),
+          chantTextMR: sbChantTextMR.trim(),
+          chantTextEN: sbChantTextEN.trim(),
+          category: sbCategory,
+          frequencyHz: Number(sbFrequencyHz) || 136.1,
+          audioUrl: sbAudioUrl.trim(),
+          descriptionMR: sbDescriptionMR.trim(),
+          descriptionEN: sbDescriptionEN.trim(),
+          displayOrder: Number(sbDisplayOrder) || 1,
+          isActive: sbIsActive
+        });
+        alert(lang === 'EN' ? 'Sacred soundboard item updated successfully!' : 'पवित्र ध्वनी यशस्वीरित्या अद्ययावत झाला!');
+      } else {
+        await addSoundboardItem({
+          nameMR: sbNameMR.trim(),
+          nameEN: sbNameEN.trim(),
+          chantTextMR: sbChantTextMR.trim(),
+          chantTextEN: sbChantTextEN.trim(),
+          category: sbCategory,
+          frequencyHz: Number(sbFrequencyHz) || 136.1,
+          audioUrl: sbAudioUrl.trim(),
+          descriptionMR: sbDescriptionMR.trim(),
+          descriptionEN: sbDescriptionEN.trim(),
+          displayOrder: Number(sbDisplayOrder) || soundboardItems.length + 1,
+          isActive: sbIsActive
+        });
+        alert(lang === 'EN' ? 'New sacred soundboard item added successfully!' : 'नवीन पवित्र ध्वनी यशस्वीरित्या समाविष्ट झाला!');
+      }
+      setIsSoundboardFormOpen(false);
+      resetSoundboardForm();
+    } catch (err: any) {
+      console.error('Save soundboard error:', err);
+      setSoundboardSubmitError(err?.message || (lang === 'EN' ? 'Failed to save soundboard item.' : 'पवित्र ध्वनी सेव्ह करताना त्रुटी आली.'));
+    } finally {
+      setIsSoundboardSubmitting(false);
+    }
+  };
+
+  const handleDeleteSoundboardItem = async (id: string, name: string) => {
+    const confirmPrompt = lang === 'EN'
+      ? `Are you sure you want to delete the sacred sound "${name}"?`
+      : `आपण खात्रीने "${name}" हा पवित्र ध्वनी हटवू इच्छिता?`;
+    if (!window.confirm(confirmPrompt)) return;
+
+    try {
+      if (previewChantId === id) {
+        templeSoundboardEngine.stopMantraChant();
+        setPreviewChantId(null);
+      }
+      await deleteSoundboardItem(id);
+      alert(lang === 'EN' ? 'Soundboard item deleted successfully.' : 'पवित्र ध्वनी यशस्वीरित्या हटवण्यात आला.');
+    } catch (err: any) {
+      console.error('Delete soundboard error:', err);
+      alert(err?.message || (lang === 'EN' ? 'Failed to delete soundboard item.' : 'पवित्र ध्वनी हटवताना त्रुटी आली.'));
+    }
+  };
+
+  const handleToggleSoundboardActive = async (id: string, currentStatus: boolean) => {
+    try {
+      await toggleSoundboardItemActive(id, currentStatus);
+    } catch (err) {
+      console.error('Toggle active error:', err);
+    }
+  };
+
+  const handleTestPreviewSound = (item: SoundboardItem) => {
+    if (previewChantId === item.id) {
+      templeSoundboardEngine.stopMantraChant();
+      setPreviewChantId(null);
+    } else {
+      templeSoundboardEngine.startMantraChant(item.id);
+      setPreviewChantId(item.id);
+    }
+  };
 
   // Announcement input states
   const [annTitle, setAnnTitle] = useState('');
@@ -250,6 +427,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === 'cms' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
         >
           ✍️ Manage Website CMS
+        </button>
+        <button
+          onClick={() => setActiveTab('soundboard')}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${activeTab === 'soundboard' ? 'bg-brand-gold text-brand-maroon font-bold' : 'text-gray-400 hover:text-white'}`}
+        >
+          <Disc className={`h-3.5 w-3.5 ${activeTab === 'soundboard' ? 'animate-spin text-brand-maroon' : 'text-brand-saffron'}`} />
+          <span>{lang === 'EN' ? `🔔 Sacred Soundboard (${soundboardItems.length})` : `🔔 पवित्र ध्वनी व्यवस्थापन (${soundboardItems.length})`}</span>
         </button>
       </div>
 
@@ -801,6 +985,473 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Sacred Soundboard (पवित्र ध्वनी) Management Tab */}
+      {activeTab === 'soundboard' && (
+        <div className="space-y-6 text-xs font-sans">
+          {/* Soundboard Header & CTA */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Disc className="h-5 w-5 text-brand-gold animate-spin" />
+                <h3 className="text-lg font-bold text-white font-sans">
+                  {lang === 'EN' ? 'Sacred Soundboard (पवित्र ध्वनी) Management' : 'पवित्र ध्वनी व वैदिक मंत्र व्यवस्थापन'}
+                </h3>
+              </div>
+              <p className="text-gray-400 mt-1 max-w-2xl text-[11px] leading-relaxed">
+                {lang === 'EN'
+                  ? 'Manage Vedic mantras, conch shell sounds, stutis, and sacred audio loops played in the 24/7 Live Darshan soundboard. Add custom chants or modify frequencies.'
+                  : 'थेट दर्शन दालनात भक्तांना ऐकू येणारे पवित्र मंत्र, शंखनाद, स्तवन व स्वरांचे व्यवस्थापन करा. नवीन मंत्र जोडा, संपादित करा किंवा चाचणी घ्या.'}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleOpenAddSoundboard}
+              className="px-4 py-2 bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-sans font-black rounded-xl hover:opacity-95 transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0"
+            >
+              <Plus className="h-4 w-4" />
+              <span>{lang === 'EN' ? 'Add New Sacred Sound' : 'नवीन पवित्र ध्वनी जोडा'}</span>
+            </button>
+          </div>
+
+          {/* Quick Stats Summary */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-black/50 border border-brand-gold/25 rounded-xl p-3">
+              <span className="text-[10px] text-gray-400 uppercase font-mono block">
+                {lang === 'EN' ? 'Total Sounds' : 'एकूण ध्वनी'}
+              </span>
+              <span className="text-xl font-bold font-sans text-brand-gold mt-0.5 block">
+                {soundboardItems.length}
+              </span>
+            </div>
+            <div className="bg-black/50 border border-emerald-500/25 rounded-xl p-3">
+              <span className="text-[10px] text-gray-400 uppercase font-mono block">
+                {lang === 'EN' ? 'Active Chants' : 'सक्रिय मंत्र'}
+              </span>
+              <span className="text-xl font-bold font-sans text-emerald-400 mt-0.5 block">
+                {soundboardItems.filter(i => i.isActive !== false).length}
+              </span>
+            </div>
+            <div className="bg-black/50 border border-amber-500/25 rounded-xl p-3">
+              <span className="text-[10px] text-gray-400 uppercase font-mono block">
+                {lang === 'EN' ? 'Vedic Mantras' : 'वैदिक मंत्र'}
+              </span>
+              <span className="text-xl font-bold font-sans text-amber-300 mt-0.5 block">
+                {soundboardItems.filter(i => (i.category || 'mantra') === 'mantra').length}
+              </span>
+            </div>
+            <div className="bg-black/50 border border-purple-500/25 rounded-xl p-3">
+              <span className="text-[10px] text-gray-400 uppercase font-mono block">
+                {lang === 'EN' ? 'Stuti & Aarti' : 'स्तोत्र व आरत्या'}
+              </span>
+              <span className="text-xl font-bold font-sans text-purple-300 mt-0.5 block">
+                {soundboardItems.filter(i => i.category === 'stuti' || i.category === 'aarti').length}
+              </span>
+            </div>
+          </div>
+
+          {/* Add / Edit Modal Form */}
+          {isSoundboardFormOpen && (
+            <div className="bg-zinc-950/95 border-2 border-brand-gold/40 rounded-2xl p-5 md:p-6 shadow-2xl backdrop-blur-md space-y-4 animate-fade-in">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <Disc className="h-5 w-5 text-brand-gold" />
+                  <h4 className="text-base font-bold text-white font-sans">
+                    {editingSoundboardItem
+                      ? (lang === 'EN' ? `Edit Sacred Sound: ${editingSoundboardItem.nameEN}` : `पवित्र ध्वनी संपादन: ${editingSoundboardItem.nameMR}`)
+                      : (lang === 'EN' ? 'Add New Sacred Sound to Soundboard' : 'साउंडबोर्डमध्ये नवीन पवित्र ध्वनी समाविष्ट करा')}
+                  </h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setIsSoundboardFormOpen(false); resetSoundboardForm(); }}
+                  className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 text-xs font-bold cursor-pointer"
+                >
+                  ✕ {lang === 'EN' ? 'Close' : 'बंद करा'}
+                </button>
+              </div>
+
+              {soundboardSubmitError && (
+                <div className="p-3 rounded-lg bg-red-950/60 border border-red-500/40 text-red-200 text-xs">
+                  ⚠️ {soundboardSubmitError}
+                </div>
+              )}
+
+              <form onSubmit={handleSaveSoundboardItem} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1 text-left">
+                    <label className="text-gray-300 font-bold block text-xs">
+                      {lang === 'EN' ? 'Sacred Title (Marathi / देवनागरी) *' : 'पवित्र शीर्षक (मराठी) *'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="उदा. श्री इश्वटीची माता महामंत्र"
+                      value={sbNameMR}
+                      onChange={e => setSbNameMR(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold"
+                    />
+                  </div>
+
+                  <div className="space-y-1 text-left">
+                    <label className="text-gray-300 font-bold block text-xs">
+                      {lang === 'EN' ? 'Sacred Title (English) *' : 'पवित्र शीर्षक (इंग्रजी) *'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Ishwati Mata Mahamantra"
+                      value={sbNameEN}
+                      onChange={e => setSbNameEN(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1 text-left">
+                    <label className="text-gray-300 font-bold block text-xs">
+                      {lang === 'EN' ? 'Chanting Verse / Lyrics (Devanagari) *' : 'पवित्र मंत्र / स्तवन बोल (देवनागरी) *'}
+                    </label>
+                    <textarea
+                      required
+                      rows={3}
+                      placeholder="उदा. ॥ ॐ श्री इश्वटीची माता प्रसन्न ॥"
+                      value={sbChantTextMR}
+                      onChange={e => setSbChantTextMR(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-brand-gold font-sans font-bold focus:outline-none focus:border-brand-gold text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-1 text-left">
+                    <label className="text-gray-300 font-bold block text-xs">
+                      {lang === 'EN' ? 'Chanting Phonetics / Meaning (English)' : 'इंग्रजी उच्चार / अर्थ'}
+                    </label>
+                    <textarea
+                      rows={3}
+                      placeholder="e.g. Om Shree Ishwatichi Mata Prasanna"
+                      value={sbChantTextEN}
+                      onChange={e => setSbChantTextEN(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-1 text-left">
+                    <label className="text-gray-300 font-bold block text-xs">
+                      {lang === 'EN' ? 'Category' : 'श्रेणी'}
+                    </label>
+                    <select
+                      value={sbCategory}
+                      onChange={e => setSbCategory(e.target.value as any)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold cursor-pointer"
+                    >
+                      <option value="mantra">{lang === 'EN' ? 'Vedic Mantra' : 'वैदिक मंत्र'}</option>
+                      <option value="stuti">{lang === 'EN' ? 'Devi Stuti / Shloka' : 'देवी स्तुती / श्लोक'}</option>
+                      <option value="instrument">{lang === 'EN' ? 'Temple Instrument' : 'मंदिरातील वाद्य / शंखनाद'}</option>
+                      <option value="aarti">{lang === 'EN' ? 'Holy Aarti' : 'पवित्र आरती'}</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1 text-left">
+                    <label className="text-gray-300 font-bold block text-xs">
+                      {lang === 'EN' ? 'Tanpura Drone Frequency (Hz)' : 'तानपुरा फ्रिक्वेन्सी (Hz)'}
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="50"
+                      max="1000"
+                      value={sbFrequencyHz}
+                      onChange={e => setSbFrequencyHz(parseFloat(e.target.value) || 136.1)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold font-mono"
+                    />
+                    <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => setSbFrequencyHz(136.1)}
+                        className="text-[9px] bg-zinc-800 hover:bg-zinc-700 px-1.5 py-0.5 rounded text-brand-gold cursor-pointer"
+                      >
+                        136.1Hz (OM)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSbFrequencyHz(144.0)}
+                        className="text-[9px] bg-zinc-800 hover:bg-zinc-700 px-1.5 py-0.5 rounded text-brand-gold cursor-pointer"
+                      >
+                        144Hz (Gayatri)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSbFrequencyHz(153.3)}
+                        className="text-[9px] bg-zinc-800 hover:bg-zinc-700 px-1.5 py-0.5 rounded text-brand-gold cursor-pointer"
+                      >
+                        153.3Hz (Devi)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSbFrequencyHz(432.0)}
+                        className="text-[9px] bg-zinc-800 hover:bg-zinc-700 px-1.5 py-0.5 rounded text-brand-gold cursor-pointer"
+                      >
+                        432Hz (Shankh)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 text-left">
+                    <label className="text-gray-300 font-bold block text-xs">
+                      {lang === 'EN' ? 'Display Sequence Order' : 'प्रदर्शन क्रम'}
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="99"
+                      value={sbDisplayOrder}
+                      onChange={e => setSbDisplayOrder(parseInt(e.target.value) || 1)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1 text-left">
+                  <label className="text-gray-300 font-bold block text-xs">
+                    {lang === 'EN' ? 'Custom Audio Recording URL (Optional - leave blank for Live Synthesizer)' : 'कस्टम ऑडिओ URL (ऐच्छिक - लाइव्ह सिंथेसायझरसाठी रिक्त ठेवा)'}
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://.../sacred_recording.mp3"
+                    value={sbAudioUrl}
+                    onChange={e => setSbAudioUrl(e.target.value)}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold text-xs"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1 text-left">
+                    <label className="text-gray-300 font-bold block text-xs">
+                      {lang === 'EN' ? 'Spiritual Significance / Description (MR)' : 'आध्यात्मिक महत्त्व / वर्णन (मराठी)'}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="उदा. कुलस्वामिनी श्री इश्वटीची मातेचा आशीर्वाद देणारा पावन मंत्र"
+                      value={sbDescriptionMR}
+                      onChange={e => setSbDescriptionMR(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold"
+                    />
+                  </div>
+
+                  <div className="space-y-1 text-left">
+                    <label className="text-gray-300 font-bold block text-xs">
+                      {lang === 'EN' ? 'Spiritual Significance / Description (EN)' : 'आध्यात्मिक महत्त्व / वर्णन (इंग्रजी)'}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Sacred invocation for peace and divine mother's blessings"
+                      value={sbDescriptionEN}
+                      onChange={e => setSbDescriptionEN(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="sb-active-toggle"
+                    checked={sbIsActive}
+                    onChange={e => setSbIsActive(e.target.checked)}
+                    className="rounded text-brand-gold focus:ring-0 cursor-pointer h-4 w-4 bg-zinc-900 border-white/20"
+                  />
+                  <label htmlFor="sb-active-toggle" className="text-xs text-gray-200 cursor-pointer select-none">
+                    {lang === 'EN' ? 'Active in Live Darshan Soundboard (Visible to Devotees)' : 'थेट दर्शन साउंडबोर्डमध्ये सक्रिय ठेवा (भक्तांना उपलब्ध)'}
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => { setIsSoundboardFormOpen(false); resetSoundboardForm(); }}
+                    className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-gray-300 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                  >
+                    {lang === 'EN' ? 'Cancel' : 'रद्द करा'}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSoundboardSubmitting}
+                    className="px-6 py-2 bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-sans font-black rounded-lg hover:opacity-95 transition-all cursor-pointer shadow flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isSoundboardSubmitting && <RefreshCw className="h-3.5 w-3.5 animate-spin" />}
+                    <span>
+                      {editingSoundboardItem
+                        ? (lang === 'EN' ? 'Save Changes' : 'बदल जतन करा')
+                        : (lang === 'EN' ? 'Publish to Soundboard' : 'साउंडबोर्डमध्ये जोडा')}
+                    </span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Soundboard Items List */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-gray-400 border-b border-white/5 pb-2">
+              <span className="font-bold">
+                {lang === 'EN' ? 'Current Soundboard Inventory' : 'साउंडबोर्डमधील सक्रिय व उपलब्ध ध्वनी'}
+              </span>
+              <span className="text-[11px] font-mono text-brand-gold">
+                {soundboardItems.length} {lang === 'EN' ? 'Items Loaded' : 'मंत्र उपलब्ध'}
+              </span>
+            </div>
+
+            {soundboardItems.length === 0 ? (
+              <div className="p-8 text-center bg-black/40 rounded-xl border border-white/10 text-gray-400">
+                <Music className="h-10 w-10 text-gray-600 mx-auto mb-2" />
+                <p className="text-sm font-bold">
+                  {lang === 'EN' ? 'No soundboard items configured.' : 'कोणतेही ध्वनी उपलब्ध नाहीत.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleOpenAddSoundboard}
+                  className="mt-3 px-4 py-2 bg-brand-gold text-brand-maroon rounded-lg text-xs font-bold cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>{lang === 'EN' ? 'Add First Sacred Sound' : 'पहिला पवित्र ध्वनी जोडा'}</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {soundboardItems.map((item) => {
+                  const isPreviewPlaying = previewChantId === item.id;
+                  const isItemActive = item.isActive !== false;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className={`p-4 rounded-xl border transition-all duration-300 space-y-3 relative overflow-hidden ${
+                        isPreviewPlaying
+                          ? 'bg-amber-950/60 border-brand-gold shadow-[0_0_20px_rgba(255,153,51,0.25)] ring-1 ring-brand-gold'
+                          : isItemActive
+                          ? 'bg-black/60 border-brand-gold/25 hover:border-brand-gold/50'
+                          : 'bg-zinc-950/60 border-white/10 opacity-75'
+                      }`}
+                    >
+                      {/* Top Header of Card */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-zinc-800 text-brand-gold border border-brand-gold/30">
+                            #{item.displayOrder ?? 1}
+                          </span>
+                          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded font-bold bg-amber-950/80 text-amber-300 border border-amber-500/30">
+                            {item.category || 'mantra'}
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 border border-emerald-500/30">
+                            {item.frequencyHz ? `${item.frequencyHz}Hz` : 'Tanpura'}
+                          </span>
+                        </div>
+
+                        {/* Active status pill */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSoundboardActive(item.id, isItemActive)}
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                            isItemActive
+                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900'
+                              : 'bg-zinc-800 text-gray-400 border border-zinc-700 hover:bg-zinc-700'
+                          }`}
+                          title={lang === 'EN' ? 'Click to toggle active status' : 'सक्रिय/निष्क्रिय स्थिती बदला'}
+                        >
+                          <span className={`h-1.5 w-1.5 rounded-full ${isItemActive ? 'bg-emerald-400 animate-ping' : 'bg-gray-500'}`} />
+                          <span>{isItemActive ? (lang === 'EN' ? 'Active' : 'सक्रिय') : (lang === 'EN' ? 'Hidden' : 'अप्रकाशित')}</span>
+                        </button>
+                      </div>
+
+                      {/* Sacred Titles */}
+                      <div>
+                        <h4 className="text-base font-black text-white font-sans">
+                          {item.nameMR}
+                        </h4>
+                        <span className="text-xs text-gray-300 font-sans block">
+                          {item.nameEN}
+                        </span>
+                      </div>
+
+                      {/* Devanagari Sacred Chant Calligraphy Box */}
+                      <div className="p-2.5 rounded-lg bg-zinc-900/90 border border-brand-gold/30 text-center">
+                        <p className="text-sm font-bold text-brand-gold font-sans tracking-wide">
+                          {item.chantTextMR}
+                        </p>
+                        {item.chantTextEN && (
+                          <p className="text-[11px] text-gray-300 italic font-sans mt-0.5">
+                            {item.chantTextEN}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Description */}
+                      {(item.descriptionMR || item.descriptionEN) && (
+                        <p className="text-[11px] text-gray-400 font-sans leading-snug line-clamp-2">
+                          {lang === 'EN' ? (item.descriptionEN || item.descriptionMR) : (item.descriptionMR || item.descriptionEN)}
+                        </p>
+                      )}
+
+                      {/* Card Action Controls */}
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/10">
+                        {/* Live Audio Test Play */}
+                        <button
+                          type="button"
+                          onClick={() => handleTestPreviewSound(item)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow ${
+                            isPreviewPlaying
+                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white ring-2 ring-emerald-400 animate-pulse'
+                              : 'bg-zinc-800 hover:bg-zinc-700 text-brand-gold border border-brand-gold/30'
+                          }`}
+                          title={isPreviewPlaying ? 'Stop playback preview' : 'Listen live preview'}
+                        >
+                          {isPreviewPlaying ? (
+                            <>
+                              <Pause className="h-3.5 w-3.5 text-white" />
+                              <span>{lang === 'EN' ? 'Stop Listening' : 'थांबवा'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play className="h-3.5 w-3.5 text-brand-gold" />
+                              <span>{lang === 'EN' ? 'Test Listen' : 'चाचणी ऐका'}</span>
+                            </>
+                          )}
+                        </button>
+
+                        <div className="flex items-center gap-1.5">
+                          {/* Edit button */}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditSoundboard(item)}
+                            className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 hover:text-white transition-all cursor-pointer border border-white/10"
+                            title={lang === 'EN' ? 'Edit this sacred sound' : 'हा ध्वनी संपादित करा'}
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+
+                          {/* Delete button */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSoundboardItem(item.id, lang === 'EN' ? item.nameEN : item.nameMR)}
+                            className="p-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 text-red-400 hover:text-white transition-all cursor-pointer border border-red-500/30"
+                            title={lang === 'EN' ? 'Delete this sacred sound' : 'हा ध्वनी हटवा'}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}

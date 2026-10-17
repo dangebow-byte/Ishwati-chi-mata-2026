@@ -535,6 +535,93 @@ ON CONFLICT (id) DO UPDATE SET
     updated_at = CURRENT_TIMESTAMP;
 
 -- --------------------------------------------------------------------
+-- 11. Table: soundboard_items
+-- Sacred Soundboard (पवित्र ध्वनी) Mantras, Conch Shell & Vedic Chants
+-- Managed by Admin with Real-time Devotee Audio Synthesis
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS soundboard_items (
+    id VARCHAR(64) PRIMARY KEY,
+    name_mr VARCHAR(255) NOT NULL,
+    name_en VARCHAR(255) NOT NULL,
+    chant_text_mr TEXT NOT NULL,
+    chant_text_en TEXT,
+    frequency_hz NUMERIC(6, 2) DEFAULT 136.1,
+    category VARCHAR(50) NOT NULL DEFAULT 'mantra' CHECK (category IN ('mantra', 'stuti', 'instrument', 'aarti')),
+    audio_url TEXT,
+    description_mr TEXT,
+    description_en TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    display_order INTEGER NOT NULL DEFAULT 10,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_soundboard_items_active ON soundboard_items (is_active, display_order ASC);
+CREATE INDEX IF NOT EXISTS idx_soundboard_items_category ON soundboard_items (category, display_order ASC);
+
+-- Seed default sacred soundboard items
+INSERT INTO soundboard_items (id, name_mr, name_en, chant_text_mr, chant_text_en, frequency_hz, category, description_mr, description_en, is_active, display_order)
+VALUES
+(
+    'omkar',
+    'ॐकार पवित्र नाद',
+    'Omkar Chant (136.1Hz)',
+    '॥ ॐ ॐ ॐ ॥',
+    'Om Om Om',
+    136.1,
+    'mantra',
+    'विश्वब्रह्मांडाचा मूल ध्वनी आणि वैश्विक शांती कंपन',
+    'Primordial cosmic vibration of the universe tuned to natural earth frequency',
+    TRUE,
+    1
+),
+(
+    'ishwati_mata',
+    'श्री इश्वटीची माता महामंत्र',
+    'Ishwati Mata Mahamantra',
+    '॥ ॐ श्री इश्वटीची माता प्रसन्न ॥',
+    'Om Shree Ishwatichi Mata Prasanna',
+    136.1,
+    'mantra',
+    'कुलस्वामिनी श्री इश्वटीची मातेचा आशीर्वाद देणारा पावन मंत्र',
+    'Sacred invocation of the presiding Divine Mother for universal blessings',
+    TRUE,
+    2
+),
+(
+    'durga_gayatri',
+    'दुर्गा गायत्री मंत्र',
+    'Durga Gayatri Mantra',
+    '॥ ॐ कात्यायनाय विद्महे कन्यकुमारि धीमहि तन्नो दुर्गा प्रचोदयात् ॥',
+    'Om Katyayanaya Vidmahe Kanyakumari Dhimahi Tanno Durgah Prachodayat',
+    144.0,
+    'mantra',
+    'आत्मशक्ती जागृत करणारा आणि भय निवारण करणारा गायत्री मंत्र',
+    'Vedic prayer invoking inner strength, courage and spiritual wisdom',
+    TRUE,
+    3
+),
+(
+    'sarva_mangal',
+    'सर्वमंगल मांगल्ये स्तोत्र',
+    'Sarva Mangal Mangalye',
+    '॥ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके । शरण्ये त्र्यंबके गौरि नारायणि नमोऽस्तु ते ॥',
+    'Sarva Mangala Mangalye Shive Sarvartha Sadhike Sharanye Tryambake Gauri Narayani Namostute',
+    153.3,
+    'stuti',
+    'सर्व शुभ कार्यांची सिद्धी करणारी आदिशक्तीची परम स्तुती',
+    'Universal benediction verse invoking the benevolent Mother of all creation',
+    TRUE,
+    4
+)
+ON CONFLICT (id) DO UPDATE SET
+    name_mr = EXCLUDED.name_mr,
+    name_en = EXCLUDED.name_en,
+    chant_text_mr = EXCLUDED.chant_text_mr,
+    frequency_hz = EXCLUDED.frequency_hz,
+    updated_at = CURRENT_TIMESTAMP;
+
+-- --------------------------------------------------------------------
 -- Note on Dynamic Vercel Deployments & Google Indexing:
 -- When deploying to Vercel (e.g. *.vercel.app), canonical URLs resolve
 -- dynamically to window.location.origin to prevent cross-domain canonical drop.

@@ -4,6 +4,7 @@
  */
 
 import { UserProfile } from '../types';
+import { getISTDateString } from './navratriColorTheme';
 
 /**
  * Normalizes any date input (ISO string, timestamp, date string, or Date object)
@@ -282,6 +283,25 @@ export const sanitizeDevoteeProfile = (rawProfile: any, currentTime?: Date): Use
     rawProfile.email === 'bhakt@temple.in' ||
     rawProfile.phone === '+91 94825 00000';
 
+  // Navratri Sacred Color Day: Auto daily rotation by default
+  const todayIST = getISTDateString(now);
+  let resolvedThemeDay: number | 'auto' = 'auto';
+  if (rawProfile.navratriThemeDay !== undefined && rawProfile.navratriThemeDay !== null) {
+    if (rawProfile.navratriThemeDay === 'auto') {
+      resolvedThemeDay = 'auto';
+    } else {
+      const dayNum = Number(rawProfile.navratriThemeDay);
+      if (dayNum >= 1 && dayNum <= 9) {
+        // If manual override was set on an older date, smoothly revert to 'auto' so daily colors rotate automatically!
+        if (rawProfile.navratriThemeDate && rawProfile.navratriThemeDate !== todayIST) {
+          resolvedThemeDay = 'auto';
+        } else {
+          resolvedThemeDay = dayNum;
+        }
+      }
+    }
+  }
+
   return {
     name: isOldDefault ? 'DEVENDRA PRAKASH PARTE' : (rawProfile.name || 'DEVENDRA PRAKASH PARTE'),
     phone: isOldDefault ? '9892938554' : (rawProfile.phone || '9892938554'),
@@ -291,6 +311,7 @@ export const sanitizeDevoteeProfile = (rawProfile: any, currentTime?: Date): Use
     lastPrayerDate: normalizedLastPrayer,
     milestonesReached: Array.isArray(rawProfile.milestonesReached) ? rawProfile.milestonesReached : [],
     totalDonation: typeof rawProfile.totalDonation === 'number' ? rawProfile.totalDonation : 0,
-    navratriThemeDay: rawProfile.navratriThemeDay !== undefined ? rawProfile.navratriThemeDay : 'auto'
+    navratriThemeDay: resolvedThemeDay,
+    navratriThemeDate: resolvedThemeDay === 'auto' ? todayIST : (rawProfile.navratriThemeDate || todayIST)
   };
 };

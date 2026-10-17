@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { TRANSLATIONS, INITIAL_EVENTS, INITIAL_ANNOUNCEMENTS, INITIAL_TESTIMONIALS, DEFAULT_SITE_CONTENT } from './data';
 import { DevoteeExperience, DigitalSevaBooking, DonationRecord, Announcement, UserProfile, TempleEvent } from './types';
 import { collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, getDocs, query, where } from 'firebase/firestore';
@@ -629,8 +629,23 @@ export default function App() {
   };
 
   const t = TRANSLATIONS[lang];
-  const activeNavratriTheme = getActiveNavratriTheme(userProfile.navratriThemeDay);
+  const activeNavratriTheme = useMemo(() => {
+    return getActiveNavratriTheme(userProfile.navratriThemeDay);
+  }, [userProfile.navratriThemeDay, currentCalendarDay]);
   const isWhiteDay = activeNavratriTheme.dayIndex === 2;
+
+  // Auto-advance theme to 'auto' when a new calendar day begins at 12:00 AM IST
+  useEffect(() => {
+    const todayStr = getISTDateString();
+    if (userProfile.navratriThemeDay !== 'auto' && userProfile.navratriThemeDate && userProfile.navratriThemeDate !== todayStr) {
+      const updated = {
+        ...userProfile,
+        navratriThemeDay: 'auto' as const,
+        navratriThemeDate: todayStr
+      };
+      updateProfileState(updated);
+    }
+  }, [currentCalendarDay]);
 
   // Dynamically synchronize website background & CSS variables per Navratri 9 sacred colors
   // When set to 'auto', it derives automatically from current calendar date and updates daily

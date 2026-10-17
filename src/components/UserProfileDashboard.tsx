@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { Award, Flame, ShieldAlert, CheckCircle, Share2, AwardIcon, Heart, Send, Activity, Check, Palette, Sparkles } from 'lucide-react';
 import { UserProfile } from '../types';
-import { NAVRATRI_9_COLORS, getActiveNavratriTheme } from '../utils/navratriColorTheme';
+import { NAVRATRI_9_COLORS, getActiveNavratriTheme, getISTDateString } from '../utils/navratriColorTheme';
 
 interface UserProfileDashboardProps {
   lang: 'EN' | 'MR';
@@ -108,7 +108,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
-              onClick={() => onUpdateProfile({ navratriThemeDay: 'auto' })}
+              onClick={() => onUpdateProfile({ navratriThemeDay: 'auto', navratriThemeDate: getISTDateString() })}
               className={`px-4 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md ${
                 isAuto 
                   ? 'bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon ring-2 ring-brand-gold shadow-[0_0_15px_rgba(255,153,51,0.5)] font-black' 
@@ -181,7 +181,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
             </div>
             <button
               type="button"
-              onClick={() => onUpdateProfile({ navratriThemeDay: 'auto' })}
+              onClick={() => onUpdateProfile({ navratriThemeDay: 'auto', navratriThemeDate: getISTDateString() })}
               className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-black text-xs cursor-pointer shrink-0 transition-all active:scale-95 shadow"
             >
               {lang === 'EN' ? '⚡ Switch to Auto Daily' : '⚡ स्वयंचलित दैनिक रंगावर जा'}
@@ -200,11 +200,12 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
                 key={theme.dayIndex}
                 type="button"
                 onClick={() => {
+                  const todayStr = getISTDateString();
                   // If clicking the currently selected manual day, toggle back to auto
                   if (!isAuto && profile.navratriThemeDay === theme.dayIndex) {
-                    onUpdateProfile({ navratriThemeDay: 'auto' });
+                    onUpdateProfile({ navratriThemeDay: 'auto', navratriThemeDate: todayStr });
                   } else {
-                    onUpdateProfile({ navratriThemeDay: theme.dayIndex });
+                    onUpdateProfile({ navratriThemeDay: theme.dayIndex, navratriThemeDate: todayStr });
                   }
                 }}
                 className={`relative group p-3.5 rounded-xl border text-left transition-all duration-300 cursor-pointer overflow-hidden ${

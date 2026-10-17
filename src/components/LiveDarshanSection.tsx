@@ -28,6 +28,7 @@ import {
 import { TRANSLATIONS } from '../data';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
 import { templeSoundboardEngine, SACRED_MANTRAS } from '../utils/templeSoundboardEngine';
+import { SoundboardItem, subscribeSoundboardItems, getCachedSoundboardItems } from '../services/soundboardService';
 import { AshtamiFeaturedVideoSection } from './AshtamiFeaturedVideoSection';
 import { DeviImage } from './DeviImage';
 
@@ -159,9 +160,24 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
 
   // Web Audio & Temple Soundboard Engine state
   const [soundboardState, setSoundboardState] = useState(() => templeSoundboardEngine.getState());
+  const [soundboardItems, setSoundboardItems] = useState<SoundboardItem[]>(() => {
+    const cached = getCachedSoundboardItems();
+    return cached.filter(i => i.isActive !== false);
+  });
   const [selectedMantraId, setSelectedMantraId] = useState('omkar');
   const [isAartiAudioActive, setIsAartiAudioActive] = useState(() => aartiAudioEngine.getIsPlaying());
   const [showAshtamiAartiModal, setShowAshtamiAartiModal] = useState(false);
+
+  // Sync with real-time Soundboard items from Firestore / Admin
+  useEffect(() => {
+    const unsub = subscribeSoundboardItems((items) => {
+      const activeOnly = items.filter(i => i.isActive !== false);
+      const toUse = activeOnly.length > 0 ? activeOnly : items;
+      setSoundboardItems(toUse);
+      templeSoundboardEngine.setDynamicMantras(toUse);
+    });
+    return () => unsub();
+  }, []);
 
   // Sync with global temple soundboard engine
   useEffect(() => {
@@ -599,7 +615,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
-                  {SACRED_MANTRAS.map((mantra) => {
+                  {soundboardItems.map((mantra) => {
                     const isSelected = selectedMantraId === mantra.id;
                     return (
                       <button
@@ -651,7 +667,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
                     <span>{lang === 'EN' ? 'NOW CHANTING' : 'सध्या उच्चारित मंत्र'}</span>
                   </div>
                   <p className="text-xs sm:text-sm font-sans font-black text-brand-gold leading-tight drop-shadow">
-                    {SACRED_MANTRAS.find(m => m.id === selectedMantraId)?.chantTextMR}
+                    {soundboardItems.find(m => m.id === selectedMantraId)?.chantTextMR || SACRED_MANTRAS.find(m => m.id === selectedMantraId)?.chantTextMR}
                   </p>
                 </div>
               )}
