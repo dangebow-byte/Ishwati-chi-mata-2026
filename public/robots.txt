@@ -33,4 +33,4 @@ Allow: /
 User-agent: Yandex
 Allow: /
 
-Sitemap: https://ishwatichimata.org/sitemap.xml
+Sitemap: https://ishwati-chi-mata-2026.vercel.app/sitemap.xml
