@@ -500,5 +500,36 @@ ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS storage_path VARCHAR(512);
 ALTER TABLE featured_ashtami_video_configs ADD COLUMN IF NOT EXISTS storage_path VARCHAR(512);
 CREATE INDEX IF NOT EXISTS idx_gallery_media_storage_path ON gallery_media (storage_path);
 
+-- --------------------------------------------------------------------
+-- 10. Table: site_seo_metadata
+-- Google SEO, Structured Data & Multilingual Keyword Catalog
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS site_seo_metadata (
+    id VARCHAR(64) PRIMARY KEY,
+    canonical_url TEXT NOT NULL,
+    default_title_en VARCHAR(255) NOT NULL,
+    default_title_mr VARCHAR(255) NOT NULL,
+    meta_description_en TEXT NOT NULL,
+    meta_description_mr TEXT NOT NULL,
+    keywords TEXT NOT NULL,
+    schema_markup JSONB,
+    sitemap_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
-
+-- Seed default SEO record matching exact search query 'ishwati chi mata'
+INSERT INTO site_seo_metadata (id, canonical_url, default_title_en, default_title_mr, meta_description_en, meta_description_mr, keywords)
+VALUES (
+    'seo-primary-config',
+    'https://ishwatichimata.org/',
+    'Ishwati Chi Mata | Shree Ishwatichi Mata Official Website',
+    'श्री इश्वटीची माता देवस्थान (मंडळ) | अधिकृत संकेतस्थळ',
+    'Official website of Shree Ishwati Chi Mata Devasthan Mandal (श्री इश्वटीची माता). Watch 24/7 live darshan, daily aartis, Navratri festival celebrations, photos, videos & seva bookings.',
+    'श्री इश्वटीची माता देवस्थान मंडळाचे अधिकृत संकेतस्थळ. २४/७ पावन थेट दर्शन, दैनंदिन महाआरती, शारदीय नवरात्रौत्सव, पावन व्हिडिओ व फोटो दालन, आणि डिजिटल सेवा बुकिंग.',
+    'ishwati chi mata, ishwati chi mata mandir, ishwati chi mata devasthan, ishwati chi mata navratri, ishwati chi mata photo, ishwati chi mata video, ishwati chi mata aarti, ishwatichi mata, ishwatichimata, shree ishwati chi mata, श्री इश्वटीची माता, इश्वटीची माता'
+)
+ON CONFLICT (id) DO UPDATE SET
+    canonical_url = EXCLUDED.canonical_url,
+    default_title_en = EXCLUDED.default_title_en,
+    default_title_mr = EXCLUDED.default_title_mr,
+    updated_at = CURRENT_TIMESTAMP;

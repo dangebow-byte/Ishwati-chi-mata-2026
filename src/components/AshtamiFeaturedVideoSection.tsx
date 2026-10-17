@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { formatFileSize } from '../services/localMediaStorage';
 import { deleteCloudMediaObject, uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
+import { shareToWhatsApp } from '../utils/shareUtils';
 import { InstagramVideoEmbed, getInstagramEmbedUrl, extractInstagramShortcode } from './InstagramVideoEmbed';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
@@ -418,15 +419,36 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
           </span>
         </span>
 
-        {showLyricsToggle && onToggleLyrics && (
+        <div className="flex items-center gap-3">
           <button
-            onClick={onToggleLyrics}
-            className="text-brand-saffron hover:underline font-bold flex items-center gap-1 cursor-pointer"
+            onClick={() => {
+              const videoTitle = lang === 'EN' ? config.title : config.titleMarathi;
+              void shareToWhatsApp({
+                title: videoTitle,
+                text: lang === 'EN'
+                  ? `Watch official Ashtami / Aarti Video: ${videoTitle}`
+                  : `अष्टमी व महाआरती पावन व्हिडिओ नक्की पहा: ${videoTitle}`,
+                url: config.url || config.embedUrl || undefined,
+                lang,
+              });
+            }}
+            className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold cursor-pointer transition-all active:scale-95"
+            title={lang === 'EN' ? 'Share video on WhatsApp' : 'व्हिडिओ व्हाट्सॲपवर शेअर करा'}
           >
-            <span>{lang === 'EN' ? 'Aarti Lyrics' : 'आरतीचे बोल'}</span>
-            {showLyrics ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            <span>💬</span>
+            <span className="hidden xs:inline">{lang === 'EN' ? 'WhatsApp Share' : 'व्हाट्सॲप शेअर'}</span>
           </button>
-        )}
+
+          {showLyricsToggle && onToggleLyrics && (
+            <button
+              onClick={onToggleLyrics}
+              className="text-brand-saffron hover:underline font-bold flex items-center gap-1 cursor-pointer"
+            >
+              <span>{lang === 'EN' ? 'Aarti Lyrics' : 'आरतीचे बोल'}</span>
+              {showLyrics ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ========================================================================= */}

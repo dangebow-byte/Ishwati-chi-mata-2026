@@ -4,11 +4,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Sunset, Languages, Moon, Sun, ShieldAlert, Award, Sparkles, Volume2, VolumeX, Menu, X, ChevronRight, Video, Heart, Calendar, BookOpen, Users, Phone, Settings, Sparkle, LogOut } from 'lucide-react';
+import { Sunset, Languages, Moon, Sun, ShieldAlert, Award, Sparkles, Volume2, VolumeX, Menu, X, ChevronRight, Video, Heart, Calendar, BookOpen, Users, Phone, Settings, Sparkle, LogOut, Share2 } from 'lucide-react';
 import { TRANSLATIONS } from '../data';
 import { SiteLogo } from './SiteLogo';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
 import { NavratriColorTheme } from '../utils/navratriColorTheme';
+import { shareToWhatsApp } from '../utils/shareUtils';
 
 interface HeaderProps {
   lang: 'EN' | 'MR';
@@ -288,6 +289,24 @@ export const Header: React.FC<HeaderProps> = ({
                 🔐 <span>{lang === 'EN' ? 'Login' : 'लॉगिन'}</span>
               </button>
             )}
+
+            {/* Devotional WhatsApp Share Button */}
+            <button
+              onClick={() => {
+                void shareToWhatsApp({
+                  title: lang === 'EN' ? 'Shree Ishwati Chi Mata Official Portal' : 'श्री इश्वटीची माता अधिकृत दालन',
+                  text: lang === 'EN'
+                    ? 'Visit the official Shree Ishwati Chi Mata Devasthan portal for 24/7 live darshan, daily aartis, Navratri celebration videos & online seva:'
+                    : 'श्री इश्वटीची माता देवस्थान मंडळाच्या अधिकृत संकेतस्थळाला भेट द्या – २४/७ थेट दर्शन, दैनंदिन आरती, नवरात्र उत्सव व सेवा बुकिंग:',
+                  lang,
+                });
+              }}
+              className="flex items-center gap-1 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-300 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold cursor-pointer transition-all active:scale-95 shrink-0"
+              title={lang === 'EN' ? 'Share Portal on WhatsApp' : 'संकेतस्थळ व्हाट्सॲपवर शेअर करा'}
+            >
+              <Share2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-400" />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </button>
 
             {/* Night usage toggle */}
             <button
@@ -578,6 +597,26 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
                 );
               })}
+            </div>
+
+            {/* Drawer WhatsApp Share CTA */}
+            <div className="p-3 bg-black/50 border-t border-white/10">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  void shareToWhatsApp({
+                    title: lang === 'EN' ? 'Shree Ishwati Chi Mata Official Portal' : 'श्री इश्वटीची माता अधिकृत दालन',
+                    text: lang === 'EN'
+                      ? 'Experience 24/7 Live Sanctum Darshan, daily Maha Aarti, festival video reels & online seva for Shree Ishwati Chi Mata:'
+                      : 'श्री इश्वटीची माता देवस्थान मंडळाच्या अधिकृत संकेतस्थळाला भेट द्या – २४/७ थेट दर्शन, दैनंदिन आरती, नवरात्र उत्सव व सेवा बुकिंग:',
+                    lang,
+                  });
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-emerald-600/35 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-300 font-bold text-xs cursor-pointer transition-all active:scale-95"
+              >
+                <span>💬</span>
+                <span>{lang === 'EN' ? 'Share Temple on WhatsApp' : 'मंडळाचे संकेतस्थळ व्हाट्सॲपवर शेअर करा'}</span>
+              </button>
             </div>
 
             {/* Drawer Footer with Helpline & Copyright */}

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+
+  <!-- 1. Home Portal -->
+  <url>
+    <loc>https://ishwatichimata.org/</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://ishwatichimata.org/?lang=MR"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ishwatichimata.org/?lang=EN"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ishwatichimata.org/?lang=HI"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ishwatichimata.org/"/>
+    <image:image>
+      <image:loc>https://ishwatichimata.org/Mandal%20logo%20Maroon%20Transparent%20BG.png</image:loc>
+      <image:title>Shree Ishwati Chi Mata Devasthan Official Emblem</image:title>
+      <image:caption>श्री इश्वटीची माता देवस्थान मंडळ</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 2. 24/7 Live Darshan -->
+  <url>
+    <loc>https://ishwatichimata.org/#darshan</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://ishwatichimata.org/?lang=MR#darshan"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ishwatichimata.org/?lang=EN#darshan"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ishwatichimata.org/?lang=HI#darshan"/>
+  </url>
+
+  <!-- 3. Photo & Video Reels Gallery -->
+  <url>
+    <loc>https://ishwatichimata.org/#gallery</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://ishwatichimata.org/?lang=MR#gallery"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ishwatichimata.org/?lang=EN#gallery"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ishwatichimata.org/?lang=HI#gallery"/>
+  </url>
+
+  <!-- 4. Sacred Maha Aarti -->
+  <url>
+    <loc>https://ishwatichimata.org/#aarti</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://ishwatichimata.org/?lang=MR#aarti"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ishwatichimata.org/?lang=EN#aarti"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ishwatichimata.org/?lang=HI#aarti"/>
+  </url>
+
+  <!-- 5. Ashtami Mahotsav Celebrations -->
+  <url>
+    <loc>https://ishwatichimata.org/#ashtami</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://ishwatichimata.org/?lang=MR#ashtami"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ishwatichimata.org/?lang=EN#ashtami"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ishwatichimata.org/?lang=HI#ashtami"/>
+  </url>
+
+  <!-- 6. Seva Booking & Donations -->
+  <url>
+    <loc>https://ishwatichimata.org/#donate</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://ishwatichimata.org/?lang=MR#donate"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ishwatichimata.org/?lang=EN#donate"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ishwatichimata.org/?lang=HI#donate"/>
+  </url>
+
+  <!-- 7. Devotee Miracle Experiences -->
+  <url>
+    <loc>https://ishwatichimata.org/#experiences</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://ishwatichimata.org/?lang=MR#experiences"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ishwatichimata.org/?lang=EN#experiences"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ishwatichimata.org/?lang=HI#experiences"/>
+  </url>
+
+  <!-- 8. Mandal History & Devasthan Heritage -->
+  <url>
+    <loc>https://ishwatichimata.org/#history</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://ishwatichimata.org/?lang=MR#history"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ishwatichimata.org/?lang=EN#history"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ishwatichimata.org/?lang=HI#history"/>
+  </url>
+
+  <!-- 9. Contact, Address & Location -->
+  <url>
+    <loc>https://ishwatichimata.org/#contact</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://ishwatichimata.org/?lang=MR#contact"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ishwatichimata.org/?lang=EN#contact"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ishwatichimata.org/?lang=HI#contact"/>
+  </url>
+
+</urlset>

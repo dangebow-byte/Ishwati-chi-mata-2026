@@ -55,12 +55,18 @@ import {
   sanitizeDevoteeProfile
 } from './utils/streakEngine';
 import { getActiveNavratriTheme } from './utils/navratriColorTheme';
+import { updatePageSEO } from './utils/seoManager';
 export { cleanDevanagariSpelling };
 
 export default function App() {
   const [lang, setLang] = useState<'EN' | 'MR'>('MR');
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
+
+  // Dynamic SEO Synchronization for top Google search ranking
+  useEffect(() => {
+    updatePageSEO({ tab: activeTab, lang });
+  }, [activeTab, lang]);
 
   // Unified State from Firestore & Auth - initialized with authentic defaults to survive quota exhaustion
   const [siteContent, setSiteContent] = useState(DEFAULT_SITE_CONTENT);
@@ -120,6 +126,11 @@ export default function App() {
   });
   const [isDeviImageManagerOpen, setIsDeviImageManagerOpen] = useState(false);
   const [currentCalendarDay, setCurrentCalendarDay] = useState<string>(() => new Date().toISOString().split('T')[0]);
+
+  // Dynamic SEO Synchronization for top Google search ranking ('ishwati chi mata')
+  useEffect(() => {
+    updatePageSEO({ tab: activeTab, lang });
+  }, [activeTab, lang]);
 
   // Subscribe to real-time updates for Devi Mata images
   useEffect(() => {

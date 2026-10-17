@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { Mail, Phone, MessageSquare, Send, MapPin, Sparkles, Navigation } from 'lucide-react';
+import { openMandalWhatsAppChat } from '../utils/shareUtils';
 
 interface ContactSectionProps {
   lang: 'EN' | 'MR';
@@ -176,10 +177,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang, siteConten
               </p>
             </div>
 
-            {/* Simulated Live Chat Button */}
+            {/* Real Instant WhatsApp Chat Help Desk */}
             <button
-              onClick={() => alert('Redirecting to WhatsApp instant chat support at +91 94825 00000')}
-              className="w-full bg-emerald-600/35 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-300 font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
+              onClick={() => openMandalWhatsAppChat(siteContent?.phone || '+91 94825 00000', lang)}
+              className="w-full bg-emerald-600/35 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-300 font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
             >
               <MessageSquare className="h-4 w-4 text-emerald-400" />
               <span>{lang === 'EN' ? 'Initiate Direct WhatsApp Help Desk' : 'थेट चौकशी व्हाट्सॲप करा'}</span>

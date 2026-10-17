@@ -18,6 +18,7 @@ import {
   getCachedGalleryMedia,
   setCachedGalleryMedia
 } from '../services/galleryMediaService';
+import { shareToWhatsApp } from '../utils/shareUtils';
 import { 
   Instagram, 
   Video, 
@@ -540,10 +541,17 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
   };
 
   const handleShareWhatsApp = (item: GalleryMediaItem) => {
-    const text = lang === 'EN' 
-      ? `|| Shree Ishwatichi Mata Prasanna || ${item.titleEN || item.titleMR} (${item.year}): ${item.url}`
-      : `|| श्री इश्वटीची माता प्रसन्न || ${item.titleMR || item.titleEN} (${item.year}): ${item.url}`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+    const itemTitle = lang === 'EN' ? (item.titleEN || item.titleMR) : (item.titleMR || item.titleEN);
+    const textMsg = lang === 'EN' 
+      ? `Devotional Media (${item.year}): ${itemTitle}`
+      : `पावन दर्शन उत्सव (${item.year}): ${itemTitle}`;
+    
+    void shareToWhatsApp({
+      title: itemTitle,
+      text: textMsg,
+      url: item.url,
+      lang,
+    });
   };
 
   const discardPendingAddUpload = (storagePath?: string | null) => {
@@ -2676,10 +2684,17 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
             <div className="flex justify-center gap-2 text-xs font-semibold">
               <button 
                 onClick={() => {
-                  const shareText = `|| श्री इश्वटीची माता प्रसन्न || पावन दर्शन (${selectedPhoto.year}): ${selectedPhoto.titleMR} - ${selectedPhoto.url}`;
-                  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank', 'noopener,noreferrer');
+                  const modalTitle = lang === 'EN' 
+                    ? (selectedPhoto.titleEN || selectedPhoto.titleMR || 'Shree Ishwatichi Mata Darshan')
+                    : (selectedPhoto.titleMR || selectedPhoto.titleEN || 'श्री इश्वटीची माता पावन दर्शन');
+                  void shareToWhatsApp({
+                    title: `${modalTitle} (${selectedPhoto.year})`,
+                    text: lang === 'EN' ? `Sacred Darshan - Year ${selectedPhoto.year}` : `पावन दर्शन - वर्ष ${selectedPhoto.year}`,
+                    url: selectedPhoto.url,
+                    lang,
+                  });
                 }}
-                className="bg-green-600/30 text-green-300 border border-green-500/30 px-3 py-1.5 rounded hover:bg-green-600/50 cursor-pointer"
+                className="bg-green-600/30 text-green-300 border border-green-500/30 px-3 py-1.5 rounded hover:bg-green-600/50 cursor-pointer active:scale-95 transition-all"
               >
                 💬 WhatsApp
               </button>

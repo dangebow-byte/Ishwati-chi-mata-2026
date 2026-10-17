@@ -1,0 +1,36 @@
+# Robots.txt for Shree Ishwati Chi Mata Devasthan Official Website
+# https://ishwatichimata.org/
+
+User-agent: *
+Allow: /
+Allow: /videos/
+Allow: /favicon.ico
+Allow: /favicon.png
+
+# Googlebot specific crawler directives
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
+# Bing & other major search engine crawlers
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+Sitemap: https://ishwatichimata.org/sitemap.xml

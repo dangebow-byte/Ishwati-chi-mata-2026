@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { Instagram, ExternalLink, Copy, Check, Share2, Volume2, Sparkles } from 'lucide-react';
+import { shareToWhatsApp } from '../utils/shareUtils';
 
 export interface InstagramVideoEmbedProps {
   url: string;
@@ -66,10 +67,17 @@ export const InstagramVideoEmbed: React.FC<InstagramVideoEmbedProps> = ({
   };
 
   const handleShareWhatsApp = () => {
-    const defaultText = lang === 'EN'
-      ? `|| Shree Ishwatichi Mata || Watch official video reel: ${title || authorHandle} -> ${canonicalUrl}`
-      : `|| श्री इश्वटीची माता प्रसन्न || मंडळाचा अधिकृत नवरात्रौत्सव व्हिडिओ रील नक्की पहा: ${title || authorHandle} -> ${canonicalUrl}`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(defaultText)}`, '_blank', 'noopener,noreferrer');
+    const videoTitle = title || authorHandle || 'Devotional Instagram Reel';
+    const textDesc = lang === 'EN'
+      ? `Watch official Navratri video reel: ${videoTitle}`
+      : `मंडळाचा अधिकृत नवरात्रौत्सव व्हिडिओ रील नक्की पहा: ${videoTitle}`;
+    
+    void shareToWhatsApp({
+      title: videoTitle,
+      text: textDesc,
+      url: canonicalUrl,
+      lang,
+    });
   };
 
   return (
