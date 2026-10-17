@@ -225,7 +225,7 @@ export const Header: React.FC<HeaderProps> = ({
                   style={{ backgroundColor: navratriTheme.swatchHex }} 
                 />
                 <span className="font-sans font-bold text-brand-gold">
-                  {lang === 'EN' ? navratriTheme.colorNameEn.split(' ')[0] : navratriTheme.colorNameMr.split(' ')[0]}
+                  {lang === 'EN' ? `Day ${navratriTheme.dayIndex}: ${navratriTheme.colorNameEn.split(' ')[0]}` : `दिवस ${navratriTheme.dayIndex}: ${navratriTheme.colorNameMr.split(' ')[0]}`}
                 </span>
               </button>
             )}

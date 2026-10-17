@@ -54,7 +54,7 @@ import {
   getActiveDevoteeStreak,
   sanitizeDevoteeProfile
 } from './utils/streakEngine';
-import { getActiveNavratriTheme } from './utils/navratriColorTheme';
+import { getActiveNavratriTheme, getISTDateString, isAutoNavratriTheme } from './utils/navratriColorTheme';
 import { updatePageSEO } from './utils/seoManager';
 export { cleanDevanagariSpelling };
 
@@ -125,7 +125,7 @@ export default function App() {
     return cached.find(x => x.isHeroDefault && x.url) || cached.find(x => x.url) || cached[0] || DEFAULT_DEVI_IMAGE;
   });
   const [isDeviImageManagerOpen, setIsDeviImageManagerOpen] = useState(false);
-  const [currentCalendarDay, setCurrentCalendarDay] = useState<string>(() => new Date().toISOString().split('T')[0]);
+  const [currentCalendarDay, setCurrentCalendarDay] = useState<string>(() => getISTDateString());
 
   // Dynamic SEO Synchronization for top Google search ranking ('ishwati chi mata')
   useEffect(() => {
@@ -637,9 +637,9 @@ export default function App() {
   useEffect(() => {
     // Check calendar date periodically to support automatic daily color transitions at midnight without manual input
     const intervalTimer = setInterval(() => {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getISTDateString();
       setCurrentCalendarDay(prev => prev !== todayStr ? todayStr : prev);
-    }, 30000);
+    }, 15000);
 
     const activeTheme = getActiveNavratriTheme(userProfile.navratriThemeDay);
     const isWhite = activeTheme.dayIndex === 2;

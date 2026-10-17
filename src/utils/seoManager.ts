@@ -103,11 +103,14 @@ export const updatePageSEO = ({ tab = 'home', lang = 'MR', customTitle, customDe
   const twitterDesc = document.querySelector('meta[name="twitter:description"]');
   if (twitterDesc) twitterDesc.setAttribute('content', description);
 
-  // 5. Update Canonical Link
+  // 5. Update Canonical Link & og:url dynamically
   const canonical = document.querySelector('link[rel="canonical"]');
-  if (canonical && typeof window !== 'undefined') {
+  const ogUrl = document.querySelector('meta[property="og:url"]');
+  if (typeof window !== 'undefined') {
     const origin = window.location.origin;
     const hash = currentTab !== 'home' ? `#${currentTab}` : '';
-    canonical.setAttribute('href', `${origin}/${hash}`);
+    const fullUrl = `${origin}/${hash}`;
+    if (canonical) canonical.setAttribute('href', fullUrl);
+    if (ogUrl) ogUrl.setAttribute('content', fullUrl);
   }
 };

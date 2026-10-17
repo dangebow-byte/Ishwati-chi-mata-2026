@@ -230,44 +230,78 @@ export const NAVRATRI_9_COLORS: NavratriColorTheme[] = [
 ];
 
 /**
- * Returns the Navratri theme based on an active preference.
- * Preference options:
- * - 'auto' (automatically selects today's Navratri color if within Navratri, or defaults to Day 1 Orange)
- * - number 1 to 9 (manually chosen day)
+ * Returns the calendar date formatted as 'YYYY-MM-DD' in Indian Standard Time (Asia/Kolkata).
+ * Ensures midnight color transitions trigger precisely at 12:00 AM IST.
  */
-export const getActiveNavratriTheme = (themePref: string | number = 'auto'): NavratriColorTheme => {
-  if (typeof themePref === 'number' || (!isNaN(Number(themePref)) && Number(themePref) >= 1 && Number(themePref) <= 9)) {
-    const idx = Number(themePref);
-    const found = NAVRATRI_9_COLORS.find(c => c.dayIndex === idx);
-    if (found) return found;
+export const getISTDateString = (date: Date = new Date()): string => {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    return formatter.format(date);
+  } catch {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
-
-  // Auto-detect based on current calendar date
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const localDateStr = `${year}-${month}-${day}`;
-
-  const utcYear = now.getUTCFullYear();
-  const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
-  const utcDay = String(now.getUTCDate()).padStart(2, '0');
-  const utcDateStr = `${utcYear}-${utcMonth}-${utcDay}`;
-
-  const matchedDay = NAVRATRI_9_COLORS.find(c => c.dateStr === localDateStr || c.dateStr === utcDateStr);
-  if (matchedDay) return matchedDay;
-
-  // Navratri 2026 starts with 11 Oct (Day 1 Pratipada / Ghatasthapana - Orange).
-  // If today is on or before 11 Oct (including 10 Oct Aagman):
-  if (localDateStr <= '2026-10-11' || utcDateStr <= '2026-10-11') {
-    return NAVRATRI_9_COLORS[0]; // Day 1 Orange
-  }
-
-  // If on or after Day 9:
-  if (localDateStr >= '2026-10-19' || utcDateStr >= '2026-10-19') {
-    return NAVRATRI_9_COLORS[8]; // Day 9 Peacock Green
-  }
-
-  // Default to Day 1 Orange
-  return NAVRATRI_9_COLORS[0];
 };
+
+/**
+ * Calculates today's Navratri day index (1 to 9) automatically.
+ * 1. Checks exact match with the 9 sacred festival dates (2026-10-11 to 2026-10-19).
+ * 2. If accessed outside the festival dates, smoothly rotates through the 9 sacred colors daily
+ *    based on the day-of-year, ensuring the website colors change automatically every single day!
+ */
+export const getTodayNavratriDayIndex = (refDate: Date = new Date()): number => {
+  const istDateStr = getISTDateString(refDate);
+
+  // 1. Direct match with official festival dates (2026-10-11 to 2026-10-19)
+  const matched = NAVRATRI_9_COLORS.find(c => c.dateStr === istDateStr);
+  if (matched) {
+    return matched.dayIndex;
+  }
+
+  // 2. Year-round automatic rotation: assigns each calendar day one of the 9 sacred colors
+  const parts = istDateStr.split('-').map(Number);
+  const year = parts[0] || refDate.getFullYear();
+  const month = (parts[1] || refDate.getMonth() + 1) - 1;
+  const day = parts[2] || refDate.getDate();
+
+  const current = new Date(Date.UTC(year, month, day));
+  const startOfYear = new Date(Date.UTC(year, 0, 1));
+  const dayOfYear = Math.floor((current.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+  // Modulo 9 daily sequence (1 to 9)
+  return ((dayOfYear - 1) % 9) + 1;
+};
+
+/**
+ * Checks whether the current preference is in automatic daily mode.
+ */
+export const isAutoNavratriTheme = (themePref: string | number = 'auto'): boolean => {
+  return themePref === 'auto' || themePref === undefined || themePref === null || themePref === '';
+};
+
+/**
+ * Returns the active Navratri theme.
+ * - When in 'auto' mode: dynamically derives today's sacred color automatically.
+ * - When a specific day number (1 to 9) is provided: returns that chosen day.
+ */
+export const getActiveNavratriTheme = (themePref: string | number = 'auto', refDate: Date = new Date()): NavratriColorTheme => {
+  if (typeof themePref === 'number' || (typeof themePref === 'string' && themePref !== 'auto' && !isNaN(Number(themePref)))) {
+    const idx = Number(themePref);
+    if (idx >= 1 && idx <= 9) {
+      const found = NAVRATRI_9_COLORS.find(c => c.dayIndex === idx);
+      if (found) return found;
+    }
+  }
+
+  // Automatic mode: fetch today's sacred day index (1 to 9)
+  const todayIdx = getTodayNavratriDayIndex(refDate);
+  return NAVRATRI_9_COLORS[todayIdx - 1] || NAVRATRI_9_COLORS[0];
+};
+

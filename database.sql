@@ -533,3 +533,12 @@ ON CONFLICT (id) DO UPDATE SET
     default_title_en = EXCLUDED.default_title_en,
     default_title_mr = EXCLUDED.default_title_mr,
     updated_at = CURRENT_TIMESTAMP;
+
+-- --------------------------------------------------------------------
+-- Note on Dynamic Vercel Deployments & Google Indexing:
+-- When deploying to Vercel (e.g. *.vercel.app), canonical URLs resolve
+-- dynamically to window.location.origin to prevent cross-domain canonical drop.
+-- In devotee profile records, navratri_theme_day defaults to 'auto' to ensure
+-- the 9 sacred colors transition automatically every day at 12:00 AM IST.
+-- --------------------------------------------------------------------
+

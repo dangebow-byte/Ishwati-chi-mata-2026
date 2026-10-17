@@ -143,7 +143,7 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${activeTheme.accentGold}33`, color: activeTheme.accentGold }}>
-                  {isAuto ? (lang === 'EN' ? 'Auto Managed' : 'स्वयंचलित प्रणाली') : (lang === 'EN' ? 'Custom Selected' : 'वैयक्तिक निवड')}
+                  {isAuto ? (lang === 'EN' ? '✓ Auto Daily Active' : '✓ दैनिक स्वयंचलित सुरू') : (lang === 'EN' ? 'Custom Selected' : 'वैयक्तिक निवड')}
                 </span>
                 <span className="text-xs font-bold text-gray-200">
                   {lang === 'EN' ? activeTheme.nameEn : activeTheme.nameMr}
@@ -168,6 +168,27 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
           </div>
         </div>
 
+        {/* Clear Notice when Manual Mode is Active */}
+        {!isAuto && (
+          <div className="bg-amber-950/60 border border-amber-500/50 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-md">
+            <div className="flex items-center gap-2 text-amber-200">
+              <span className="text-base">ℹ️</span>
+              <span>
+                {lang === 'EN' 
+                  ? 'Manual color override is active. To let colors change automatically each day at 12:00 AM IST, switch to Auto.' 
+                  : 'वैयक्तिक रंग निवड सक्रिय आहे. दररोज मध्यरात्री १२:०० वाजता आपोआप रंग बदलण्यासाठी "स्वयंचलित" निवडा.'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => onUpdateProfile({ navratriThemeDay: 'auto' })}
+              className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-black text-xs cursor-pointer shrink-0 transition-all active:scale-95 shadow"
+            >
+              {lang === 'EN' ? '⚡ Switch to Auto Daily' : '⚡ स्वयंचलित दैनिक रंगावर जा'}
+            </button>
+          </div>
+        )}
+
         {/* 9-Day Sacred Palette Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1">
           {NAVRATRI_9_COLORS.map((theme) => {
@@ -178,7 +199,14 @@ export const UserProfileDashboard: React.FC<UserProfileDashboardProps> = ({
               <button
                 key={theme.dayIndex}
                 type="button"
-                onClick={() => onUpdateProfile({ navratriThemeDay: theme.dayIndex })}
+                onClick={() => {
+                  // If clicking the currently selected manual day, toggle back to auto
+                  if (!isAuto && profile.navratriThemeDay === theme.dayIndex) {
+                    onUpdateProfile({ navratriThemeDay: 'auto' });
+                  } else {
+                    onUpdateProfile({ navratriThemeDay: theme.dayIndex });
+                  }
+                }}
                 className={`relative group p-3.5 rounded-xl border text-left transition-all duration-300 cursor-pointer overflow-hidden ${
                   isSelected
                     ? 'ring-2 ring-brand-gold shadow-lg shadow-brand-gold/20 scale-[1.02]'
