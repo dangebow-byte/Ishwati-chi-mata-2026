@@ -159,6 +159,9 @@ service cloud.firestore {
              (!('frequencyHz' in data) || (data.frequencyHz is number)) &&
              (!('category' in data) || (data.category is string && data.category.size() <= 50)) &&
              (!('audioUrl' in data) || (data.audioUrl is string && data.audioUrl.size() <= 2000)) &&
+             (!('storagePath' in data) || (data.storagePath is string && data.storagePath.size() <= 500)) &&
+             (!('audioFileName' in data) || (data.audioFileName is string && data.audioFileName.size() <= 255)) &&
+             (!('audioFileSize' in data) || (data.audioFileSize is number)) &&
              (!('descriptionMR' in data) || (data.descriptionMR is string && data.descriptionMR.size() <= 3000)) &&
              (!('descriptionEN' in data) || (data.descriptionEN is string && data.descriptionEN.size() <= 3000)) &&
              (!('isActive' in data) || data.isActive is bool) &&

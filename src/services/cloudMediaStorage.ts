@@ -37,12 +37,12 @@ function sanitizeFileName(name: string): string {
  * Uploads a media file (Video or Image) directly to Firebase Cloud Storage.
  * Uses Firebase's resumable upload task and reports progress until success or error.
  * @param file The File object selected from the user's device
- * @param folder The storage directory ('gallery_videos', 'ashtami_videos', 'gallery_photos')
+ * @param folder The storage directory ('gallery_videos', 'ashtami_videos', 'gallery_photos', 'soundboard_audio')
  * @param onProgress Optional callback for real-time upload progress (0-100%)
  */
 export async function uploadMediaToCloudStorage(
   file: File,
-  folder: 'gallery_videos' | 'ashtami_videos' | 'gallery_photos' = 'gallery_videos',
+  folder: 'gallery_videos' | 'ashtami_videos' | 'gallery_photos' | 'soundboard_audio' = 'gallery_videos',
   onProgress?: UploadProgressCallback
 ): Promise<CloudUploadResult> {
   if (!file) {
@@ -52,19 +52,26 @@ export async function uploadMediaToCloudStorage(
   const extension = file.name.split('.').pop()?.toLowerCase();
   const inferredType: Record<string, string> = {
     mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', ogg: 'video/ogg',
-    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp'
+    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp',
+    mp3: 'audio/mpeg', wav: 'audio/wav', m4a: 'audio/mp4', aac: 'audio/aac',
+    oga: 'audio/ogg', weba: 'audio/webm'
   };
   const contentType = file.type || inferredType[extension || ''] || '';
+  const isAudio = folder === 'soundboard_audio';
   const isPhoto = folder === 'gallery_photos';
-  const allowedTypes = isPhoto
+
+  const allowedTypes = isAudio
+    ? ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/ogg', 'audio/aac', 'audio/webm', 'audio/x-m4a']
+    : isPhoto
     ? ['image/jpeg', 'image/png', 'image/webp']
     : ['video/mp4', 'video/webm', 'video/quicktime', 'video/ogg'];
-  const maxBytes = isPhoto ? 10 * 1024 * 1024 : 500 * 1024 * 1024;
+
+  const maxBytes = isAudio ? 50 * 1024 * 1024 : isPhoto ? 10 * 1024 * 1024 : 500 * 1024 * 1024;
   if (!allowedTypes.includes(contentType)) {
     throw new Error(`Unsupported media type: ${contentType || 'unknown'}.`);
   }
   if (file.size <= 0 || file.size > maxBytes) {
-    throw new Error(`File exceeds the ${isPhoto ? '10 MB image' : '500 MB video'} upload limit.`);
+    throw new Error(`File exceeds the ${isAudio ? '50 MB audio' : isPhoto ? '10 MB image' : '500 MB video'} upload limit.`);
   }
 
   const cleanName = sanitizeFileName(file.name || 'media_file');
@@ -95,6 +102,23 @@ export async function uploadMediaToCloudStorage(
       },
       (error) => {
         console.warn('Firebase Storage Upload Error / CORS:', error);
+        // Resilient fallback for audio files up to 6MB if Cloud Storage is restricted or offline
+        if (isAudio && file.size <= 6 * 1024 * 1024) {
+          console.info('Using local Data URL fallback for audio storage resilience.');
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve({
+              url: reader.result as string,
+              storagePath: `fallback_${uniqueId}`,
+              name: file.name,
+              size: file.size,
+              contentType: contentType || 'audio/mpeg'
+            });
+          };
+          reader.onerror = () => reject(error);
+          reader.readAsDataURL(file);
+          return;
+        }
         reject(error);
       },
       async () => {
@@ -115,7 +139,21 @@ export async function uploadMediaToCloudStorage(
   });
 }
 
+export function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+}
+
 export async function deleteCloudMediaObject(storagePath: string): Promise<void> {
   if (!storagePath) return;
-  await deleteObject(ref(storage, storagePath));
+  if (storagePath.startsWith('fallback_')) return;
+  try {
+    await deleteObject(ref(storage, storagePath));
+  } catch (err) {
+    console.warn('Delete cloud media warning:', err);
+  }
 }

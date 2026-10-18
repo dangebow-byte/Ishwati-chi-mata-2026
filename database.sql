@@ -548,6 +548,9 @@ CREATE TABLE IF NOT EXISTS soundboard_items (
     frequency_hz NUMERIC(6, 2) DEFAULT 136.1,
     category VARCHAR(50) NOT NULL DEFAULT 'mantra' CHECK (category IN ('mantra', 'stuti', 'instrument', 'aarti')),
     audio_url TEXT,
+    storage_path TEXT,
+    audio_file_name VARCHAR(255),
+    audio_file_size BIGINT,
     description_mr TEXT,
     description_en TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -555,6 +558,11 @@ CREATE TABLE IF NOT EXISTS soundboard_items (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Safe incremental alter commands for existing production databases:
+ALTER TABLE soundboard_items ADD COLUMN IF NOT EXISTS storage_path TEXT;
+ALTER TABLE soundboard_items ADD COLUMN IF NOT EXISTS audio_file_name VARCHAR(255);
+ALTER TABLE soundboard_items ADD COLUMN IF NOT EXISTS audio_file_size BIGINT;
 
 CREATE INDEX IF NOT EXISTS idx_soundboard_items_active ON soundboard_items (is_active, display_order ASC);
 CREATE INDEX IF NOT EXISTS idx_soundboard_items_category ON soundboard_items (category, display_order ASC);

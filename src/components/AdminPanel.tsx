@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Lock, Eye, CheckCircle, XCircle, Trash2, ShieldCheck, Download, PlusCircle, 
   BarChart3, Users, Flame, Sparkles, LogOut, Disc, Volume2, VolumeX, Play, 
-  Pause, Edit2, Music, Radio, Plus, RotateCcw, RefreshCw 
+  Pause, Edit2, Music, Radio, Plus, RotateCcw, RefreshCw, Upload, HardDrive, 
+  Globe, Check, AlertCircle, FileAudio, X, Loader2
 } from 'lucide-react';
 import { DevoteeExperience, DigitalSevaBooking, DonationRecord, Announcement } from '../types';
 import { 
@@ -19,6 +20,8 @@ import {
   toggleSoundboardItemActive 
 } from '../services/soundboardService';
 import { templeSoundboardEngine } from '../utils/templeSoundboardEngine';
+import { uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
+import { formatFileSize } from '../services/localMediaStorage';
 
 interface AdminPanelProps {
   lang: 'EN' | 'MR';
@@ -132,6 +135,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [sbDisplayOrder, setSbDisplayOrder] = useState<number>(1);
   const [sbIsActive, setSbIsActive] = useState<boolean>(true);
 
+  // Audio source mode and device upload states
+  const [sbAudioSource, setSbAudioSource] = useState<'upload' | 'url' | 'synthesizer'>('upload');
+  const [sbSelectedAudioFile, setSbSelectedAudioFile] = useState<File | null>(null);
+  const [sbAudioFileName, setSbAudioFileName] = useState('');
+  const [sbAudioFileSize, setSbAudioFileSize] = useState<number | null>(null);
+  const [sbAudioUploadProgress, setSbAudioUploadProgress] = useState<number>(0);
+  const [isSbAudioUploading, setIsSbAudioUploading] = useState<boolean>(false);
+  const [sbStoragePath, setSbStoragePath] = useState('');
+  const [sbAudioBlobPreviewUrl, setSbAudioBlobPreviewUrl] = useState<string | null>(null);
+  const sbAudioInputRef = useRef<HTMLInputElement | null>(null);
+
   // Subscribe to real-time Soundboard items
   React.useEffect(() => {
     const unsub = subscribeSoundboardItems(
@@ -155,6 +169,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setSbCategory('mantra');
     setSbFrequencyHz(136.1);
     setSbAudioUrl('');
+    setSbAudioSource('upload');
+    setSbSelectedAudioFile(null);
+    setSbAudioFileName('');
+    setSbAudioFileSize(null);
+    setSbAudioUploadProgress(0);
+    setSbStoragePath('');
+    if (sbAudioBlobPreviewUrl) {
+      try {
+        URL.revokeObjectURL(sbAudioBlobPreviewUrl);
+      } catch {}
+    }
+    setSbAudioBlobPreviewUrl(null);
+    setIsSbAudioUploading(false);
+    if (sbAudioInputRef.current) {
+      sbAudioInputRef.current.value = '';
+    }
     setSbDescriptionMR('');
     setSbDescriptionEN('');
     setSbDisplayOrder(soundboardItems.length + 1);
@@ -163,12 +193,86 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setSoundboardSubmitError(null);
   };
 
+  const [isAudioDragging, setIsAudioDragging] = useState(false);
+
+  const processAudioFile = (file: File) => {
+    if (!file) return;
+
+    const allowedExtensions = ['mp3', 'wav', 'm4a', 'ogg', 'aac', 'weba'];
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    if (!file.type.startsWith('audio/') && !allowedExtensions.includes(ext)) {
+      setSoundboardSubmitError(
+        lang === 'EN'
+          ? 'Unsupported file type. Please select an audio file (MP3, WAV, M4A, OGG, AAC).'
+          : 'असमर्थित फाईल प्रकार. कृपया ऑडिओ फाईल (MP3, WAV, M4A, OGG, AAC) निवडा.'
+      );
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      setSoundboardSubmitError(
+        lang === 'EN'
+          ? 'Audio file is too large. Maximum size allowed is 50 MB.'
+          : 'ऑडिओ फाईल खूप मोठी आहे. कमाल आकार ५० MB पर्यंत असावा.'
+      );
+      return;
+    }
+
+    if (sbAudioBlobPreviewUrl) {
+      try {
+        URL.revokeObjectURL(sbAudioBlobPreviewUrl);
+      } catch {}
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setSbSelectedAudioFile(file);
+    setSbAudioBlobPreviewUrl(previewUrl);
+    setSbAudioFileName(file.name);
+    setSbAudioFileSize(file.size);
+    setSbAudioSource('upload');
+    setSoundboardSubmitError(null);
+  };
+
+  const handleSelectAudioFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processAudioFile(file);
+    }
+  };
+
+  const handleAudioDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsAudioDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processAudioFile(file);
+    }
+  };
+
+  const handleClearAudioFile = () => {
+    if (sbAudioBlobPreviewUrl) {
+      try {
+        URL.revokeObjectURL(sbAudioBlobPreviewUrl);
+      } catch {}
+    }
+    setSbSelectedAudioFile(null);
+    setSbAudioBlobPreviewUrl(null);
+    setSbAudioFileName('');
+    setSbAudioFileSize(null);
+    setSbAudioUrl('');
+    setSbStoragePath('');
+    if (sbAudioInputRef.current) {
+      sbAudioInputRef.current.value = '';
+    }
+  };
+
   const handleOpenAddSoundboard = () => {
     resetSoundboardForm();
+    setSbAudioSource('upload'); // Explicitly start with device upload
     setIsSoundboardFormOpen(true);
   };
 
-  const handleOpenEditSoundboard = (item: SoundboardItem) => {
+  const handleOpenEditSoundboard = (item: SoundboardItem, openDeviceUploadDirectly: boolean = false) => {
     setEditingSoundboardItem(item);
     setSbNameMR(item.nameMR);
     setSbNameEN(item.nameEN);
@@ -177,12 +281,37 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setSbCategory(item.category || 'mantra');
     setSbFrequencyHz(item.frequencyHz || 136.1);
     setSbAudioUrl(item.audioUrl || '');
+    setSbStoragePath(item.storagePath || '');
+    setSbAudioFileName(item.audioFileName || '');
+    setSbAudioFileSize(item.audioFileSize || null);
+    setSbSelectedAudioFile(null);
+    setSbAudioUploadProgress(0);
+    if (sbAudioBlobPreviewUrl) {
+      try {
+        URL.revokeObjectURL(sbAudioBlobPreviewUrl);
+      } catch {}
+    }
+    setSbAudioBlobPreviewUrl(null);
+
+    // Default to 'upload' source mode so device audio upload is immediately available and clearly visible
+    if (openDeviceUploadDirectly || item.storagePath || item.audioFileName || !item.audioUrl) {
+      setSbAudioSource('upload');
+    } else {
+      setSbAudioSource('url');
+    }
+
     setSbDescriptionMR(item.descriptionMR || '');
     setSbDescriptionEN(item.descriptionEN || '');
     setSbDisplayOrder(item.displayOrder ?? 1);
     setSbIsActive(item.isActive !== false);
     setSoundboardSubmitError(null);
     setIsSoundboardFormOpen(true);
+
+    if (openDeviceUploadDirectly) {
+      setTimeout(() => {
+        sbAudioInputRef.current?.click();
+      }, 150);
+    }
   };
 
   const handleSaveSoundboardItem = async (e: React.FormEvent) => {
@@ -196,6 +325,55 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setSoundboardSubmitError(null);
 
     try {
+      let finalAudioUrl = sbAudioUrl.trim();
+      let finalStoragePath = sbStoragePath;
+      let finalFileName = sbAudioFileName;
+      let finalFileSize = sbAudioFileSize;
+
+      // Handle Device File Upload if selected
+      if (sbAudioSource === 'upload') {
+        if (sbSelectedAudioFile) {
+          setIsSbAudioUploading(true);
+          setSbAudioUploadProgress(5);
+          try {
+            const uploadResult = await uploadMediaToCloudStorage(
+              sbSelectedAudioFile,
+              'soundboard_audio',
+              (progress) => {
+                setSbAudioUploadProgress(progress);
+              }
+            );
+            finalAudioUrl = uploadResult.url;
+            finalStoragePath = uploadResult.storagePath;
+            finalFileName = uploadResult.name;
+            finalFileSize = uploadResult.size;
+          } catch (uploadErr: any) {
+            console.error('Audio upload to Cloud Storage error:', uploadErr);
+            throw new Error(
+              lang === 'EN'
+                ? `Failed to upload audio file: ${uploadErr?.message || 'Storage error'}`
+                : `ऑडिओ फाईल अपलोड करताना त्रुटी आली: ${uploadErr?.message || 'स्टोरेज त्रुटी'}`
+            );
+          } finally {
+            setIsSbAudioUploading(false);
+          }
+        } else if (!finalAudioUrl && !editingSoundboardItem?.audioUrl) {
+          // Prompt admin if no audio file was chosen and no existing audio exists
+          setSoundboardSubmitError(
+            lang === 'EN'
+              ? 'Please select an audio file to upload from your device, or switch to Live Synthesizer.'
+              : 'कृपया तुमच्या डिव्हाइसवरून ऑडिओ फाईल निवडा किंवा "वैदिक सिंथेसायझर" पर्याय निवडा.'
+          );
+          setIsSoundboardSubmitting(false);
+          return;
+        }
+      } else if (sbAudioSource === 'synthesizer') {
+        finalAudioUrl = '';
+        finalStoragePath = '';
+        finalFileName = '';
+        finalFileSize = 0;
+      }
+
       if (editingSoundboardItem) {
         await updateSoundboardItem(editingSoundboardItem.id, {
           nameMR: sbNameMR.trim(),
@@ -204,7 +382,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           chantTextEN: sbChantTextEN.trim(),
           category: sbCategory,
           frequencyHz: Number(sbFrequencyHz) || 136.1,
-          audioUrl: sbAudioUrl.trim(),
+          audioUrl: finalAudioUrl,
+          storagePath: finalStoragePath,
+          audioFileName: finalFileName,
+          audioFileSize: finalFileSize || 0,
           descriptionMR: sbDescriptionMR.trim(),
           descriptionEN: sbDescriptionEN.trim(),
           displayOrder: Number(sbDisplayOrder) || 1,
@@ -219,7 +400,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           chantTextEN: sbChantTextEN.trim(),
           category: sbCategory,
           frequencyHz: Number(sbFrequencyHz) || 136.1,
-          audioUrl: sbAudioUrl.trim(),
+          audioUrl: finalAudioUrl,
+          storagePath: finalStoragePath,
+          audioFileName: finalFileName,
+          audioFileSize: finalFileSize || 0,
           descriptionMR: sbDescriptionMR.trim(),
           descriptionEN: sbDescriptionEN.trim(),
           displayOrder: Number(sbDisplayOrder) || soundboardItems.length + 1,
@@ -234,6 +418,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       setSoundboardSubmitError(err?.message || (lang === 'EN' ? 'Failed to save soundboard item.' : 'पवित्र ध्वनी सेव्ह करताना त्रुटी आली.'));
     } finally {
       setIsSoundboardSubmitting(false);
+      setIsSbAudioUploading(false);
     }
   };
 
@@ -1218,17 +1403,273 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </div>
                 </div>
 
-                <div className="space-y-1 text-left">
-                  <label className="text-gray-300 font-bold block text-xs">
-                    {lang === 'EN' ? 'Custom Audio Recording URL (Optional - leave blank for Live Synthesizer)' : 'कस्टम ऑडिओ URL (ऐच्छिक - लाइव्ह सिंथेसायझरसाठी रिक्त ठेवा)'}
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://.../sacred_recording.mp3"
-                    value={sbAudioUrl}
-                    onChange={e => setSbAudioUrl(e.target.value)}
-                    className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-brand-gold text-xs"
-                  />
+                {/* Sacred Audio Source Section: Device File Upload, Web Audio URL, or Live Synthesizer */}
+                <div className="space-y-4 bg-zinc-900/90 p-4 md:p-5 rounded-2xl border-2 border-brand-gold/40 text-left shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-lg bg-brand-gold/20 flex items-center justify-center text-brand-gold">
+                        <Music className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <label className="text-brand-gold font-bold text-sm block">
+                          {lang === 'EN' ? 'Sacred Audio Source & Chanting Voice' : 'पवित्र ऑडिओ स्रोत व जप ध्वनी'}
+                        </label>
+                        <span className="text-[11px] text-gray-400 block">
+                          {lang === 'EN'
+                            ? 'Upload a real recording from device or choose synthesizer'
+                            : 'तुमच्या डिव्हाइसवरील ऑडिओ रेकॉर्डिंग अपलोड करा किंवा थेट सिंथेसायझर वापरा'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="text-[11px] font-mono px-2.5 py-1 rounded-full font-bold border border-brand-gold/40 bg-black/60 text-brand-gold self-start sm:self-auto">
+                      {sbAudioSource === 'upload' 
+                        ? (lang === 'EN' ? '📁 Device File Upload' : '📁 डिव्हाइस ऑडिओ फाईल') 
+                        : sbAudioSource === 'url' 
+                        ? (lang === 'EN' ? '🌐 Web Audio URL' : '🌐 वेब ऑडिओ लिंक') 
+                        : (lang === 'EN' ? '🎵 Vedic Synthesizer' : '🎵 वैदिक सिंथेसायझर')}
+                    </span>
+                  </div>
+
+                  {/* Prominent Source Mode Selector */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setSbAudioSource('upload')}
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 text-center shadow-sm ${
+                        sbAudioSource === 'upload'
+                          ? 'bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-black border-brand-gold ring-2 ring-brand-gold/50 scale-[1.02]'
+                          : 'bg-black/60 text-gray-300 border-white/15 hover:border-brand-gold/50 hover:text-white'
+                      }`}
+                    >
+                      <HardDrive className="h-4 w-4 shrink-0" />
+                      <span>{lang === 'EN' ? 'Upload from Device' : 'डिव्हाइसवरून ऑडिओ अपलोड'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSbAudioSource('url')}
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 text-center shadow-sm ${
+                        sbAudioSource === 'url'
+                          ? 'bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-black border-brand-gold ring-2 ring-brand-gold/50 scale-[1.02]'
+                          : 'bg-black/60 text-gray-300 border-white/15 hover:border-brand-gold/50 hover:text-white'
+                      }`}
+                    >
+                      <Globe className="h-4 w-4 shrink-0" />
+                      <span>{lang === 'EN' ? 'Web Audio URL' : 'वेब ऑडिओ लिंक (URL)'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSbAudioSource('synthesizer');
+                        setSbSelectedAudioFile(null);
+                        setSbAudioBlobPreviewUrl(null);
+                        setSbAudioUrl('');
+                      }}
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 text-center shadow-sm ${
+                        sbAudioSource === 'synthesizer'
+                          ? 'bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-black border-brand-gold ring-2 ring-brand-gold/50 scale-[1.02]'
+                          : 'bg-black/60 text-gray-300 border-white/15 hover:border-brand-gold/50 hover:text-white'
+                      }`}
+                    >
+                      <Radio className="h-4 w-4 shrink-0" />
+                      <span>{lang === 'EN' ? 'Vedic Synthesizer' : 'वैदिक सिंथेसायझर'}</span>
+                    </button>
+                  </div>
+
+                  {/* Mode 1: Device File Upload */}
+                  {sbAudioSource === 'upload' && (
+                    <div className="space-y-3 pt-1">
+                      <input
+                        type="file"
+                        ref={sbAudioInputRef}
+                        onChange={handleSelectAudioFile}
+                        accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.weba"
+                        className="hidden"
+                      />
+
+                      {/* Prominent Upload Dropzone */}
+                      <div
+                        onClick={() => sbAudioInputRef.current?.click()}
+                        onDragOver={(e) => { e.preventDefault(); setIsAudioDragging(true); }}
+                        onDragLeave={() => setIsAudioDragging(false)}
+                        onDrop={handleAudioDrop}
+                        className={`border-2 border-dashed rounded-2xl p-5 md:p-6 text-center cursor-pointer transition-all ${
+                          isAudioDragging
+                            ? 'border-brand-gold bg-brand-gold/15 scale-[1.01]'
+                            : 'border-brand-gold/50 hover:border-brand-gold bg-black/70 hover:bg-black/90'
+                        } group space-y-3 shadow-inner`}
+                      >
+                        <div className="h-14 w-14 rounded-full bg-gradient-to-br from-brand-gold/25 to-brand-saffron/20 text-brand-gold flex items-center justify-center mx-auto group-hover:scale-110 transition-transform shadow-md border border-brand-gold/30">
+                          <Upload className="h-7 w-7" />
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-sm font-bold text-white group-hover:text-brand-gold transition-colors block">
+                            {lang === 'EN' ? 'Click to select audio file from your device' : 'तुमच्या डिव्हाइसवरून ऑडिओ फाईल निवडण्यासाठी येथे क्लिक करा'}
+                          </span>
+                          <p className="text-xs text-gray-300 font-sans">
+                            {lang === 'EN'
+                              ? 'Or drag and drop audio file here (MP3, WAV, M4A, AAC, OGG)'
+                              : 'किंवा ऑडिओ फाईल येथे ड्रॅग आणि ड्रॉप करा (MP3, WAV, M4A, AAC, OGG)'}
+                          </p>
+                          <span className="inline-block text-[10px] font-mono text-brand-gold bg-zinc-900 px-2.5 py-0.5 rounded-full border border-brand-gold/30 mt-1">
+                            {lang === 'EN' ? 'Maximum size: 50 MB' : 'कमाल आकार: ५० MB'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Selected File & Live HTML5 Audio Player Preview */}
+                      {(sbAudioBlobPreviewUrl || sbAudioUrl || sbSelectedAudioFile || sbAudioFileName) && (
+                        <div className="p-4 bg-black/80 rounded-2xl border-2 border-brand-gold/40 space-y-3 shadow-lg">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="h-9 w-9 rounded-xl bg-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0 border border-brand-gold/30">
+                                <FileAudio className="h-5 w-5" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-white truncate block">
+                                    {sbAudioFileName || (editingSoundboardItem?.audioFileName) || (sbSelectedAudioFile?.name) || 'Sacred Audio File'}
+                                  </span>
+                                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                                </div>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  {sbAudioFileSize !== null && (
+                                    <span className="text-[10px] text-brand-gold font-mono">
+                                      {formatFileSize(sbAudioFileSize)}
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] text-emerald-400 font-medium">
+                                    ✓ {lang === 'EN' ? 'Ready for playback' : 'चाचणीसाठी तयार'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => sbAudioInputRef.current?.click()}
+                                className="text-brand-gold hover:text-white text-xs px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-brand-gold/30 cursor-pointer flex items-center gap-1 transition-colors"
+                              >
+                                <RefreshCw className="h-3 w-3" />
+                                <span>{lang === 'EN' ? 'Change' : 'बदला'}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleClearAudioFile}
+                                className="text-red-400 hover:text-red-300 text-xs px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-950 border border-red-500/30 cursor-pointer flex items-center gap-1 transition-colors"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                                <span>{lang === 'EN' ? 'Remove' : 'काढा'}</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Instant In-Browser Audio Player for Audio Verification */}
+                          <div className="pt-1">
+                            <span className="text-[10px] text-gray-400 font-sans block mb-1">
+                              {lang === 'EN' ? 'Preview Audio Playback:' : 'ऑडिओ ऐकून खात्री करा:'}
+                            </span>
+                            <audio
+                              controls
+                              src={sbAudioBlobPreviewUrl || sbAudioUrl}
+                              className="w-full h-9 rounded-lg border border-white/10"
+                            >
+                              Your browser does not support audio playback.
+                            </audio>
+                          </div>
+
+                          {/* Upload Progress Bar if uploading */}
+                          {isSbAudioUploading && (
+                            <div className="space-y-1.5 pt-2 border-t border-white/10">
+                              <div className="flex justify-between text-[11px] text-brand-gold font-mono">
+                                <span className="flex items-center gap-1.5">
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  <span>{lang === 'EN' ? 'Uploading audio to Cloud Storage...' : 'क्लाउड स्टोरेजवर ऑडिओ सुरक्षित अपलोड होत आहे...'}</span>
+                                </span>
+                                <span>{sbAudioUploadProgress}%</span>
+                              </div>
+                              <div className="w-full bg-zinc-800 rounded-full h-2.5 overflow-hidden border border-white/10">
+                                <div
+                                  className="bg-gradient-to-r from-brand-gold via-amber-400 to-brand-saffron h-full transition-all duration-200"
+                                  style={{ width: `${sbAudioUploadProgress}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Mode 2: Web Audio URL */}
+                  {sbAudioSource === 'url' && (
+                    <div className="space-y-3 pt-1">
+                      <div className="space-y-1">
+                        <label className="text-xs text-gray-300 font-bold block">
+                          {lang === 'EN' ? 'Direct Audio Stream / MP3 URL' : 'थेट ऑडिओ URL लिंक (MP3 / WAV)'}
+                        </label>
+                        <input
+                          type="url"
+                          placeholder="https://example.com/sacred_mantra.mp3"
+                          value={sbAudioUrl}
+                          onChange={e => setSbAudioUrl(e.target.value)}
+                          className="w-full bg-black/70 border border-brand-gold/40 rounded-xl p-2.5 text-white focus:outline-none focus:border-brand-gold text-xs font-mono"
+                        />
+                      </div>
+                      {sbAudioUrl && (
+                        <div className="p-3 bg-black/60 rounded-xl border border-white/10 space-y-1">
+                          <span className="text-[10px] text-gray-400 block">{lang === 'EN' ? 'Test Stream Playback:' : 'चाचणी ऑडिओ:'}</span>
+                          <audio controls src={sbAudioUrl} className="w-full h-8 rounded">
+                            Your browser does not support audio playback.
+                          </audio>
+                        </div>
+                      )}
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setSbAudioSource('upload')}
+                          className="text-[11px] text-brand-gold hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <HardDrive className="h-3 w-3" />
+                          <span>{lang === 'EN' ? 'Switch to upload from device instead' : 'किंवा डिव्हाइसवरून ऑडिओ फाईल अपलोड करा'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mode 3: Live Vedic Synthesizer */}
+                  {sbAudioSource === 'synthesizer' && (
+                    <div className="p-4 bg-black/60 rounded-xl border border-white/15 text-xs text-gray-300 space-y-2">
+                      <div className="flex items-center gap-2 text-brand-gold font-bold">
+                        <Sparkles className="h-4 w-4" />
+                        <span>{lang === 'EN' ? 'Real-Time Pure Tone Synthesizer' : 'थेट तानपुरा व ओंकार स्वर संश्लेषण'}</span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 leading-relaxed">
+                        {lang === 'EN'
+                          ? `Will generate authentic Tanpura drone and resonant vocal formant chants continuously at ${sbFrequencyHz}Hz.`
+                          : `कोणतीही ऑडिओ फाईल आवश्यक नाही. प्रणाली आपोआप ${sbFrequencyHz}Hz फ्रिक्वेन्सीवर तानपुरा व वैदिक स्वरांचा अखंड जप निर्माण करेल.`}
+                      </p>
+                      <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                        <span className="text-[10px] text-gray-400">
+                          {lang === 'EN' ? 'Want to use an original temple recording?' : 'मंदिरातील मूळ ऑडिओ रेकॉर्डिंग जोडायचे आहे?'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSbAudioSource('upload');
+                            setTimeout(() => sbAudioInputRef.current?.click(), 100);
+                          }}
+                          className="px-2.5 py-1 bg-brand-gold/20 hover:bg-brand-gold/30 text-brand-gold rounded-lg text-xs font-bold transition-colors border border-brand-gold/40 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Upload className="h-3 w-3" />
+                          <span>{lang === 'EN' ? 'Upload Audio from Device' : 'डिव्हाइसवरून ऑडिओ अपलोड करा'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1399,8 +1840,39 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         </p>
                       )}
 
+                      {/* Audio Track Source Badge */}
+                      <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                        {item.audioUrl ? (
+                          item.audioFileName ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-mono text-[11px] shadow-sm">
+                              <HardDrive className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                              <span className="truncate max-w-[180px] font-sans font-bold">{item.audioFileName}</span>
+                              {item.audioFileSize ? (
+                                <span className="text-[10px] text-emerald-400 font-mono">
+                                  ({formatFileSize(item.audioFileSize)})
+                                </span>
+                              ) : null}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-950/80 border border-sky-500/40 text-sky-300 font-mono text-[11px] shadow-sm">
+                              <Globe className="h-3.5 w-3.5 text-sky-400 shrink-0" />
+                              <span className="font-sans font-bold">{lang === 'EN' ? 'Web Audio Stream' : 'वेब ऑडिओ ट्रॅक'}</span>
+                            </span>
+                          )
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-950/80 border border-purple-500/40 text-purple-300 font-mono text-[11px] shadow-sm">
+                            <Sparkles className="h-3.5 w-3.5 text-purple-400 shrink-0" />
+                            <span className="font-sans font-bold">
+                              {lang === 'EN'
+                                ? `Vedic Synthesizer (${item.frequencyHz || 136.1}Hz)`
+                                : `वैदिक सिंथेसायझर (${item.frequencyHz || 136.1}Hz)`}
+                            </span>
+                          </span>
+                        )}
+                      </div>
+
                       {/* Card Action Controls */}
-                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/10">
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/10 flex-wrap">
                         {/* Live Audio Test Play */}
                         <button
                           type="button"
@@ -1426,6 +1898,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         </button>
 
                         <div className="flex items-center gap-1.5">
+                          {/* Direct Device Audio Upload Button */}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditSoundboard(item, true)}
+                            className="px-2.5 py-1.5 rounded-lg bg-brand-gold/15 hover:bg-brand-gold/25 text-brand-gold hover:text-white transition-all cursor-pointer border border-brand-gold/30 text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95"
+                            title={lang === 'EN' ? 'Upload audio file from device for this chant' : 'या मंत्रासाठी डिव्हाइसवरून ऑडिओ फाईल अपलोड करा'}
+                          >
+                            <Upload className="h-3.5 w-3.5 shrink-0" />
+                            <span>{lang === 'EN' ? 'Upload Audio' : 'ऑडिओ अपलोड'}</span>
+                          </button>
+
                           {/* Edit button */}
                           <button
                             type="button"

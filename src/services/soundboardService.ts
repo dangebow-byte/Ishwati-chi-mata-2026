@@ -15,10 +15,14 @@ import {
 } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { SacredMantra, SACRED_MANTRAS } from '../utils/templeSoundboardEngine';
+import { deleteCloudMediaObject } from './cloudMediaStorage';
 
 export interface SoundboardItem extends SacredMantra {
   category?: 'mantra' | 'instrument' | 'stuti' | 'aarti';
   audioUrl?: string; // Optional direct audio URL for custom recorded recordings
+  storagePath?: string; // Optional Cloud Storage path for uploaded audio
+  audioFileName?: string; // Optional original uploaded file name
+  audioFileSize?: number; // Optional size in bytes
   isActive?: boolean;
   displayOrder?: number;
   createdAt?: string;
@@ -99,6 +103,9 @@ export function subscribeSoundboardItems(
             frequencyHz: typeof data.frequencyHz === 'number' ? data.frequencyHz : 136.1,
             category: data.category || 'mantra',
             audioUrl: data.audioUrl || '',
+            storagePath: data.storagePath || '',
+            audioFileName: data.audioFileName || '',
+            audioFileSize: typeof data.audioFileSize === 'number' ? data.audioFileSize : undefined,
             descriptionMR: data.descriptionMR || '',
             descriptionEN: data.descriptionEN || '',
             isActive: data.isActive !== false,
@@ -158,6 +165,9 @@ export async function addSoundboardItem(
       frequencyHz: newItem.frequencyHz || 136.1,
       category: newItem.category || 'mantra',
       audioUrl: newItem.audioUrl || '',
+      storagePath: newItem.storagePath || '',
+      audioFileName: newItem.audioFileName || '',
+      audioFileSize: typeof newItem.audioFileSize === 'number' ? newItem.audioFileSize : 0,
       descriptionMR: newItem.descriptionMR || '',
       descriptionEN: newItem.descriptionEN || '',
       isActive: newItem.isActive,
@@ -213,15 +223,24 @@ export async function updateSoundboardItem(
 }
 
 /**
- * Admin: Deletes a Soundboard item
+ * Admin: Deletes a Soundboard item and cleans up storage object if present
  */
 export async function deleteSoundboardItem(id: string): Promise<void> {
   try {
+    const current = getCachedSoundboardItems();
+    const itemToDelete = current.find(i => i.id === id);
+    if (itemToDelete?.storagePath) {
+      try {
+        await deleteCloudMediaObject(itemToDelete.storagePath);
+      } catch (e) {
+        console.warn('Could not delete storage object for soundboard item:', e);
+      }
+    }
+
     const docRef = doc(db, COLLECTION_NAME, id);
     await deleteDoc(docRef);
 
     // Update local cache
-    const current = getCachedSoundboardItems();
     const filtered = current.filter(i => i.id !== id);
     setCachedSoundboardItems(filtered);
   } catch (error) {

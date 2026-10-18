@@ -19,6 +19,12 @@ service firebase.storage {
         request.resource.contentType.matches('image/(jpeg|png|webp)');
     }
 
+    function isAudioUpload() {
+      return isAdmin() &&
+        request.resource.size <= 50 * 1024 * 1024 &&
+        request.resource.contentType.matches('audio/.*');
+    }
+
     match /gallery_videos/{fileName} {
       allow read: if true;
       allow create, update: if isVideoUpload();
@@ -34,6 +40,12 @@ service firebase.storage {
     match /gallery_photos/{fileName} {
       allow read: if true;
       allow create, update: if isImageUpload();
+      allow delete: if isAdmin();
+    }
+
+    match /soundboard_audio/{fileName} {
+      allow read: if true;
+      allow create, update: if isAudioUpload();
       allow delete: if isAdmin();
     }
   }
