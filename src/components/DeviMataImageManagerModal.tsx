@@ -447,7 +447,7 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
                   <img
                     src={formUrl}
                     alt="Preview"
-                    className="w-16 h-16 object-cover rounded-lg border border-brand-gold shadow-md shrink-0 bg-black"
+                    className="w-20 h-28 object-contain rounded-lg border border-brand-gold shadow-md shrink-0 bg-black p-1"
                     onError={(e) => {
                       (e.target as HTMLElement).style.display = 'none';
                     }}
@@ -597,13 +597,13 @@ export const DeviMataImageManagerModal: React.FC<DeviMataImageManagerModalProps>
                         : 'bg-black/50 border-white/10 hover:border-brand-gold/40'
                     }`}
                   >
-                    {/* Thumbnail */}
-                    <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-lg overflow-hidden bg-black/80 border border-brand-gold/30 shrink-0 relative flex items-center justify-center">
+                    {/* Thumbnail with full idol containment and increased height */}
+                    <div className="w-20 h-28 sm:w-24 sm:h-32 rounded-lg overflow-hidden bg-black/90 border border-brand-gold/40 shrink-0 relative flex items-center justify-center p-1">
                       {img.url ? (
                         <img
                           src={img.url}
                           alt={img.titleMR}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                           onError={(e) => {
                             (e.target as HTMLElement).style.display = 'none';
                           }}

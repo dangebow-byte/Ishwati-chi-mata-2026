@@ -1245,10 +1245,10 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                   authorHandle={activeFeaturedReel.authorHandle}
                   establishedYear={activeFeaturedReel.year || '१९७४'}
                   lang={lang}
-                  className="w-full max-w-[380px] sm:max-w-[420px]"
+                  className="w-full max-w-[420px] sm:max-w-[460px]"
                 />
               ) : activeFeaturedReel.embedUrl ? (
-                <div className="w-full max-w-[420px] aspect-video rounded-xl overflow-hidden border border-brand-gold/40 shadow-xl bg-black">
+                <div className="w-full max-w-[560px] min-h-[360px] sm:min-h-[440px] md:min-h-[480px] aspect-[16/10] sm:aspect-[4/3] rounded-2xl overflow-hidden border-2 border-brand-gold/60 shadow-2xl bg-black">
                   <iframe
                     src={activeFeaturedReel.embedUrl}
                     title={activeFeaturedReel.titleMR}
@@ -1257,11 +1257,16 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                   />
                 </div>
               ) : (
-                <div className="w-full max-w-[380px] aspect-[4/5] rounded-xl overflow-hidden border border-brand-gold/40 shadow-xl bg-black flex items-center justify-center p-2">
+                <div className="w-full max-w-[480px] min-h-[460px] sm:min-h-[540px] aspect-[3/4] sm:aspect-[4/5] rounded-2xl overflow-hidden border-2 border-brand-gold/60 shadow-2xl bg-black relative flex items-center justify-center p-3 group">
+                  {/* Atmospheric blurred ambient glow matching sacred idol colors */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-40 scale-110 pointer-events-none"
+                    style={{ backgroundImage: `url(${activeFeaturedReel.url})` }}
+                  />
                   <img
                     src={activeFeaturedReel.url}
                     alt={activeFeaturedReel.titleMR}
-                    className="max-h-full max-w-full object-contain"
+                    className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_12px_28px_rgba(0,0,0,0.95)] transition-transform duration-500 group-hover:scale-[1.03]"
                   />
                 </div>
               )}
@@ -1598,9 +1603,9 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                   </div>}
                 </div>
 
-                {/* Uniform Media Viewport: Standard 16:9 Aspect Ratio for ALL Videos, Photos, YouTube & Instagram Reels */}
+                {/* Responsive Media Viewport with Elevated Height for Authentic Full Aspect Ratio */}
                 {isInstagram ? (
-                  <div className="relative w-full aspect-video bg-gradient-to-tr from-[#2b0818] via-black to-[#1a0510] overflow-hidden flex items-center justify-center shrink-0">
+                  <div className="relative w-full min-h-[500px] sm:min-h-[560px] md:min-h-[600px] aspect-[9/16] sm:aspect-[4/5] bg-gradient-to-tr from-[#2b0818] via-black to-[#1a0510] overflow-hidden flex items-center justify-center shrink-0">
                     {item.embedUrl ? (
                       <iframe
                         src={item.embedUrl}
@@ -1612,16 +1617,27 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                       />
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center space-y-1">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-yellow-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-md">
-                          <Instagram className="h-5 w-5" />
+                      <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-gradient-to-b from-[#3a0920]/80 via-black to-black">
+                        <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-yellow-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-xl ring-2 ring-brand-gold/40">
+                          <Instagram className="h-8 w-8" />
                         </div>
-                        <span className="text-xs font-bold text-white line-clamp-1">{item.titleMR}</span>
-                        <span className="text-[10px] text-gray-400 font-mono">{item.authorHandle || '@ishwatichi_mata'}</span>
+                        <div className="space-y-1">
+                          <span className="text-sm font-black text-white line-clamp-2">{item.titleMR}</span>
+                          <span className="text-xs text-brand-gold font-mono block">{item.authorHandle || '@ishwatichi_mata'}</span>
+                        </div>
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-1.5 rounded-full bg-brand-gold text-brand-maroon font-bold text-xs shadow hover:bg-yellow-400 transition-all cursor-pointer inline-flex items-center gap-1.5"
+                        >
+                          <Play className="h-3.5 w-3.5" />
+                          <span>{lang === 'EN' ? 'Watch Full Reel' : 'संपूर्ण रील पहा'}</span>
+                        </a>
                       </div>
                     )}
                     {isReorderMode && (
-                      <div className="absolute inset-0 z-10 bg-black/30 pointer-events-none flex items-center justify-center">
+                      <div className="absolute inset-0 z-10 bg-black/40 pointer-events-none flex items-center justify-center">
                         <span className="bg-black/90 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
                           {lang === 'EN' ? 'Drag Card to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}
                         </span>
@@ -1629,7 +1645,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                     )}
                   </div>
                 ) : isVideo && item.embedUrl ? (
-                  <div className="relative w-full aspect-video bg-black overflow-hidden flex items-center justify-center shrink-0">
+                  <div className="relative w-full min-h-[340px] sm:min-h-[400px] md:min-h-[440px] aspect-[16/10] sm:aspect-[4/3] bg-black overflow-hidden flex items-center justify-center shrink-0">
                     <iframe
                       src={item.embedUrl}
                       title={item.titleMR}
@@ -1639,7 +1655,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     />
                     {isReorderMode && (
-                      <div className="absolute inset-0 z-10 bg-black/30 pointer-events-none flex items-center justify-center">
+                      <div className="absolute inset-0 z-10 bg-black/40 pointer-events-none flex items-center justify-center">
                         <span className="bg-black/90 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
                           {lang === 'EN' ? 'Drag Card to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}
                         </span>
@@ -1647,7 +1663,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                     )}
                   </div>
                 ) : isVideo ? (
-                  <div className="relative w-full aspect-video bg-black overflow-hidden flex items-center justify-center shrink-0">
+                  <div className="relative w-full min-h-[340px] sm:min-h-[400px] md:min-h-[440px] aspect-[16/10] sm:aspect-[4/3] bg-black overflow-hidden flex items-center justify-center shrink-0">
                     {item.url.startsWith('blob:') ? (
                       <p className="p-3 text-center text-xs text-amber-200">
                         {lang === 'EN'
@@ -1666,7 +1682,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                       </video>
                     )}
                     {isReorderMode && (
-                      <div className="absolute inset-0 z-10 bg-black/30 pointer-events-none flex items-center justify-center">
+                      <div className="absolute inset-0 z-10 bg-black/40 pointer-events-none flex items-center justify-center">
                         <span className="bg-black/90 text-brand-gold text-[10px] font-bold px-2.5 py-1 rounded-full border border-brand-gold/40 shadow">
                           {lang === 'EN' ? 'Drag Card to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}
                         </span>
@@ -1678,36 +1694,43 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                     onClick={() => {
                       if (!isReorderMode) handleOpenLightbox(item);
                     }}
-                    className={`relative w-full aspect-video overflow-hidden bg-black flex items-center justify-center shrink-0 ${
+                    className={`relative w-full min-h-[460px] sm:min-h-[520px] md:min-h-[560px] aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-gradient-to-b from-[#180603] via-black to-[#0e0302] flex items-center justify-center shrink-0 ${
                       isReorderMode ? 'cursor-grab' : 'cursor-pointer'
                     }`}
                   >
+                    {/* Atmospheric ambient blurred backdrop matching image color palette */}
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-40 scale-110 pointer-events-none transition-transform duration-700 group-hover:scale-125"
+                      style={{ backgroundImage: `url(${item.url})` }}
+                    />
+
+                    {/* Full uncropped sacred image with object-contain ensuring Devi Mata is 100% visible from Crown to Lotus Feet */}
                     <img
                       src={item.url}
                       alt={item.titleMR}
-                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                      className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain object-center transition-transform duration-700 group-hover:scale-[1.03] drop-shadow-[0_12px_28px_rgba(0,0,0,0.95)] p-2.5"
                       loading="lazy"
                       referrerPolicy="no-referrer"
                     />
 
                     {/* Sacred Emblem Corner Badge */}
-                    <div className="absolute top-2.5 left-2.5 z-10 bg-black/80 backdrop-blur-md border border-brand-gold/60 text-brand-gold text-[10px] font-sans font-black px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 pointer-events-none">
+                    <div className="absolute top-2.5 left-2.5 z-20 bg-black/80 backdrop-blur-md border border-brand-gold/60 text-brand-gold text-[10px] font-sans font-black px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 pointer-events-none">
                       <span>🌸</span>
                       <span>श्री इश्वटीची • {item.year}</span>
                     </div>
 
                     {/* Hover Overlay with Zoom Prompt */}
                     {!isReorderMode && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
-                        <span className="flex items-center gap-1 text-brand-gold font-bold text-xs">
+                      <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3 pointer-events-none">
+                        <span className="flex items-center gap-1 text-brand-gold font-bold text-xs bg-black/60 px-2.5 py-1 rounded-full border border-brand-gold/40 backdrop-blur-sm">
                           <ZoomIn className="h-3.5 w-3.5" />
-                          <span>{lang === 'EN' ? 'Full HD' : 'मोठे दर्शन'}</span>
+                          <span>{lang === 'EN' ? 'Full HD Darshan' : 'संपूर्ण दिव्य दर्शन'}</span>
                         </span>
                       </div>
                     )}
 
                     {isReorderMode && (
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
+                      <div className="absolute inset-0 z-20 bg-black/40 flex items-center justify-center pointer-events-none">
                         <div className="bg-black/90 text-brand-gold border border-brand-gold px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl">
                           <GripVertical className="h-3.5 w-3.5" />
                           <span>{lang === 'EN' ? 'Drag to Reorder' : 'क्रम बदलण्यासाठी ड्रॅग करा'}</span>
@@ -2041,7 +2064,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                             <img
                               src={addForm.url}
                               alt="Preview"
-                              className="w-16 h-16 object-cover rounded-lg border border-brand-gold shadow bg-black shrink-0"
+                              className="w-20 h-28 object-contain rounded-lg border border-brand-gold shadow bg-black shrink-0 p-1"
                             />
                             <div className="text-[11px] text-gray-300 min-w-0">
                               <span className="text-brand-gold font-bold block">✓ Photo Ready</span>
@@ -2051,7 +2074,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                         ) : (
                           <div className="space-y-1">
                             <span className="text-brand-gold font-bold block text-[11px]">✓ Video Preview</span>
-                            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-white/10">
+                            <div className="min-h-[260px] sm:min-h-[320px] max-h-[400px] w-full rounded-lg overflow-hidden bg-black border border-white/10 flex items-center justify-center">
                               <video
                                 src={addForm.url}
                                 controls
@@ -2356,7 +2379,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                             <img
                               src={editForm.url}
                               alt="Preview"
-                              className="w-16 h-16 object-cover rounded-lg border border-brand-gold shadow bg-black shrink-0"
+                              className="w-20 h-28 object-contain rounded-lg border border-brand-gold shadow bg-black shrink-0 p-1"
                             />
                             <div className="text-[11px] text-gray-300 min-w-0">
                               <span className="text-brand-gold font-bold block">✓ Photo Preview</span>
@@ -2366,7 +2389,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                         ) : (
                           <div className="space-y-1">
                             <span className="text-brand-gold font-bold block text-[11px]">✓ Video Preview</span>
-                            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-white/10">
+                            <div className="min-h-[260px] sm:min-h-[320px] max-h-[400px] w-full rounded-lg overflow-hidden bg-black border border-white/10 flex items-center justify-center">
                               <video
                                 src={editForm.url}
                                 controls
@@ -2662,11 +2685,11 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
               <ChevronRight className="h-6 w-6 text-brand-gold" />
             </button>
 
-            <div className="relative max-w-[85vw] max-h-[60vh] md:max-h-[70vh] flex items-center justify-center transition-all duration-300 ease-out overflow-auto rounded-lg">
+            <div className="relative max-w-[95vw] max-h-[82vh] md:max-h-[88vh] flex items-center justify-center transition-all duration-300 ease-out overflow-auto rounded-lg p-2">
               <img 
                 src={selectedPhoto.url} 
                 alt={selectedPhoto.titleMR} 
-                className="object-contain max-w-full max-h-[60vh] md:max-h-[70vh] transition-transform shadow-2xl rounded"
+                className="object-contain max-w-full max-h-[82vh] md:max-h-[88vh] transition-transform shadow-2xl rounded drop-shadow-[0_15px_35px_rgba(0,0,0,0.9)]"
                 style={{ transform: `scale(${zoomLevel})` }}
                 referrerPolicy="no-referrer"
               />

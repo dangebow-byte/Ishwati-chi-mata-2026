@@ -117,7 +117,7 @@ export const InstagramVideoEmbed: React.FC<InstagramVideoEmbedProps> = ({
       </div>
 
       {/* Main Responsive Iframe Player Container */}
-      <div className="relative w-full aspect-[9/16] min-h-[520px] sm:min-h-[580px] max-h-[680px] bg-black flex items-center justify-center overflow-hidden">
+      <div className="relative w-full aspect-[9/16] min-h-[560px] sm:min-h-[640px] max-h-[760px] bg-black flex items-center justify-center overflow-hidden">
         
         {/* Loading placeholder skeleton */}
         {!hasLoaded && (
