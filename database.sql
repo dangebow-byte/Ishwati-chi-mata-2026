@@ -630,10 +630,159 @@ ON CONFLICT (id) DO UPDATE SET
     updated_at = CURRENT_TIMESTAMP;
 
 -- --------------------------------------------------------------------
+-- 12. Table: site_branding_and_logo
+-- Official Logo & Visual Identity Configurations (CRUD)
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS site_branding_and_logo (
+    id VARCHAR(64) PRIMARY KEY DEFAULT 'primary_branding',
+    logo_url TEXT NOT NULL,
+    logo_alt_mr VARCHAR(255) NOT NULL,
+    logo_alt_en VARCHAR(255) NOT NULL,
+    logo_width INTEGER DEFAULT 80,
+    storage_path TEXT,
+    is_custom_logo BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO site_branding_and_logo (id, logo_url, logo_alt_mr, logo_alt_en, logo_width, is_custom_logo)
+VALUES (
+    'primary_branding',
+    '/assets/branding/Mandal logo Maroon Transparent BG.png',
+    'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ - अधिकृत बोधचिन्ह',
+    'Shree Young Ishwati Navratrotsav Mandal Official Logo',
+    80,
+    FALSE
+)
+ON CONFLICT (id) DO UPDATE SET
+    updated_at = CURRENT_TIMESTAMP;
+
+-- --------------------------------------------------------------------
+-- 13. Table: site_header_config
+-- Header Titles, Subtitles, Badges & Invocations (CRUD)
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS site_header_config (
+    id VARCHAR(64) PRIMARY KEY DEFAULT 'primary_header',
+    title_mr VARCHAR(255) NOT NULL,
+    title_en VARCHAR(255) NOT NULL,
+    badge_mr VARCHAR(100) NOT NULL DEFAULT 'देवस्थान',
+    badge_en VARCHAR(100) NOT NULL DEFAULT 'Devasthan',
+    subtitle_mr VARCHAR(255) NOT NULL,
+    subtitle_en VARCHAR(255) NOT NULL,
+    invocation_mr VARCHAR(255) NOT NULL,
+    invocation_en VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO site_header_config (id, title_mr, title_en, badge_mr, badge_en, subtitle_mr, subtitle_en, invocation_mr, invocation_en)
+VALUES (
+    'primary_header',
+    'श्री यंग इश्वटी नवरात्रौत्सव मंडळ',
+    'Shree Young Ishwati Navratrotsav Mandal',
+    'देवस्थान',
+    'Devasthan',
+    'श्रद्धा • भक्ती • परंपरा • सेवा',
+    'Shree Ishwatichi Mata Devasthan Trust • Estd 1974',
+    '|| श्री इश्वटीची माता की जय! अधिकृत डिजिटल कक्षात स्वागत ||',
+    '|| Hail Shree Ishwatichi Mata! Welcome to Official Digital Portal ||'
+)
+ON CONFLICT (id) DO UPDATE SET
+    updated_at = CURRENT_TIMESTAMP;
+
+-- --------------------------------------------------------------------
+-- 14. Table: navigation_menu_items
+-- Header Navbar & Mobile Navigation Menu Items (CRUD)
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS navigation_menu_items (
+    id VARCHAR(64) PRIMARY KEY,
+    label_mr VARCHAR(100) NOT NULL,
+    label_en VARCHAR(100) NOT NULL,
+    icon VARCHAR(30) NOT NULL,
+    desc_mr VARCHAR(255),
+    desc_en VARCHAR(255),
+    is_visible BOOLEAN NOT NULL DEFAULT TRUE,
+    display_order INTEGER NOT NULL DEFAULT 1,
+    is_custom BOOLEAN NOT NULL DEFAULT FALSE,
+    target_tab VARCHAR(64),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_navigation_menu_order ON navigation_menu_items (is_visible, display_order ASC);
+
+INSERT INTO navigation_menu_items (id, label_mr, label_en, icon, desc_mr, desc_en, is_visible, display_order, is_custom)
+VALUES
+    ('home', 'मुख्य दालन', 'Home', '🏠', 'मुख्य डिजिटल दालन व वैशिष्ट्ये', 'Main digital sanctum & highlights', TRUE, 1, FALSE),
+    ('about', 'इतिहास', 'About Sanctum', '🕉️', 'मंदिराचा इतिहास व देवीची आख्यायिका', 'Sanctum history & sacred origin', TRUE, 2, FALSE),
+    ('patrika', 'कार्यक्रम पत्रिका', 'Karyakram Patrika', '📜', 'अधिकृत २०२६ नवरात्रौत्सव ९-दिवसीय कार्यक्रम पत्रिका', 'Official 2026 9-Day Navratri Festival Program', TRUE, 3, FALSE),
+    ('darshan', 'थेट दर्शन', 'Live Darshan', '🎥', 'थेट दर्शन प्रक्षेपण व घंटानाद', 'Live camera feeds & divine soundboard', TRUE, 4, FALSE),
+    ('seva', 'सेवा नोंदणी', 'Digital Seva', '🕯️', 'आरती, अभिषेक पूजा व प्रसाद नोंदणी', 'Book aarti, pooja, prasad & volunteering', TRUE, 5, FALSE),
+    ('events', 'उत्सव वेळापत्रक', 'Events & Utsav', '🗓️', 'उत्सव वेळापत्रक व उपस्थिती नोंदणी', 'Festival calendar & RSVP presence', TRUE, 6, FALSE),
+    ('gallery', 'छायाचित्रे व व्हिडिओ', 'Media Gallery', '🖼️', 'पवित्र दर्शन छायाचित्रे व व्हिडिओ', 'HD photos, holy darshan & videos', TRUE, 7, FALSE),
+    ('testimonials', 'भक्तांचे अनुभव', 'Testimonials', '💬', 'भाविकांचे दैवी अनुभव व साक्ष', 'Devotee divine experiences & stories', TRUE, 8, FALSE),
+    ('donation', 'देणगी निधी', 'Donations', '💝', '८०जी करसवलत देणगी व मंदिर निधी', '80G tax exempt trust funds & donations', TRUE, 9, FALSE),
+    ('social', 'समाजकार्य', 'Social Initiatives', '🤝', 'अन्नछत्र, मोफत दवाखाना व शिक्षण सेवा', 'Tribal food distribution, clinics & school', TRUE, 10, FALSE),
+    ('news', 'परिपत्रके व सूचना', 'Board Circulars', '📢', 'मंडळाची अधिकृत परिपत्रके व सूचना', 'Official temple board circulars & press', TRUE, 11, FALSE),
+    ('profile', 'माझे प्रोफाईल', 'My Profile', '🕉️', 'भक्ती सातत्य गुण व सुवर्ण पदके', 'Prayer streak, badges & personalized hub', TRUE, 12, FALSE),
+    ('admin', 'विश्वस्त नियंत्रण कक्ष', 'Admin Station', '⚙️', 'अधिकृत विश्वस्त नियंत्रण कक्ष', 'Authorized trustee control station', TRUE, 13, FALSE)
+ON CONFLICT (id) DO UPDATE SET
+    label_mr = EXCLUDED.label_mr,
+    label_en = EXCLUDED.label_en,
+    icon = EXCLUDED.icon,
+    display_order = EXCLUDED.display_order,
+    updated_at = CURRENT_TIMESTAMP;
+
+-- --------------------------------------------------------------------
+-- 15. Table: historical_milestones
+-- ऐतिहासिक प्रवास आलेख (Interactive Chronicle Timeline) (CRUD)
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS historical_milestones (
+    id VARCHAR(64) PRIMARY KEY,
+    year VARCHAR(20) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    title_marathi VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    description_marathi TEXT NOT NULL,
+    display_order INTEGER NOT NULL DEFAULT 1,
+    badge_mr VARCHAR(100) DEFAULT 'महत्त्वाचा टप्पा',
+    badge_en VARCHAR(100) DEFAULT 'Verified Milestone',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_historical_milestones_order ON historical_milestones (display_order ASC);
+
+INSERT INTO historical_milestones (id, year, title, title_marathi, description, description_marathi, display_order)
+VALUES
+    ('milestone-1', '१९७४', 'Shree Ishwatichi Mandal Foundation', 'श्री यंग इश्वटी नवरात्रौत्सव मंडळाची स्थापना', 'Simple wooden altar introduced by local energetic youth which marked the beginning of community devotion.', 'स्थानिक तरुणांद्वारे छोट्या लाकडी देव्हाऱ्यात अत्यंत साधेपणाने श्री इश्वटीची मातेची स्थापना व उत्सवाला सुरुवात.', 1),
+    ('milestone-2', '१९८७', 'First Altar Brick Temple of Shree Ishwatichi', 'श्री इश्वटीची पहिले भव्य मंदिर उभारणी', 'Establishment of the brick hall, shifting from clay to beautiful stone-carved patterns with local support.', 'श्री इश्वटीची मातीच्या मूर्तीची प्राणप्रतिष्ठा आणि भाविकांच्या लोकवर्गणीतून विटांचे उत्कृष्ट सभागृह मंदिर उभारले गेले.', 2),
+    ('milestone-3', '१९९९', 'Social Service Commenced', 'श्री इश्वटीची सामाजिक सेवा कक्षाची सुरुवात', 'Beginning of food security drives, organizing daily free meals kitchen and student support cells.', 'श्री इश्वटीची नियमित सामाजिक कार्याला सुरुवात: गरजूंना मदत आणि दररोज विनामूल्य अन्नछत्र सेवा सुरू.', 3),
+    ('milestone-4', '२०१२', 'Grand Stone Temple Built', 'श्री इश्वटीची नूतन दगडी हेमांडपंती मंदिर उभारणी', 'Constructed an architectural masterpiece in Hemadpanti style using pure rocks, adding gold towers.', 'श्री इश्वटीची हेमांडपंती शैलीतील कोरीव भव्य दगडी मंदिर उभारणी, आकर्षक सोन्याचा कळस आणि अद्ययावत दर्शन रांगांचे नियोजन.', 4),
+    ('milestone-5', '२०२६', 'Digital Seva Live Portals', 'श्री इश्वटीची अद्ययावत डिजिटल सोयी-सुविधा', 'Global release of online bookings, digital streams, interactive devotee feedback, and secure ledgers.', 'श्री इश्वटीची भक्तांच्या सुविधेसाठी जागतिक स्तरावर डिजिटल सेवा आणि थेट प्रक्षेपण सुविधांचे अनावरण.', 5)
+ON CONFLICT (id) DO UPDATE SET
+    title = EXCLUDED.title,
+    title_marathi = EXCLUDED.title_marathi,
+    description = EXCLUDED.description,
+    description_marathi = EXCLUDED.description_marathi,
+    display_order = EXCLUDED.display_order,
+    updated_at = CURRENT_TIMESTAMP;
+
+-- Safe incremental alter commands for existing production databases:
+ALTER TABLE temple_events ADD COLUMN IF NOT EXISTS location VARCHAR(255);
+ALTER TABLE site_content ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE navratri_patrika_schedule ADD COLUMN IF NOT EXISTS color_name_mr VARCHAR(100);
+ALTER TABLE navratri_patrika_schedule ADD COLUMN IF NOT EXISTS color_name_en VARCHAR(100);
+ALTER TABLE navratri_patrika_schedule ADD COLUMN IF NOT EXISTS devis_roop_mr VARCHAR(100);
+ALTER TABLE navratri_patrika_schedule ADD COLUMN IF NOT EXISTS devis_roop_en VARCHAR(100);
+ALTER TABLE navratri_patrika_schedule ADD COLUMN IF NOT EXISTS events_json JSONB;
+
+-- --------------------------------------------------------------------
 -- Note on Dynamic Vercel Deployments & Google Indexing:
 -- When deploying to Vercel (e.g. *.vercel.app), canonical URLs resolve
 -- dynamically to window.location.origin to prevent cross-domain canonical drop.
 -- In devotee profile records, navratri_theme_day defaults to 'auto' to ensure
 -- the 9 sacred colors transition automatically every day at 12:00 AM IST.
 -- --------------------------------------------------------------------
+
 

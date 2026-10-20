@@ -37,12 +37,12 @@ function sanitizeFileName(name: string): string {
  * Uploads a media file (Video or Image) directly to Firebase Cloud Storage.
  * Uses Firebase's resumable upload task and reports progress until success or error.
  * @param file The File object selected from the user's device
- * @param folder The storage directory ('gallery_videos', 'ashtami_videos', 'gallery_photos', 'soundboard_audio')
+ * @param folder The storage directory ('gallery_videos', 'ashtami_videos', 'gallery_photos', 'soundboard_audio', 'site_branding')
  * @param onProgress Optional callback for real-time upload progress (0-100%)
  */
 export async function uploadMediaToCloudStorage(
   file: File,
-  folder: 'gallery_videos' | 'ashtami_videos' | 'gallery_photos' | 'soundboard_audio' = 'gallery_videos',
+  folder: 'gallery_videos' | 'ashtami_videos' | 'gallery_photos' | 'soundboard_audio' | 'site_branding' | 'event_images' = 'gallery_videos',
   onProgress?: UploadProgressCallback
 ): Promise<CloudUploadResult> {
   if (!file) {
@@ -53,17 +53,18 @@ export async function uploadMediaToCloudStorage(
   const inferredType: Record<string, string> = {
     mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', ogg: 'video/ogg',
     jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp',
+    svg: 'image/svg+xml', gif: 'image/gif',
     mp3: 'audio/mpeg', wav: 'audio/wav', m4a: 'audio/mp4', aac: 'audio/aac',
     oga: 'audio/ogg', weba: 'audio/webm'
   };
   const contentType = file.type || inferredType[extension || ''] || '';
   const isAudio = folder === 'soundboard_audio';
-  const isPhoto = folder === 'gallery_photos';
+  const isPhoto = folder === 'gallery_photos' || folder === 'site_branding' || folder === 'event_images';
 
   const allowedTypes = isAudio
     ? ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/ogg', 'audio/aac', 'audio/webm', 'audio/x-m4a']
     : isPhoto
-    ? ['image/jpeg', 'image/png', 'image/webp']
+    ? ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/gif']
     : ['video/mp4', 'video/webm', 'video/quicktime', 'video/ogg'];
 
   const maxBytes = isAudio ? 50 * 1024 * 1024 : isPhoto ? 10 * 1024 * 1024 : 500 * 1024 * 1024;

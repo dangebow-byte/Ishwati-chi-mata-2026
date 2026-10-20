@@ -4,12 +4,16 @@
  */
 
 export interface PatrikaSubEvent {
+  id?: string;
   timeMr?: string;
   timeEn?: string;
+  time?: string;
   titleMr: string;
   titleEn: string;
   venueMr?: string;
   venueEn?: string;
+  descriptionMr?: string;
+  descriptionEn?: string;
   highlight?: boolean;
 }
 
@@ -23,10 +27,15 @@ export interface NavratriPatrikaDay {
   dateIso: string;
   defaultTimeMr: string;
   defaultTimeEn: string;
-  category: 'pooja' | 'cultural' | 'devotional' | 'havan' | 'visarjan' | 'auction';
-  categoryLabelMr: string;
-  categoryLabelEn: string;
+  category: 'pooja' | 'cultural' | 'devotional' | 'havan' | 'visarjan' | 'auction' | 'general';
+  categoryLabelMr?: string;
+  categoryLabelEn?: string;
   events: PatrikaSubEvent[];
+  deviRoopMr?: string;
+  deviRoopEn?: string;
+  colorNameMr?: string;
+  colorNameEn?: string;
+  colorHex?: string;
 }
 
 export const MANDAL_PATRIKA_METADATA = {

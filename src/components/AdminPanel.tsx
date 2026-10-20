@@ -8,7 +8,8 @@ import {
   Lock, Eye, CheckCircle, XCircle, Trash2, ShieldCheck, Download, PlusCircle, 
   BarChart3, Users, Flame, Sparkles, LogOut, Disc, Volume2, VolumeX, Play, 
   Pause, Edit2, Music, Radio, Plus, RotateCcw, RefreshCw, Upload, HardDrive, 
-  Globe, Check, AlertCircle, FileAudio, X, Loader2
+  Globe, Check, AlertCircle, FileAudio, X, Loader2, Calendar, ScrollText, 
+  History, Image as ImageIcon, Menu as MenuIcon
 } from 'lucide-react';
 import { DevoteeExperience, DigitalSevaBooking, DonationRecord, Announcement } from '../types';
 import { 
@@ -22,6 +23,11 @@ import {
 import { templeSoundboardEngine } from '../utils/templeSoundboardEngine';
 import { uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
 import { formatFileSize } from '../services/localMediaStorage';
+import { LogoAndHeaderCrudTab } from './admin/LogoAndHeaderCrudTab';
+import { MenuItemsCrudTab } from './admin/MenuItemsCrudTab';
+import { KaryakramPatrikaCrudTab } from './admin/KaryakramPatrikaCrudTab';
+import { HistoricalMilestonesCrudTab } from './admin/HistoricalMilestonesCrudTab';
+import { UtsavEventsCrudTab } from './admin/UtsavEventsCrudTab';
 
 interface AdminPanelProps {
   lang: 'EN' | 'MR';
@@ -56,7 +62,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   siteContent,
   onSaveSiteContent
 }) => {
-  const [activeTab, setActiveTab] = useState<'approvals' | 'bookings' | 'reports' | 'announcements' | 'cms' | 'soundboard'>('approvals');
+  const [activeTab, setActiveTab] = useState<
+    'approvals' | 'bookings' | 'reports' | 'announcements' | 'cms' | 'soundboard' |
+    'branding' | 'menu' | 'patrika' | 'milestones' | 'events'
+  >('approvals');
 
   // Welcome Hero CMS states
   const [welcomeTitleEN, setWelcomeTitleEN] = useState(siteContent?.welcome?.titleEN ?? '');
@@ -612,6 +621,41 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === 'cms' ? 'bg-brand-gold text-brand-maroon' : 'text-gray-400 hover:text-white'}`}
         >
           ✍️ Manage Website CMS
+        </button>
+        <button
+          onClick={() => setActiveTab('branding')}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${activeTab === 'branding' ? 'bg-brand-gold text-brand-maroon font-bold' : 'text-gray-400 hover:text-white'}`}
+        >
+          <ImageIcon className="h-3.5 w-3.5" />
+          <span>{lang === 'EN' ? '🎨 Logo & Header Title' : '🎨 बोधचिन्ह व शीर्षक'}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('menu')}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${activeTab === 'menu' ? 'bg-brand-gold text-brand-maroon font-bold' : 'text-gray-400 hover:text-white'}`}
+        >
+          <MenuIcon className="h-3.5 w-3.5" />
+          <span>{lang === 'EN' ? '🧭 Menu Items' : '🧭 मेनू पर्याय'}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('patrika')}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${activeTab === 'patrika' ? 'bg-brand-gold text-brand-maroon font-bold' : 'text-gray-400 hover:text-white'}`}
+        >
+          <ScrollText className="h-3.5 w-3.5" />
+          <span>{lang === 'EN' ? '📜 Karyakram Patrika' : '📜 कार्यक्रम पत्रिका'}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('milestones')}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${activeTab === 'milestones' ? 'bg-brand-gold text-brand-maroon font-bold' : 'text-gray-400 hover:text-white'}`}
+        >
+          <History className="h-3.5 w-3.5" />
+          <span>{lang === 'EN' ? '🏛️ प्रवास आलेख' : '🏛️ ऐतिहासिक प्रवास आलेख'}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('events')}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${activeTab === 'events' ? 'bg-brand-gold text-brand-maroon font-bold' : 'text-gray-400 hover:text-white'}`}
+        >
+          <Calendar className="h-3.5 w-3.5" />
+          <span>{lang === 'EN' ? '🗓️ Utsav Schedule' : '🗓️ उत्सव वेळापत्रक'}</span>
         </button>
         <button
           onClick={() => setActiveTab('soundboard')}
@@ -1938,6 +1982,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           </div>
         </div>
       )}
+
+      {/* 1. Official Mandal Logo & 2. Header Title CRUD Tab */}
+      {activeTab === 'branding' && <LogoAndHeaderCrudTab lang={lang} />}
+
+      {/* 3. Navigation Menu Items CRUD Tab */}
+      {activeTab === 'menu' && <MenuItemsCrudTab lang={lang} />}
+
+      {/* 4. Karyakram Patrika CRUD Tab */}
+      {activeTab === 'patrika' && <KaryakramPatrikaCrudTab lang={lang} />}
+
+      {/* 5. ऐतिहासिक प्रवास आलेख (Historical Journey Milestones) CRUD Tab */}
+      {activeTab === 'milestones' && <HistoricalMilestonesCrudTab lang={lang} />}
+
+      {/* 6. Utsav Schedule Events CRUD Tab */}
+      {activeTab === 'events' && <UtsavEventsCrudTab lang={lang} />}
 
     </section>
   );

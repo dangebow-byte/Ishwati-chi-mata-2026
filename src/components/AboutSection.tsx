@@ -44,6 +44,7 @@ interface AboutSectionProps {
     description: string;
     descriptionMarathi: string;
   }[];
+  logoUrl?: string;
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ 
@@ -51,7 +52,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
   heroImagePath, 
   onManageDeviImage, 
   siteContent, 
-  milestones 
+  milestones,
+  logoUrl
 }) => {
   const finalMilestones = milestones || TIMELINE_MILESTONES;
   const [selectedMilestone, setSelectedMilestone] = useState(finalMilestones[0] || TIMELINE_MILESTONES[0]);
@@ -111,7 +113,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
             </p>
           </div>
         </div>
-        <SiteLogo variant="transparent" size="lg" withGlow className="drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]" />
+        <SiteLogo srcOverride={logoUrl} variant="transparent" size="lg" withGlow className="drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]" />
       </div>
 
       {/* Grid containing History and Journey */}

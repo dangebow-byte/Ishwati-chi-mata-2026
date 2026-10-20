@@ -45,6 +45,31 @@ import {
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
+import { 
+  SiteBrandingConfig, 
+  HeaderTitleConfig, 
+  subscribeBranding, 
+  subscribeHeaderConfig,
+  getCachedBranding,
+  getCachedHeaderConfig
+} from './services/brandingService';
+import { 
+  NavigationMenuItem, 
+  subscribeNavigationMenu,
+  getCachedMenuItems
+} from './services/navigationMenuService';
+import { 
+  NavratriPatrikaDay, 
+  PatrikaMetadata,
+  subscribeKaryakramPatrika,
+  getCachedPatrikaDays,
+  getCachedPatrikaMetadata
+} from './services/karyakramPatrikaService';
+import { 
+  HistoricalMilestone, 
+  subscribeMilestones,
+  getCachedMilestones
+} from './services/milestonesService';
 
 import { cleanDevanagariSpelling } from './utils/spellingSanitizer';
 import {
@@ -76,6 +101,14 @@ export default function App() {
   const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>(INITIAL_ANNOUNCEMENTS);
   const [quotaWarning, setQuotaWarning] = useState<string | null>(null);
+
+  // Dynamic CMS, Branding, Navigation & Festival Schedule States
+  const [brandingConfig, setBrandingConfig] = useState<SiteBrandingConfig>(() => getCachedBranding());
+  const [headerConfig, setHeaderConfig] = useState<HeaderTitleConfig>(() => getCachedHeaderConfig());
+  const [menuItems, setMenuItems] = useState<NavigationMenuItem[]>(() => getCachedMenuItems());
+  const [patrikaDays, setPatrikaDays] = useState<NavratriPatrikaDay[]>(() => getCachedPatrikaDays());
+  const [patrikaMetadata, setPatrikaMetadata] = useState<PatrikaMetadata>(() => getCachedPatrikaMetadata());
+  const [milestones, setMilestones] = useState<HistoricalMilestone[]>(() => getCachedMilestones());
 
   const [user, setUser] = useState<any>(null);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
@@ -142,6 +175,23 @@ export default function App() {
       }
     });
     return () => unsubscribe();
+  }, []);
+
+  // Subscribe to real-time updates for Branding, Header Titles, Navigation Menu, Patrika, and Milestones
+  useEffect(() => {
+    const unsubBranding = subscribeBranding(setBrandingConfig);
+    const unsubHeader = subscribeHeaderConfig(setHeaderConfig);
+    const unsubMenu = subscribeNavigationMenu(setMenuItems);
+    const unsubPatrika = subscribeKaryakramPatrika(setPatrikaDays, setPatrikaMetadata);
+    const unsubMilestones = subscribeMilestones(setMilestones);
+
+    return () => {
+      unsubBranding?.();
+      unsubHeader?.();
+      unsubMenu?.();
+      unsubPatrika?.();
+      unsubMilestones?.();
+    };
   }, []);
 
   // Function to seed database on first mount if empty - guarded against redundant quota consumption
@@ -719,8 +769,11 @@ export default function App() {
         user={user}
         onLogin={handleLogin}
         onLogout={handleLogout}
-        logoUrl={logoImg}
+        logoUrl={brandingConfig.logoUrl}
         navratriTheme={activeNavratriTheme}
+        brandingConfig={brandingConfig}
+        headerConfig={headerConfig}
+        menuItems={menuItems}
       />
 
       {/* Resilient Quota Notification Banner */}
@@ -967,6 +1020,8 @@ export default function App() {
               lang={lang}
               heroImagePath={activeDeviImage.url}
               onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+              milestones={milestones}
+              logoUrl={brandingConfig.logoUrl}
             />
 
             {/* Fast Quick Buttons to contact & locations */}
@@ -994,6 +1049,8 @@ export default function App() {
             lang={lang}
             heroImagePath={activeDeviImage.url}
             onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+            milestones={milestones}
+            logoUrl={brandingConfig.logoUrl}
           />
         )}
 
@@ -1035,7 +1092,11 @@ export default function App() {
         )}
 
         {activeTab === 'patrika' && (
-          <NavratriPatrikaSection lang={lang} />
+          <NavratriPatrikaSection 
+            lang={lang} 
+            patrikaDays={patrikaDays} 
+            metadata={patrikaMetadata} 
+          />
         )}
 
         {activeTab === 'gallery' && (

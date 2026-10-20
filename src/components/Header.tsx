@@ -10,6 +10,8 @@ import { SiteLogo } from './SiteLogo';
 import { aartiAudioEngine } from '../utils/aartiAudioEngine';
 import { NavratriColorTheme } from '../utils/navratriColorTheme';
 import { shareToWhatsApp } from '../utils/shareUtils';
+import { SiteBrandingConfig, HeaderTitleConfig } from '../services/brandingService';
+import { NavigationMenuItem } from '../services/navigationMenuService';
 
 interface HeaderProps {
   lang: 'EN' | 'MR';
@@ -24,6 +26,9 @@ interface HeaderProps {
   onLogout: () => void;
   logoUrl?: string;
   navratriTheme?: NavratriColorTheme;
+  brandingConfig?: SiteBrandingConfig;
+  headerConfig?: HeaderTitleConfig;
+  menuItems?: NavigationMenuItem[];
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -38,7 +43,10 @@ export const Header: React.FC<HeaderProps> = ({
   onLogin,
   onLogout,
   logoUrl,
-  navratriTheme
+  navratriTheme,
+  brandingConfig,
+  headerConfig,
+  menuItems
 }) => {
   const t = TRANSLATIONS[lang];
   const [isAudioPlaying, setIsAudioPlaying] = useState(() => aartiAudioEngine.getIsPlaying());
@@ -147,10 +155,38 @@ export const Header: React.FC<HeaderProps> = ({
     }
   ];
 
+  const effectiveNavItems = (menuItems && menuItems.length > 0)
+    ? menuItems
+        .filter(m => m.isVisible !== false)
+        .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+        .map(m => ({
+          id: m.id,
+          label: lang === 'EN' ? m.labelEN : m.labelMR,
+          icon: m.icon,
+          desc: lang === 'EN' ? (m.descEN || '') : (m.descMR || '')
+        }))
+    : navItems;
+
   const handleSelectTab = (id: string) => {
     setActiveTab(id);
     setMobileMenuOpen(false);
   };
+
+  const headerTitle = lang === 'EN'
+    ? (headerConfig?.titleEN || 'Shree Young Ishwati Navratrotsav Mandal')
+    : (headerConfig?.titleMR || 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ');
+
+  const headerBadge = lang === 'EN'
+    ? (headerConfig?.badgeEN || 'Devasthan')
+    : (headerConfig?.badgeMR || 'देवस्थान');
+
+  const headerSubtitle = lang === 'EN'
+    ? (headerConfig?.subtitleEN || 'Shree Ishwatichi Mata Devasthan Trust • Estd 1974')
+    : (headerConfig?.subtitleMR || t.subtitle);
+
+  const topInvocationText = lang === 'EN'
+    ? (headerConfig?.invocationEN || '|| Hail Shree Ishwatichi Mata (श्री इश्वटीची)! Welcome to Official Digital Portal ||')
+    : (headerConfig?.invocationMR || '|| श्री इश्वटीची माता की जय! अधिकृत डिजिटल कक्षात स्वागत ||');
 
   return (
     <header 
@@ -164,10 +200,10 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1 sm:gap-1.5 font-medium min-w-0 truncate">
             <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 animate-pulse text-brand-gold" />
             <span className="hidden lg:inline truncate text-[11px] lg:text-xs">
-              {lang === 'EN' ? '|| Hail Shree Ishwatichi Mata (श्री इश्वटीची)! Welcome to Official Digital Portal ||' : '|| श्री इश्वटीची माता की जय! अधिकृत डिजिटल कक्षात स्वागत ||'}
+              {topInvocationText}
             </span>
             <span className="lg:hidden text-[10px] sm:text-xs font-sans font-bold text-brand-gold truncate">
-             || श्री इश्वटीची माता प्रसन्न ||
+              {headerTitle ? `|| ${headerTitle} ||` : '|| श्री इश्वटीची माता प्रसन्न ||'}
             </span>
           </div>
 
@@ -331,6 +367,8 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative shrink-0 flex items-center justify-center">
               <SiteLogo 
                 size="md"
+                srcOverride={brandingConfig?.logoUrl || logoUrl}
+                alt={lang === 'EN' ? (brandingConfig?.logoAltEN || 'Shree Young Ishwati Navratrotsav Mandal Official Logo') : (brandingConfig?.logoAltMR || 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ - अधिकृत बोधचिन्ह')}
                 className="h-10 w-10 xs:h-12 xs:w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 group-hover:scale-105 transition-transform drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]" 
                 priority 
               />
@@ -339,14 +377,14 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap">
                 <h1 className="font-sans text-base xs:text-lg sm:text-2xl md:text-3xl lg:text-4xl font-extrabold sm:font-black tracking-normal text-brand-gold drop-shadow-md leading-tight">
-                  श्री यंग इश्वटी नवरात्रौत्सव मंडळ
+                  {headerTitle}
                 </h1>
                 <span className="text-[8px] xs:text-[9px] sm:text-xs bg-brand-red text-brand-gold border border-brand-gold/40 px-1.5 sm:px-2 py-0.5 rounded font-sans font-bold shrink-0 shadow-sm">
-                  देवस्थान
+                  {headerBadge}
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs md:text-sm text-brand-saffron tracking-wide font-sans font-medium mt-0.5 leading-normal truncate">
-                {lang === 'EN' ? 'Shree Ishwatichi Mata Devasthan Trust • Estd 1974' : t.subtitle}
+                {headerSubtitle}
               </p>
             </div>
           </div>
@@ -376,7 +414,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Desktop / Tablet Horizontal Navigation Tabs */}
         <div className="hidden md:block border-t border-brand-gold/15 pt-2 pb-2 w-full m-0 p-0 px-0">
           <nav className="flex items-center justify-center flex-wrap gap-1 lg:gap-2 py-1 w-full m-0 p-0 px-0">
-            {navItems.map((item) => {
+            {effectiveNavItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
@@ -403,7 +441,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Mobile Horizontal Fast Swipe Tabs (visible on < md) */}
         <div className="md:hidden relative overflow-x-auto pb-2 pt-1 scrollbar-none w-full m-0 p-0 px-0" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="flex items-center gap-1.5 w-max m-0 p-0 px-0">
-            {navItems.map((item) => {
+            {effectiveNavItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
@@ -567,7 +605,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Scrollable List of All Portals */}
             <div className="overflow-y-auto p-3 space-y-1.5 flex-1 divide-y divide-white/5 font-sans">
-              {navItems.map((item) => {
+              {effectiveNavItems.map((item) => {
                 const isActive = activeTab === item.id;
                 return (
                   <button

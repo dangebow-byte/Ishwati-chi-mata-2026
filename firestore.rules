@@ -40,11 +40,12 @@ service cloud.firestore {
              data.titleMarathi is string && data.titleMarathi.size() <= 500 &&
              data.description is string && data.description.size() <= 5000 &&
              data.descriptionMarathi is string && data.descriptionMarathi.size() <= 5000 &&
-             data.date is string && data.date.size() <= 20 &&
-             data.time is string && data.time.size() <= 100 &&
-             data.category is string && data.category.size() <= 50 &&
+             data.date is string && data.date.size() <= 50 &&
+             data.time is string && data.time.size() <= 300 &&
+             data.category is string && data.category.size() <= 100 &&
              data.rsvpCount is number &&
-             (!('image' in data) || (data.image is string && data.image.size() <= 2000));
+             (!('image' in data) || (data.image is string && data.image.size() <= 2000)) &&
+             (!('location' in data) || (data.location is string && data.location.size() <= 500));
     }
 
     function isValidTestimonial(data) {
@@ -99,7 +100,10 @@ service cloud.firestore {
              data.dateIso is string && data.dateIso.size() <= 20 &&
              data.defaultTimeMr is string && data.defaultTimeMr.size() <= 100 &&
              data.defaultTimeEn is string && data.defaultTimeEn.size() <= 100 &&
-             data.category is string && data.category.size() <= 50;
+             data.category is string && data.category.size() <= 50 &&
+             (!('events' in data) || (data.events is list)) &&
+             (!('categoryLabelMr' in data) || (data.categoryLabelMr is string && data.categoryLabelMr.size() <= 100)) &&
+             (!('categoryLabelEn' in data) || (data.categoryLabelEn is string && data.categoryLabelEn.size() <= 100));
     }
 
     function isValidGalleryVideo(data) {

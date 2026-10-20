@@ -24,15 +24,25 @@ import {
   NavratriPatrikaDay 
 } from '../data/navratriPatrika2026';
 import { NAVRATRI_9_COLORS, getActiveNavratriTheme } from '../utils/navratriColorTheme';
+import { PatrikaMetadata } from '../services/karyakramPatrikaService';
 
 interface NavratriPatrikaSectionProps {
   lang: 'EN' | 'MR';
+  patrikaDays?: NavratriPatrikaDay[];
+  metadata?: PatrikaMetadata;
 }
 
-export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ lang }) => {
+export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
+  lang,
+  patrikaDays,
+  metadata
+}) => {
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showColorChart, setShowColorChart] = useState<boolean>(true);
+
+  const currentDays = patrikaDays && patrikaDays.length > 0 ? patrikaDays : NAVRATRI_PATRIKA_2026;
+  const currentMeta = metadata || MANDAL_PATRIKA_METADATA;
 
   // Current date in YYYY-MM-DD (both local and UTC for reliable worldwide and IST timezone matching)
   const { todayLocal, todayUtc } = useMemo(() => {
@@ -52,7 +62,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
   }, []);
 
   const filteredDays = useMemo(() => {
-    return NAVRATRI_PATRIKA_2026.filter((day) => {
+    return currentDays.filter((day) => {
       const matchesFilter = 
         activeFilter === 'all' || 
         day.category === activeFilter;
@@ -99,7 +109,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
               {lang === 'EN' ? 'Year' : 'वर्ष'}
             </span>
             <span className="font-sans font-black text-sm sm:text-base text-yellow-300">
-              {lang === 'EN' ? MANDAL_PATRIKA_METADATA.yearLabelEn : MANDAL_PATRIKA_METADATA.yearLabelMr}
+              {lang === 'EN' ? currentMeta.yearLabelEn : currentMeta.yearLabelMr}
             </span>
           </div>
 
@@ -107,7 +117,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
           <div className="flex items-center justify-center gap-2 select-none">
             <span className="text-sm sm:text-lg text-brand-gold animate-pulse">🔱</span>
             <span className="font-sans font-black text-brand-gold text-xs sm:text-base tracking-widest drop-shadow-[0_0_10px_rgba(212,175,55,0.7)]">
-              {lang === 'EN' ? MANDAL_PATRIKA_METADATA.invocationEn : MANDAL_PATRIKA_METADATA.invocationMr}
+              {lang === 'EN' ? currentMeta.invocationEn : currentMeta.invocationMr}
             </span>
             <span className="text-sm sm:text-lg text-brand-gold animate-pulse">🔱</span>
           </div>
@@ -118,7 +128,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
               {lang === 'EN' ? 'Est.' : 'स्थापना'}
             </span>
             <span className="font-sans font-bold text-xs sm:text-sm text-brand-gold">
-              {lang === 'EN' ? MANDAL_PATRIKA_METADATA.establishmentYearEn : MANDAL_PATRIKA_METADATA.establishmentYearMr}
+              {lang === 'EN' ? currentMeta.establishmentYearEn : currentMeta.establishmentYearMr}
             </span>
           </div>
 
@@ -127,7 +137,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
         {/* Official Mandal Title */}
         <div className="space-y-1 pt-1">
           <h2 className="font-sans font-black text-2xl sm:text-4xl lg:text-5xl text-white tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
-            {lang === 'EN' ? MANDAL_PATRIKA_METADATA.mandalNameEn : MANDAL_PATRIKA_METADATA.mandalNameMr}
+            {lang === 'EN' ? currentMeta.mandalNameEn : currentMeta.mandalNameMr}
           </h2>
           <div className="h-0.5 w-32 sm:w-48 mx-auto bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
         </div>
@@ -137,7 +147,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
           <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 rounded-2xl bg-gradient-to-r from-brand-maroon via-red-900 to-brand-maroon border-2 border-brand-gold shadow-[0_0_24px_rgba(212,175,55,0.6)]">
             <span className="text-base sm:text-xl">🪔</span>
             <h3 className="font-sans font-black text-sm sm:text-xl md:text-2xl text-yellow-300 uppercase tracking-wider drop-shadow-sm">
-              {lang === 'EN' ? MANDAL_PATRIKA_METADATA.titleEn : MANDAL_PATRIKA_METADATA.titleMr}
+              {lang === 'EN' ? currentMeta.titleEn : currentMeta.titleMr}
             </h3>
             <span className="text-base sm:text-xl">🪔</span>
           </div>
@@ -578,7 +588,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
           <span>🔔</span>
         </h4>
         <p className="text-xs sm:text-sm text-gray-200 leading-relaxed max-w-4xl mx-auto">
-          {lang === 'EN' ? MANDAL_PATRIKA_METADATA.specialNoticeEn : MANDAL_PATRIKA_METADATA.specialNoticeMr}
+          {lang === 'EN' ? currentMeta.specialNoticeEn : currentMeta.specialNoticeMr}
         </p>
       </div>
 
@@ -589,7 +599,7 @@ export const NavratriPatrikaSection: React.FC<NavratriPatrikaSectionProps> = ({ 
         </h5>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-center">
-          {MANDAL_PATRIKA_METADATA.officers.map((officer, idx) => (
+          {currentMeta.officers.map((officer, idx) => (
             <div 
               key={idx} 
               className="bg-black/50 border border-brand-gold/20 rounded-xl p-3 sm:p-3.5 space-y-1 hover:border-brand-gold/60 transition-colors shadow-sm"
