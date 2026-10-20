@@ -45,6 +45,7 @@ interface AboutSectionProps {
     descriptionMarathi: string;
   }[];
   logoUrl?: string;
+  showMilestones?: boolean;
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ 
@@ -53,7 +54,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
   onManageDeviImage, 
   siteContent, 
   milestones,
-  logoUrl
+  logoUrl,
+  showMilestones = true
 }) => {
   const finalMilestones = milestones || TIMELINE_MILESTONES;
   const [selectedMilestone, setSelectedMilestone] = useState(finalMilestones[0] || TIMELINE_MILESTONES[0]);
@@ -203,7 +205,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
       </div>
 
       {/* Interactive Chronicle Timeline Section */}
-      <div className="border-t border-white/5 pt-10 space-y-6">
+      {showMilestones && (
+        <div className="border-t border-white/5 pt-10 space-y-6">
         <div className="flex flex-col md:flex-row items-center justify-between text-left gap-4">
           <div>
             <div className="flex items-center gap-1 text-brand-gold text-xs font-mono tracking-wider font-bold uppercase mb-1">
@@ -258,6 +261,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
           </p>
         </div>
       </div>
+      )}
     </section>
   );
 };

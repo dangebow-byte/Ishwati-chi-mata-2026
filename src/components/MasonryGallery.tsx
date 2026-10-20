@@ -56,6 +56,7 @@ import {
 } from 'lucide-react';
 import { compressAndReadImageFile, formatFileSize } from '../services/localMediaStorage';
 import { deleteCloudMediaObject, uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
+import { AmbientVideoPlayer, pauseAllOtherMedia } from './AmbientVideoPlayer';
 
 interface MasonryGalleryProps {
   lang: 'EN' | 'MR';
@@ -127,6 +128,21 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
   useEffect(() => {
     if (!canManageMedia) setIsReorderMode(false);
   }, [canManageMedia]);
+
+  // Requirement 4: When any video or reel plays, stop all other videos and reels across the gallery
+  useEffect(() => {
+    const handleGlobalMediaPlay = (e: Event) => {
+      const activeEl = e.target as HTMLMediaElement;
+      if (!activeEl || !(activeEl instanceof HTMLMediaElement)) return;
+      if (activeEl.classList?.contains('ambient-backdrop-video')) return;
+      pauseAllOtherMedia(activeEl);
+    };
+
+    window.addEventListener('play', handleGlobalMediaPlay, true);
+    return () => {
+      window.removeEventListener('play', handleGlobalMediaPlay, true);
+    };
+  }, []);
 
   // Add Media Modal State
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -1671,15 +1687,14 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                           : 'हा व्हिडिओ फक्त अपलोड केलेल्या ब्राउजरमध्ये जतन झाला होता. प्रशासकाने मूळ फाईल पुन्हा अपलोड करणे आवश्यक आहे.'}
                       </p>
                     ) : (
-                      <video
+                      <AmbientVideoPlayer
                         src={resolvedVideoUrls[item.id] || item.url}
+                        title={lang === 'EN' ? (item.titleEN || item.titleMR) : item.titleMR}
                         controls={!isReorderMode}
                         playsInline
-                        preload="metadata"
-                        className="w-full h-full object-contain bg-black"
-                      >
-                        Your browser does not support HTML5 video playback.
-                      </video>
+                        containerClassName="w-full h-full"
+                        aspectRatioClass="h-full w-full"
+                      />
                     )}
                     {isReorderMode && (
                       <div className="absolute inset-0 z-10 bg-black/40 pointer-events-none flex items-center justify-center">
@@ -2074,12 +2089,13 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                         ) : (
                           <div className="space-y-1">
                             <span className="text-brand-gold font-bold block text-[11px]">✓ Video Preview</span>
-                            <div className="min-h-[260px] sm:min-h-[320px] max-h-[400px] w-full rounded-lg overflow-hidden bg-black border border-white/10 flex items-center justify-center">
-                              <video
+                            <div className="min-h-[260px] sm:min-h-[320px] max-h-[400px] w-full rounded-lg overflow-hidden border border-white/10 flex items-center justify-center">
+                              <AmbientVideoPlayer
                                 src={addForm.url}
                                 controls
                                 playsInline
-                                className="w-full h-full object-contain"
+                                containerClassName="w-full h-full"
+                                aspectRatioClass="h-full w-full"
                               />
                             </div>
                           </div>
@@ -2389,12 +2405,13 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                         ) : (
                           <div className="space-y-1">
                             <span className="text-brand-gold font-bold block text-[11px]">✓ Video Preview</span>
-                            <div className="min-h-[260px] sm:min-h-[320px] max-h-[400px] w-full rounded-lg overflow-hidden bg-black border border-white/10 flex items-center justify-center">
-                              <video
+                            <div className="min-h-[260px] sm:min-h-[320px] max-h-[400px] w-full rounded-lg overflow-hidden border border-white/10 flex items-center justify-center">
+                              <AmbientVideoPlayer
                                 src={editForm.url}
                                 controls
                                 playsInline
-                                className="w-full h-full object-contain"
+                                containerClassName="w-full h-full"
+                                aspectRatioClass="h-full w-full"
                               />
                             </div>
                           </div>

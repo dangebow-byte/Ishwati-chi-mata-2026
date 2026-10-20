@@ -23,11 +23,12 @@ import { AshtamiFeaturedVideoSection } from './AshtamiFeaturedVideoSection';
 
 interface HeroAudioPlayerProps {
   lang: 'EN' | 'MR';
+  showAshtamiVideo?: boolean;
 }
 
 type AartiTrackId = 'ashtami' | 'traditional';
 
-export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang }) => {
+export const HeroAudioPlayer: React.FC<HeroAudioPlayerProps> = ({ lang, showAshtamiVideo = true }) => {
   // Selected Aarti Track
   const [activeTrack, setActiveTrack] = useState<AartiTrackId>('ashtami');
 

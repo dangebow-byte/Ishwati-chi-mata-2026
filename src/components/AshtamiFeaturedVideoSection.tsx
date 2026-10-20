@@ -22,8 +22,9 @@ import {
 } from 'lucide-react';
 import { formatFileSize } from '../services/localMediaStorage';
 import { deleteCloudMediaObject, uploadMediaToCloudStorage } from '../services/cloudMediaStorage';
-import { shareToWhatsApp } from '../utils/shareUtils';
 import { InstagramVideoEmbed, getInstagramEmbedUrl, extractInstagramShortcode } from './InstagramVideoEmbed';
+import { AmbientVideoPlayer } from './AmbientVideoPlayer';
+import { shareToWhatsApp } from '../utils/shareUtils';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -358,14 +359,14 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
         {config.type === 'local' ? (
           /* 1. Local Device Uploaded Video Player */
           resolvedLocalBlobUrl ? (
-            <video
+            <AmbientVideoPlayer
               src={resolvedLocalBlobUrl}
+              title={lang === 'EN' ? config.title : config.titleMarathi}
               controls
               playsInline
-              className="w-full h-full object-contain bg-black"
-            >
-              Your browser does not support HTML5 video playback.
-            </video>
+              containerClassName="w-full h-full"
+              aspectRatioClass="h-full w-full"
+            />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-gray-400 gap-2 bg-zinc-950">
               <Film className="h-8 w-8 text-brand-gold animate-pulse" />

@@ -36,6 +36,8 @@ interface LiveDarshanSectionProps {
   lang: 'EN' | 'MR';
   heroImagePath: string;
   onManageDeviImage?: () => void;
+  showAshtamiVideo?: boolean;
+  showSoundboard?: boolean;
 }
 
 export interface DailyAartiItem {
@@ -147,7 +149,13 @@ export const DAILY_AARTI_SCHEDULE: DailyAartiItem[] = [
   },
 ];
 
-export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, heroImagePath, onManageDeviImage }) => {
+export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ 
+  lang, 
+  heroImagePath, 
+  onManageDeviImage,
+  showAshtamiVideo = true,
+  showSoundboard = true
+}) => {
   const t = TRANSLATIONS[lang];
   const [activeCam, setActiveCam] = useState<'sanctum' | 'arch' | 'food' | 'courtyard'>('sanctum');
   const [viewers, setViewers] = useState(4821);
@@ -560,7 +568,8 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
         <div className="col-span-1 lg:col-span-4 space-y-4">
           
           {/* Audio Chants Generator Card */}
-          <div className="bg-gradient-to-br from-brand-maroon/85 via-black to-brand-maroon/95 border-2 border-brand-gold/35 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3.5 relative overflow-hidden">
+          {showSoundboard && (
+            <div className="bg-gradient-to-br from-brand-maroon/85 via-black to-brand-maroon/95 border-2 border-brand-gold/35 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3.5 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-brand-gold/10 rounded-bl-full pointer-events-none" />
             
             <div className="flex items-center justify-between">
@@ -746,6 +755,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({ lang, he
               </div>
             )}
           </div>
+        )}
 
           {/* Live Aarti Highlight Banner in Sidebar */}
           {nextAartiSummary && (

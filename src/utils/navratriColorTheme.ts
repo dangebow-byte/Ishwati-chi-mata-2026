@@ -229,6 +229,28 @@ export const NAVRATRI_9_COLORS: NavratriColorTheme[] = [
   }
 ];
 
+export const DEFAULT_CLASSIC_THEME: NavratriColorTheme = {
+  dayIndex: 0,
+  dateStr: '',
+  nameMr: 'पारंपरिक मूळ स्वरूप (Default Maroon)',
+  nameEn: 'Classic Default Maroon Theme',
+  colorNameMr: 'पारंपरिक केशरी-मरून व सुवर्ण (Classic Maroon & Gold)',
+  colorNameEn: 'Classic Maroon & Gold',
+  goddessFormMr: 'श्री जगदंबा माता',
+  goddessFormEn: 'Shree Jagdamba Mata',
+  swatchHex: '#8B0000',
+  hexPrimary: '#4A0404',
+  hexSecondary: '#8B0000',
+  hexGradient: 'from-[#3A0204] via-[#5B0508] to-[#250102]',
+  accentGold: '#D4AF37',
+  lightBackgroundHex: '#FAF8F4',
+  darkBackgroundHex: '#4A0404',
+  descriptionMr: 'इच्छपूर्ती जगदंबा मातेचे पावन मूळ पारंपरिक स्वरूप व तेज.',
+  descriptionEn: 'The original sacred traditional maroon and temple gold theme.',
+  blessingMr: 'आई जगदंबेचा अखंड आशीर्वाद व कृपा',
+  blessingEn: 'Eternal blessings and grace of Maa Jagdamba'
+};
+
 /**
  * Returns the calendar date formatted as 'YYYY-MM-DD' in Indian Standard Time (Asia/Kolkata).
  * Ensures midnight color transitions trigger precisely at 12:00 AM IST.
@@ -253,8 +275,8 @@ export const getISTDateString = (date: Date = new Date()): string => {
 /**
  * Calculates today's Navratri day index (1 to 9) automatically.
  * 1. Checks exact match with the 9 sacred festival dates (2026-10-11 to 2026-10-19).
- * 2. If accessed outside the festival dates, smoothly rotates through the 9 sacred colors daily
- *    based on the day-of-year, ensuring the website colors change automatically every single day!
+ * 2. When the 9 days of Navratri are over (or outside the 9 days), returns 0 to revert
+ *    the website background to its initial default color (#4A0404 maroon).
  */
 export const getTodayNavratriDayIndex = (refDate: Date = new Date()): number => {
   const istDateStr = getISTDateString(refDate);
@@ -265,18 +287,8 @@ export const getTodayNavratriDayIndex = (refDate: Date = new Date()): number => 
     return matched.dayIndex;
   }
 
-  // 2. Year-round automatic rotation: assigns each calendar day one of the 9 sacred colors
-  const parts = istDateStr.split('-').map(Number);
-  const year = parts[0] || refDate.getFullYear();
-  const month = (parts[1] || refDate.getMonth() + 1) - 1;
-  const day = parts[2] || refDate.getDate();
-
-  const current = new Date(Date.UTC(year, month, day));
-  const startOfYear = new Date(Date.UTC(year, 0, 1));
-  const dayOfYear = Math.floor((current.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
-  // Modulo 9 daily sequence (1 to 9)
-  return ((dayOfYear - 1) % 9) + 1;
+  // 2. Festival 9 days are over: revert to default initial background (0)
+  return 0;
 };
 
 /**
@@ -288,10 +300,15 @@ export const isAutoNavratriTheme = (themePref: string | number = 'auto'): boolea
 
 /**
  * Returns the active Navratri theme.
- * - When in 'auto' mode: dynamically derives today's sacred color automatically.
+ * - When in 'auto' mode: derives active day if within 9 days; once 9 days are over, returns DEFAULT_CLASSIC_THEME.
+ * - When 'default' or 0: returns DEFAULT_CLASSIC_THEME.
  * - When a specific day number (1 to 9) is provided: returns that chosen day.
  */
 export const getActiveNavratriTheme = (themePref: string | number = 'auto', refDate: Date = new Date()): NavratriColorTheme => {
+  if (themePref === 'default' || themePref === 'classic' || themePref === 0 || themePref === '0') {
+    return DEFAULT_CLASSIC_THEME;
+  }
+
   if (typeof themePref === 'number' || (typeof themePref === 'string' && themePref !== 'auto' && !isNaN(Number(themePref)))) {
     const idx = Number(themePref);
     if (idx >= 1 && idx <= 9) {
@@ -300,8 +317,13 @@ export const getActiveNavratriTheme = (themePref: string | number = 'auto', refD
     }
   }
 
-  // Automatic mode: fetch today's sacred day index (1 to 9)
+  // Automatic mode: fetch today's sacred day index (1 to 9, or 0 if 9 days are over)
   const todayIdx = getTodayNavratriDayIndex(refDate);
-  return NAVRATRI_9_COLORS[todayIdx - 1] || NAVRATRI_9_COLORS[0];
+  if (todayIdx >= 1 && todayIdx <= 9) {
+    return NAVRATRI_9_COLORS[todayIdx - 1] || DEFAULT_CLASSIC_THEME;
+  }
+
+  // Default color used initially
+  return DEFAULT_CLASSIC_THEME;
 };
 

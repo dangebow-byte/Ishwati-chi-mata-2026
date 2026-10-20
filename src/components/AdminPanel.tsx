@@ -9,7 +9,7 @@ import {
   BarChart3, Users, Flame, Sparkles, LogOut, Disc, Volume2, VolumeX, Play, 
   Pause, Edit2, Music, Radio, Plus, RotateCcw, RefreshCw, Upload, HardDrive, 
   Globe, Check, AlertCircle, FileAudio, X, Loader2, Calendar, ScrollText, 
-  History, Image as ImageIcon, Menu as MenuIcon
+  History, Image as ImageIcon, Menu as MenuIcon, Sliders
 } from 'lucide-react';
 import { DevoteeExperience, DigitalSevaBooking, DonationRecord, Announcement } from '../types';
 import { 
@@ -28,6 +28,7 @@ import { MenuItemsCrudTab } from './admin/MenuItemsCrudTab';
 import { KaryakramPatrikaCrudTab } from './admin/KaryakramPatrikaCrudTab';
 import { HistoricalMilestonesCrudTab } from './admin/HistoricalMilestonesCrudTab';
 import { UtsavEventsCrudTab } from './admin/UtsavEventsCrudTab';
+import { ModuleVisibilityCrudTab } from './admin/ModuleVisibilityCrudTab';
 
 interface AdminPanelProps {
   lang: 'EN' | 'MR';
@@ -64,7 +65,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<
     'approvals' | 'bookings' | 'reports' | 'announcements' | 'cms' | 'soundboard' |
-    'branding' | 'menu' | 'patrika' | 'milestones' | 'events'
+    'branding' | 'menu' | 'patrika' | 'milestones' | 'events' | 'modules'
   >('approvals');
 
   // Welcome Hero CMS states
@@ -663,6 +664,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         >
           <Disc className={`h-3.5 w-3.5 ${activeTab === 'soundboard' ? 'animate-spin text-brand-maroon' : 'text-brand-saffron'}`} />
           <span>{lang === 'EN' ? `🔔 Sacred Soundboard (${soundboardItems.length})` : `🔔 पवित्र ध्वनी व्यवस्थापन (${soundboardItems.length})`}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('modules')}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${activeTab === 'modules' ? 'bg-brand-gold text-brand-maroon font-bold' : 'text-gray-400 hover:text-white'}`}
+        >
+          <Sliders className="h-3.5 w-3.5" />
+          <span>{lang === 'EN' ? '👁️ Module Visibility (Show / Hide)' : '👁️ घटक नियंत्रण (Show / Hide)'}</span>
         </button>
       </div>
 
@@ -1997,6 +2005,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* 6. Utsav Schedule Events CRUD Tab */}
       {activeTab === 'events' && <UtsavEventsCrudTab lang={lang} />}
+
+      {/* 7. Application Component & Module Visibility (Show / Hide) Tab */}
+      {activeTab === 'modules' && <ModuleVisibilityCrudTab lang={lang} />}
 
     </section>
   );
