@@ -66,11 +66,12 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   const DURATION_SECONDS = 60;
   const [timeLeft, setTimeLeft] = useState<number>(DURATION_SECONDS);
   const [isVisible, setIsVisible] = useState<boolean>(true);
+  const [hasEntered, setHasEntered] = useState<boolean>(false);
   const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   
-  // Real Crackers Sound is enabled by default
+  // Real Crackers Sound is enabled by default as preferred
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [showReopenFloatingBtn, setShowReopenFloatingBtn] = useState<boolean>(false);
 
@@ -84,7 +85,18 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   const bannerImgSrc = '/assets/aistudio/visarjan_banner_clean.png';
 
   // -------------------------------------------------------------
-  // 1. AudioContext Unlock & Web Audio Firecrackers Synthesizer
+  // 1. Smooth Slide-Down Animation on Mount
+  // -------------------------------------------------------------
+  useEffect(() => {
+    // Trigger smooth slide-down entrance animation
+    const animTimer = setTimeout(() => {
+      setHasEntered(true);
+    }, 30);
+    return () => clearTimeout(animTimer);
+  }, []);
+
+  // -------------------------------------------------------------
+  // 2. Reverted & Restored Full Web Audio Firecrackers Synthesizer
   // -------------------------------------------------------------
   const getAudioContext = useCallback((): AudioContext | null => {
     try {
@@ -296,7 +308,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   };
 
   // -------------------------------------------------------------
-  // 2. Timer Countdown: 60s Flash Period, Then Auto-Disappear
+  // 3. Timer Countdown: 60s Flash Period & Graceful Fade-Out
   // -------------------------------------------------------------
   const handleAutoClose = useCallback(() => {
     setIsFadingOut(true);
@@ -304,7 +316,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
       setIsVisible(false);
       setShowReopenFloatingBtn(true);
       onDismiss?.();
-    }, 800);
+    }, 750);
   }, [onDismiss]);
 
   const handleManualClose = () => {
@@ -313,15 +325,20 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
       setIsVisible(false);
       setShowReopenFloatingBtn(true);
       onDismiss?.();
-    }, 400);
+    }, 650);
   };
 
   const handleReplay = () => {
     setTimeLeft(DURATION_SECONDS);
     setIsFadingOut(false);
+    setHasEntered(false);
     setIsVisible(true);
     setShowReopenFloatingBtn(false);
-    playLadiStringSound(6);
+
+    setTimeout(() => {
+      setHasEntered(true);
+      playLadiStringSound(6);
+    }, 40);
   };
 
   useEffect(() => {
@@ -342,7 +359,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   }, [isVisible, isPaused, handleAutoClose]);
 
   // -------------------------------------------------------------
-  // 3. Real Crackers Beside Banner Canvas Engine
+  // 4. Real Crackers Beside Banner Canvas Engine
   // -------------------------------------------------------------
   useEffect(() => {
     if (!isVisible) return;
@@ -383,7 +400,6 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
       
-      // Target beside the banner: left 28% or right 28%
       const isLeft = Math.random() < 0.5;
       const x = isLeft 
         ? 30 + Math.random() * (rect.width * 0.25)
@@ -575,7 +591,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   }, [isVisible, playRocketWhistleSound, playCrackerBurstSound, playLadiStringSound, playFountainSizzleSound]);
 
   // -------------------------------------------------------------
-  // 4. Interactive 3D Perspective Tilt on Mouse Move
+  // 5. Interactive 3D Perspective Tilt on Mouse Move
   // -------------------------------------------------------------
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -594,6 +610,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   };
 
   const handleShare = () => {
+    playLadiStringSound(3);
     const title = lang === 'EN'
       ? 'Shree Ishwatichi Mata 53rd Year Grand Visarjan Miravnuk (Wed 21 Oct 2026)'
       : 'श्री इश्वटीची माता ५३ वे वर्ष भव्य विसर्जन मिरवणूक (बुधवार २१ ऑक्टोबर २०२६)';
@@ -633,8 +650,12 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
     <>
       <section
         aria-label="53rd Year Grand Visarjan Sohala Celebratory Flash Showcase"
-        className={`relative w-full z-30 transition-all duration-700 overflow-hidden select-none ${
-          isFadingOut ? 'opacity-0 -translate-y-8 pointer-events-none' : 'opacity-100 translate-y-0'
+        className={`relative w-full z-30 select-none overflow-hidden ${
+          isFadingOut 
+            ? 'animate-banner-fade-out pointer-events-none' 
+            : hasEntered 
+              ? 'animate-banner-slide-down' 
+              : 'opacity-0 -translate-y-10'
         }`}
         style={{
           background: 'linear-gradient(180deg, #160102 0%, #280204 45%, #100002 100%)',
@@ -755,7 +776,8 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
               ref={cardRef}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              className="relative rounded-2xl overflow-hidden border-2 sm:border-4 border-brand-gold/85 ring-2 ring-yellow-400/40 transition-transform duration-200 ease-out shadow-[0_25px_65px_rgba(0,0,0,0.95),0_0_45px_rgba(255,153,51,0.5)] group bg-black z-20 max-w-full"
+              onClick={() => playLadiStringSound(4)}
+              className="relative rounded-2xl overflow-hidden border-2 sm:border-4 border-brand-gold/85 ring-2 ring-yellow-400/40 transition-transform duration-200 ease-out shadow-[0_25px_65px_rgba(0,0,0,0.95),0_0_45px_rgba(255,153,51,0.5)] group bg-black z-20 max-w-full cursor-pointer"
               style={{
                 transform: `perspective(1200px) rotateX(${mousePos.y}deg) rotateY(${mousePos.x}deg) translateZ(10px)`,
                 transformStyle: 'preserve-3d'
@@ -773,10 +795,14 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
                 style={{ backgroundImage: `url(${bannerImgSrc})` }}
               />
 
-              {/* Pure Extracted Banner Image: 100% visible, completely occupies full height & width without mobile screenshot artifacts */}
+              {/* Pure Extracted Banner Image: 100% visible, completely occupies full height & width */}
               <div 
-                onClick={() => setIsModalOpen(true)}
-                className="relative w-full flex items-center justify-center cursor-pointer p-1.5 sm:p-2 overflow-hidden z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  playLadiStringSound(5);
+                  setIsModalOpen(true);
+                }}
+                className="relative w-full flex items-center justify-center p-1.5 sm:p-2 overflow-hidden z-10"
                 title={lang === 'EN' ? 'Click to view high-definition full Visarjan banner' : 'श्री इश्वटीची माता विसर्जन सोहळा संपूर्ण बॅनर पहा'}
               >
                 <img 
@@ -807,7 +833,10 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={handleShare}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShare();
+                    }}
                     className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-400/60 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 shadow cursor-pointer active:scale-95"
                     title={lang === 'EN' ? 'Share Visarjan invitation on WhatsApp' : 'विसर्जन निमंत्रण व्हाट्सॲपवर शेअर करा'}
                   >
@@ -816,7 +845,11 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
                   </button>
 
                   <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playLadiStringSound(5);
+                      setIsModalOpen(true);
+                    }}
                     className="px-2.5 py-1 bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-black rounded-lg text-[11px] transition-all flex items-center gap-1 shadow cursor-pointer hover:scale-105 active:scale-95"
                   >
                     <Eye className="w-3 h-3" />
@@ -878,7 +911,10 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
               </button>
 
               <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                  playLadiStringSound(5);
+                  setIsModalOpen(true);
+                }}
                 className="px-3 py-1 bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-black text-xs rounded-lg flex items-center gap-1 shadow hover:scale-105 transition-all cursor-pointer"
               >
                 <Maximize2 className="w-3.5 h-3.5" />

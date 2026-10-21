@@ -101,6 +101,40 @@ h1, h2, h3 {
   animation: fadeIn 0.25s ease-out forwards;
 }
 
+@keyframes bannerSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  60% {
+    opacity: 0.95;
+    transform: translateY(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bannerFadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+.animate-banner-slide-down {
+  animation: bannerSlideDown 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-banner-fade-out {
+  animation: bannerFadeOut 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 /* Rich gold scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
