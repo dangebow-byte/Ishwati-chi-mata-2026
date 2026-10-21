@@ -25,6 +25,7 @@ import { shareToWhatsApp } from '../utils/shareUtils';
 interface VisarjanMiravnukBannerProps {
   lang: 'EN' | 'MR';
   onDismiss?: () => void;
+  onReopen?: () => void;
 }
 
 interface FireworkParticle {
@@ -61,7 +62,7 @@ interface FountainSpark {
   decay: number;
 }
 
-export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ lang, onDismiss }) => {
+export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ lang, onDismiss, onReopen }) => {
   // 60-second dynamic flashing countdown
   const DURATION_SECONDS = 60;
   const [timeLeft, setTimeLeft] = useState<number>(DURATION_SECONDS);
@@ -80,9 +81,31 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   const cardRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const bannerSectionRef = useRef<HTMLElement | null>(null);
 
   // Extracted clean banner: pure authentic artwork with phone status bar & reply UI completely removed
   const bannerImgSrc = '/assets/aistudio/visarjan_banner_clean.png';
+
+  // Smoothly scroll the window to the Visarjan Banner component
+  const scrollToBanner = useCallback(() => {
+    const bannerEl = bannerSectionRef.current || document.getElementById('visarjan-miravnuk-banner-section');
+    if (bannerEl) {
+      const headerEl = document.querySelector('header');
+      const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 70;
+      const elementTop = bannerEl.getBoundingClientRect().top + window.pageYOffset;
+      const targetScrollY = Math.max(0, elementTop - headerHeight);
+
+      window.scrollTo({
+        top: targetScrollY,
+        behavior: 'smooth'
+      });
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }, []);
 
   // -------------------------------------------------------------
   // 1. Smooth Slide-Down Animation on Mount
@@ -329,16 +352,27 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   };
 
   const handleReplay = () => {
+    onReopen?.();
     setTimeLeft(DURATION_SECONDS);
     setIsFadingOut(false);
     setHasEntered(false);
     setIsVisible(true);
     setShowReopenFloatingBtn(false);
 
+    // Initial smooth scroll towards banner component / top of page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Precise scroll to the banner showcase element once DOM is updated
     setTimeout(() => {
+      scrollToBanner();
       setHasEntered(true);
       playLadiStringSound(6);
-    }, 40);
+    }, 50);
+
+    // Secondary alignment check once slide-down animation starts
+    setTimeout(() => {
+      scrollToBanner();
+    }, 200);
   };
 
   useEffect(() => {
@@ -634,7 +668,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
         <button
           onClick={handleReplay}
           className="px-4 py-2 bg-gradient-to-r from-red-600 via-brand-saffron to-yellow-500 text-brand-maroon font-black text-xs sm:text-sm rounded-full border-2 border-brand-gold shadow-[0_0_25px_rgba(255,153,51,0.7)] flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 transition-all"
-          title={lang === 'EN' ? 'View 53rd Visarjan Sohala Flash Banner (1 min)' : '५३ वे वर्ष विसर्जन सोहळा बॅनर पुन्हा पहा (१ मिनिट)'}
+          title={lang === 'EN' ? 'Scroll to and view 53rd Visarjan Sohala Banner' : 'विसर्जन सोहळा बॅनर पाहण्यासाठी येथे क्लिक करा'}
         >
           <span className="text-base animate-pulse">🎆</span>
           <span>{lang === 'EN' ? '🎉 Visarjan Sohala 2026' : '🎉 विसर्जन सोहळा २०२६'}</span>
@@ -649,8 +683,10 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   return (
     <>
       <section
+        id="visarjan-miravnuk-banner-section"
+        ref={bannerSectionRef}
         aria-label="53rd Year Grand Visarjan Sohala Celebratory Flash Showcase"
-        className={`relative w-full z-30 select-none overflow-hidden ${
+        className={`relative w-full z-30 select-none overflow-hidden scroll-mt-20 ${
           isFadingOut 
             ? 'animate-banner-fade-out pointer-events-none' 
             : hasEntered 

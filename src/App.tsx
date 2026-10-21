@@ -828,7 +828,14 @@ export default function App() {
 
       {/* 53rd Year Grand Visarjan Miravnuk 1-Minute Dynamic Flash Banner with 3D & Real Crackers */}
       {activeTab === 'home' && (
-        <VisarjanMiravnukBanner lang={lang} />
+        <VisarjanMiravnukBanner 
+          lang={lang} 
+          onReopen={() => {
+            if (activeTab !== 'home') {
+              setActiveTab('home');
+            }
+          }}
+        />
       )}
 
       {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}
