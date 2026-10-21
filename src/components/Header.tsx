@@ -29,6 +29,7 @@ interface HeaderProps {
   brandingConfig?: SiteBrandingConfig;
   headerConfig?: HeaderTitleConfig;
   menuItems?: NavigationMenuItem[];
+  moduleVisibility?: Record<string, boolean>;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -46,7 +47,8 @@ export const Header: React.FC<HeaderProps> = ({
   navratriTheme,
   brandingConfig,
   headerConfig,
-  menuItems
+  menuItems,
+  moduleVisibility
 }) => {
   const t = TRANSLATIONS[lang];
   const [isAudioPlaying, setIsAudioPlaying] = useState(() => aartiAudioEngine.getIsPlaying());
@@ -155,7 +157,23 @@ export const Header: React.FC<HeaderProps> = ({
     }
   ];
 
-  const effectiveNavItems = (menuItems && menuItems.length > 0)
+  const TAB_MODULE_MAP: Record<string, string> = {
+    home: 'hero_banner',
+    about: 'about_heritage',
+    patrika: 'patrika_section',
+    darshan: 'live_darshan',
+    seva: 'digital_seva',
+    events: 'temple_events',
+    gallery: 'media_gallery',
+    testimonials: 'devotee_testimonials',
+    donation: 'donations',
+    social: 'social_initiatives',
+    news: 'news_announcements',
+    profile: 'my_profile',
+    contact: 'contact_details'
+  };
+
+  const rawNavItems = (menuItems && menuItems.length > 0)
     ? menuItems
         .filter(m => m.isVisible !== false)
         .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
@@ -166,6 +184,14 @@ export const Header: React.FC<HeaderProps> = ({
           desc: lang === 'EN' ? (m.descEN || '') : (m.descMR || '')
         }))
     : navItems;
+
+  const effectiveNavItems = rawNavItems.filter(item => {
+    if (item.id === 'admin') return true;
+    if (!moduleVisibility) return true;
+    const modKey = TAB_MODULE_MAP[item.id];
+    if (!modKey) return true;
+    return moduleVisibility[modKey] !== false;
+  });
 
   const handleSelectTab = (id: string) => {
     setActiveTab(id);
@@ -250,7 +276,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {/* Navratri Sacred Color Day Badge */}
-            {navratriTheme && (
+            {navratriTheme && navratriTheme.dayIndex > 0 ? (
               <button 
                 onClick={() => handleSelectTab('profile')} 
                 className="hidden xs:flex items-center gap-1.5 rounded-full bg-black/40 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs text-white border border-brand-gold/30 hover:border-brand-saffron transition-all shrink-0 cursor-pointer"
@@ -264,7 +290,21 @@ export const Header: React.FC<HeaderProps> = ({
                   {lang === 'EN' ? `Day ${navratriTheme.dayIndex}: ${navratriTheme.colorNameEn.split(' ')[0]}` : `दिवस ${navratriTheme.dayIndex}: ${navratriTheme.colorNameMr.split(' ')[0]}`}
                 </span>
               </button>
-            )}
+            ) : navratriTheme ? (
+              <button 
+                onClick={() => handleSelectTab('profile')} 
+                className="hidden xs:flex items-center gap-1.5 rounded-full bg-black/40 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-xs text-white border border-brand-gold/30 hover:border-brand-saffron transition-all shrink-0 cursor-pointer"
+                title={lang === 'EN' ? 'Default Classic Theme (Maroon & Gold)' : 'पारंपरिक मूळ स्वरूप (मरून व सुवर्ण)'}
+              >
+                <span 
+                  className="w-2.5 h-2.5 rounded-full border border-white/40 shadow-sm shrink-0" 
+                  style={{ backgroundColor: '#8B0000' }} 
+                />
+                <span className="font-sans font-bold text-brand-gold">
+                  {lang === 'EN' ? 'Default Maroon' : 'पारंपरिक मूळ'}
+                </span>
+              </button>
+            ) : null}
 
             {/* Polished Smooth Transition Language Toggle Switch */}
             <div 

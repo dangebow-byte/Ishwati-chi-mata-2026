@@ -419,3 +419,15 @@ export async function updateAllModuleVisibility(
 export async function resetModuleVisibilityToDefault(): Promise<void> {
   return updateAllModuleVisibility({ ...DEFAULT_MODULE_VISIBILITY });
 }
+
+/**
+ * Checks if a specific module key is visible in the visibility map.
+ * Defaults to true if unspecified.
+ */
+export function isModuleVisible(
+  visibilityMap: Record<AppModuleKey, boolean> | undefined,
+  key: AppModuleKey
+): boolean {
+  if (!visibilityMap) return true;
+  return visibilityMap[key] !== false;
+}

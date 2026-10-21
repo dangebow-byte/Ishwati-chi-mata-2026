@@ -778,11 +778,69 @@ ALTER TABLE navratri_patrika_schedule ADD COLUMN IF NOT EXISTS devis_roop_en VAR
 ALTER TABLE navratri_patrika_schedule ADD COLUMN IF NOT EXISTS events_json JSONB;
 
 -- --------------------------------------------------------------------
+-- Task 3: Application Module Visibility Control Matrix
+-- Allows authorized temple administrators to show/hide any component or
+-- module across the website dynamically in real-time.
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS app_modules_visibility (
+    id VARCHAR(50) PRIMARY KEY,
+    module_key VARCHAR(50) NOT NULL UNIQUE,
+    name_mr VARCHAR(150) NOT NULL,
+    name_en VARCHAR(150) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    category_label_mr VARCHAR(100) NOT NULL,
+    category_label_en VARCHAR(100) NOT NULL,
+    description_mr TEXT,
+    description_en TEXT,
+    icon VARCHAR(10),
+    is_visible BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_modules_category ON app_modules_visibility(category);
+CREATE INDEX IF NOT EXISTS idx_modules_visible ON app_modules_visibility(is_visible);
+
+INSERT INTO app_modules_visibility (id, module_key, name_mr, name_en, category, category_label_mr, category_label_en, description_mr, description_en, icon, is_visible)
+VALUES
+    ('mod-1', 'hero_banner', 'मुख्य हिरो बॅनर व स्वयंभू दर्शन', 'Hero Banner & Divine Idol Showcase', 'home', 'मुख्य पृष्ठ घटक', 'Home Page Components', 'मुख्य पृष्ठावरील श्री इश्वटीची मातेचे स्वयंभू दर्शन, बॅनर व जलद कृती बटणे.', 'Main hero banner with full sanctum idol showcase.', '🕉️', TRUE),
+    ('mod-2', 'hero_diya', 'दीप प्रज्वलन सुविधा (Interactive Diya)', 'Interactive Diya Lighting', 'home', 'मुख्य पृष्ठ घटक', 'Home Page Components', 'भक्तांना डिजिटल समई / दिवा तेवत ठेवण्याची सुविधा.', 'Allows devotees to offer a digital flame/diya.', '🪔', TRUE),
+    ('mod-3', 'hero_aarti_player', 'मुख्य पृष्ठावरील आरती ऑडिओ प्लेयर', 'Home Aarti Audio Player', 'home', 'मुख्य पृष्ठ घटक', 'Home Page Components', 'होमपेजवर वाजणारा पवित्र आरतीचा वेब ऑडिओ प्लेयर.', 'Quick holy aarti web audio player embedded on homepage.', '🎵', TRUE),
+    ('mod-4', 'helpline_banner', '२४/७ डिजिटल साहाय्यता कक्ष', '24/7 Digital Helpline Banner', 'home', 'मुख्य पृष्ठ घटक', 'Home Page Components', 'अभिषेक, पूजा व संपर्क साहाय्यता हेल्पलाइन बॅनर.', 'Helpline banner with direct calling and query assistance.', '📞', TRUE),
+    ('mod-5', 'live_darshan', 'थेट दर्शन व आरती दालन', 'Live Darshan & Sanctum Stream', 'sanctum', 'दर्शन व पवित्र माध्यमे', 'Sanctum & Media Portals', '२४/७ थेट गाभारा दर्शन, कॅमेरा प्रक्षेपण व आरती वेळापत्रक.', '24/7 live camera feeds from inner sanctum.', '🎥', TRUE),
+    ('mod-6', 'ashtami_featured_video', 'अष्टमी महाआरती विशेष व्हिडिओ', 'Ashtami Maha Aarti Featured Video', 'sanctum', 'दर्शन व पवित्र माध्यमे', 'Sanctum & Media Portals', 'अष्टमी विशेष महाआरतीचा व्हिडिओ, बोल व आदर्श शिंदे गायन.', 'Featured Ashtami Maha Aarti video with ambient backdrop.', '🎬', TRUE),
+    ('mod-7', 'sacred_soundboard', 'पवित्र ध्वनी व वैदिक मंत्र (Soundboard)', 'Sacred Soundboard & Chants', 'sanctum', 'दर्शन व पवित्र माध्यमे', 'Sanctum & Media Portals', 'शंखनाद, वैदिक मंत्र, स्तोत्रे व तानपुरा ध्वनी.', 'Interactive soundboard with conch shells and mantras.', '🔔', TRUE),
+    ('mod-8', 'media_gallery', 'छायाचित्रे, व्हिडिओ व इन्स्टाग्राम रील दालन', 'Photo, Video & Reel Media Gallery', 'sanctum', 'दर्शन व पवित्र माध्यमे', 'Sanctum & Media Portals', 'मंडळाचे एचडी फोटो, व्हिडिओ व इन्स्टाग्राम रील गॅलरी.', 'HD photos, festival celebration videos, and reels.', '🖼️', TRUE),
+    ('mod-9', 'patrika_section', 'शारदीय नवरात्रौत्सव कार्यक्रम पत्रिका', 'Navratri Festival Karyakram Patrika', 'devotion', 'भक्ती व उत्सव दालने', 'Devotional Portals', 'अधिकृत ९-दिवसीय कार्यक्रम पत्रिका, दैनिक रंग व वेळ.', 'Official day-by-day festival program schedule.', '📜', TRUE),
+    ('mod-10', 'digital_seva', 'डिजिटल सेवा, पूजा व प्रसाद नोंदणी', 'Digital Seva & Pooja Booking', 'devotion', 'भक्ती व उत्सव दालने', 'Devotional Portals', 'अभिषेक, महाआरती, प्रसाद घरपोच व स्वयंसेवक नोंदणी.', 'Online reservations for pooja and prasad.', '🕯️', TRUE),
+    ('mod-11', 'temple_events', 'उत्सव वेळापत्रक व उपस्थिती नोंदणी', 'Festival Events & RSVP Presence', 'devotion', 'भक्ती व उत्सव दालने', 'Devotional Portals', 'मंदिर कार्यक्रम दिनदर्शिका आणि भक्तांची उपस्थिती.', 'Temple calendar, upcoming festival events and RSVP.', '🗓️', TRUE),
+    ('mod-12', 'devotee_testimonials', 'भक्तांचे दैवी अनुभव व साक्ष (Testimonials)', 'Devotee Experiences & Testimonials', 'devotion', 'भक्ती व उत्सव दालने', 'Devotional Portals', 'भाविकांनी अनुभवलेले दैवी अनुभव, साक्ष व अभिप्राय.', 'Miraculous experiences and feedback shared by devotees.', '💬', TRUE),
+    ('mod-13', 'about_heritage', 'मंदिराचा इतिहास व दैवी महात्म्य', 'About Sanctum & Divine Heritage', 'trust', 'इतिहास व सामाजिक कार्य', 'Trust & Heritage Portals', 'श्री इश्वटीची मातेचा उगम, गाभारा माहिती व देवस्थान ध्येय.', 'Origin chronicles of Shree Ishwatichi Mata.', '🏛️', TRUE),
+    ('mod-14', 'historical_milestones', 'ऐतिहासिक प्रवास आलेख (Chronicle Timeline)', 'Historical Journey Milestones', 'trust', 'इतिहास व सामाजिक कार्य', 'Trust & Heritage Portals', '१९७४ पासून २०२६ पर्यंतचा मंडळाचा देदीप्यमान ऐतिहासिक आलेख.', 'Interactive timeline marking historic milestones from 1974.', '📜', TRUE),
+    ('mod-15', 'donations', 'देणगी निधी व अन्नछत्र सहकार्य', 'Donations & 80G Trust Funds', 'trust', 'इतिहास व सामाजिक कार्य', 'Trust & Heritage Portals', '८०जी करसवलत देणगी, अन्नछत्र व मंदिर नूतनीकरण निधी.', 'Direct donations with 80G tax benefits.', '💝', TRUE),
+    ('mod-16', 'social_initiatives', 'समाजकार्य, मोफत दवाखाना व शिक्षण सेवा', 'Social Welfare & Community Initiatives', 'trust', 'इतिहास व सामाजिक कार्य', 'Trust & Heritage Portals', 'अन्नछत्र, गरजू विद्यार्थ्यांना मदत, आरोग्य शिबिरे.', 'Free meal drives, health clinics, and educational aid.', '🤝', TRUE),
+    ('mod-17', 'news_announcements', 'मंडळाची अधिकृत परिपत्रके व सूचना', 'Board Notices & Circulars', 'trust', 'इतिहास व सामाजिक कार्य', 'Trust & Heritage Portals', 'अधिकृत परिपत्रके, प्रसिद्धीपत्रके व महत्त्वाच्या घोषणा.', 'Official circulars, media releases, and alerts.', '📢', TRUE),
+    ('mod-18', 'my_profile', 'वैयक्तिक भक्ती प्रोफाईल व सातत्य गुण', 'Devotee Profile & Spiritual Milestones', 'system', 'प्रणाली व रचना', 'System & Layout Modules', 'दैनंदिन नामस्मरण, आरती सातत्य गुण, सुवर्ण पदके.', 'Daily check-in, devotion streak, badges.', '🕉️', TRUE),
+    ('mod-19', 'contact_details', 'देवस्थान कार्यालय संपर्क व नकाशा', 'Office Contact & Directions', 'system', 'प्रणाली व रचना', 'System & Layout Modules', 'कार्यालय पत्ता, दूरध्वनी, ईमेल व थेट गुगल मॅप मार्ग.', 'Devasthan office address, phone, email and location map.', '📍', TRUE),
+    ('mod-20', 'footer_section', 'मुख्य तळटीप (Application Footer)', 'Application Main Footer', 'system', 'प्रणाली व रचना', 'System & Layout Modules', 'वेबसाईटच्या सर्वात खाली असणारी मुख्य तळटीप व लिंक्स.', 'Bottom footer with quick links and copyright.', '🔻', TRUE)
+ON CONFLICT (module_key) DO UPDATE SET
+    name_mr = EXCLUDED.name_mr,
+    name_en = EXCLUDED.name_en,
+    category = EXCLUDED.category,
+    category_label_mr = EXCLUDED.category_label_mr,
+    category_label_en = EXCLUDED.category_label_en,
+    description_mr = EXCLUDED.description_mr,
+    description_en = EXCLUDED.description_en,
+    icon = EXCLUDED.icon,
+    updated_at = CURRENT_TIMESTAMP;
+
+-- --------------------------------------------------------------------
 -- Note on Dynamic Vercel Deployments & Google Indexing:
 -- When deploying to Vercel (e.g. *.vercel.app), canonical URLs resolve
 -- dynamically to window.location.origin to prevent cross-domain canonical drop.
--- In devotee profile records, navratri_theme_day defaults to 'auto' to ensure
--- the 9 sacred colors transition automatically every day at 12:00 AM IST.
+-- In devotee profile records, navratri_theme_day defaults to 'auto' which
+-- cleanly falls back to the initial default maroon (#4A0404) theme once the
+-- 9 sacred days of Navratri conclude.
 -- --------------------------------------------------------------------
 
 

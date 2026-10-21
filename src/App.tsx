@@ -34,6 +34,8 @@ import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdow
 import { NavratriPatrikaSection } from './components/NavratriPatrikaSection';
 import { InteractiveDiya } from './components/InteractiveDiya';
 import { GlobalAudioController } from './components/GlobalAudioController';
+import { AshtamiFeaturedVideoSection } from './components/AshtamiFeaturedVideoSection';
+import { VisarjanMiravnukBanner } from './components/VisarjanMiravnukBanner';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
 import { DeviMataImageManagerModal } from './components/DeviMataImageManagerModal';
 import {
@@ -70,6 +72,12 @@ import {
   subscribeMilestones,
   getCachedMilestones
 } from './services/milestonesService';
+import { 
+  AppModuleKey, 
+  subscribeModuleVisibility, 
+  getCachedModuleVisibility, 
+  isModuleVisible 
+} from './services/moduleVisibilityService';
 
 import { cleanDevanagariSpelling } from './utils/spellingSanitizer';
 import {
@@ -109,6 +117,7 @@ export default function App() {
   const [patrikaDays, setPatrikaDays] = useState<NavratriPatrikaDay[]>(() => getCachedPatrikaDays());
   const [patrikaMetadata, setPatrikaMetadata] = useState<PatrikaMetadata>(() => getCachedPatrikaMetadata());
   const [milestones, setMilestones] = useState<HistoricalMilestone[]>(() => getCachedMilestones());
+  const [moduleVisibility, setModuleVisibility] = useState<Record<AppModuleKey, boolean>>(() => getCachedModuleVisibility());
 
   const [user, setUser] = useState<any>(null);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
@@ -177,13 +186,14 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // Subscribe to real-time updates for Branding, Header Titles, Navigation Menu, Patrika, and Milestones
+  // Subscribe to real-time updates for Branding, Header Titles, Navigation Menu, Patrika, Milestones, and Module Visibility
   useEffect(() => {
     const unsubBranding = subscribeBranding(setBrandingConfig);
     const unsubHeader = subscribeHeaderConfig(setHeaderConfig);
     const unsubMenu = subscribeNavigationMenu(setMenuItems);
     const unsubPatrika = subscribeKaryakramPatrika(setPatrikaDays, setPatrikaMetadata);
     const unsubMilestones = subscribeMilestones(setMilestones);
+    const unsubVisibility = subscribeModuleVisibility(setModuleVisibility);
 
     return () => {
       unsubBranding?.();
@@ -191,6 +201,7 @@ export default function App() {
       unsubMenu?.();
       unsubPatrika?.();
       unsubMilestones?.();
+      unsubVisibility?.();
     };
   }, []);
 
@@ -708,10 +719,19 @@ export default function App() {
 
     const activeTheme = getActiveNavratriTheme(userProfile.navratriThemeDay);
     const isWhite = activeTheme.dayIndex === 2;
+    const isClassicDefault = activeTheme.dayIndex === 0;
 
     if (isWhite) {
       document.body.style.backgroundColor = '#FFFFFF';
       document.body.style.backgroundImage = 'radial-gradient(circle at 50% 15%, #FFFFFF 0%, #F8FAFC 70%, #F1F5F9 100%)';
+    } else if (isClassicDefault) {
+      if (darkMode) {
+        document.body.style.backgroundColor = '#4A0404';
+        document.body.style.backgroundImage = 'radial-gradient(circle at 50% 12%, rgba(255, 153, 51, 0.22) 0%, transparent 65%)';
+      } else {
+        document.body.style.backgroundColor = '#FAF8F4';
+        document.body.style.backgroundImage = 'radial-gradient(circle at 50% 12%, rgba(255, 153, 51, 0.15) 0%, #FAF8F4 65%)';
+      }
     } else if (darkMode) {
       const bgDark = activeTheme.darkBackgroundHex || activeTheme.hexPrimary;
       document.body.style.backgroundColor = bgDark;
@@ -729,14 +749,21 @@ export default function App() {
     return () => clearInterval(intervalTimer);
   }, [userProfile.navratriThemeDay, darkMode, currentCalendarDay]);
 
+  const isClassicDefault = activeNavratriTheme.dayIndex === 0;
   const siteBgColor = isWhiteDay
     ? '#FFFFFF'
-    : (darkMode ? (activeNavratriTheme.darkBackgroundHex || activeNavratriTheme.hexPrimary) : (activeNavratriTheme.lightBackgroundHex || '#FAF8F4'));
+    : (isClassicDefault
+      ? (darkMode ? '#4A0404' : '#FAF8F4')
+      : (darkMode ? (activeNavratriTheme.darkBackgroundHex || activeNavratriTheme.hexPrimary) : (activeNavratriTheme.lightBackgroundHex || '#FAF8F4')));
   const siteBgImage = isWhiteDay
     ? 'radial-gradient(circle at 50% 20%, #FFFFFF 0%, #F8FAFC 65%, #F1F5F9 100%)'
-    : (darkMode
-      ? `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}88 0%, ${activeNavratriTheme.darkBackgroundHex || activeNavratriTheme.hexPrimary} 100%)`
-      : `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}22 0%, ${activeNavratriTheme.lightBackgroundHex || '#FAF8F4'} 100%)`);
+    : (isClassicDefault
+      ? (darkMode
+        ? 'radial-gradient(circle at 50% 12%, rgba(255, 153, 51, 0.22) 0%, transparent 65%)'
+        : 'radial-gradient(circle at 50% 12%, rgba(255, 153, 51, 0.15) 0%, #FAF8F4 65%)')
+      : (darkMode
+        ? `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}88 0%, ${activeNavratriTheme.darkBackgroundHex || activeNavratriTheme.hexPrimary} 100%)`
+        : `radial-gradient(circle at 50% 12%, ${activeNavratriTheme.hexSecondary}22 0%, ${activeNavratriTheme.lightBackgroundHex || '#FAF8F4'} 100%)`));
 
   return (
     <div
@@ -774,6 +801,7 @@ export default function App() {
         brandingConfig={brandingConfig}
         headerConfig={headerConfig}
         menuItems={menuItems}
+        moduleVisibility={moduleVisibility}
       />
 
       {/* Resilient Quota Notification Banner */}
@@ -798,8 +826,13 @@ export default function App() {
         </div>
       )}
 
-      {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}
+      {/* 53rd Year Grand Visarjan Miravnuk 1-Minute Dynamic Flash Banner with 3D & Real Crackers */}
       {activeTab === 'home' && (
+        <VisarjanMiravnukBanner lang={lang} />
+      )}
+
+      {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}
+      {activeTab === 'home' && isModuleVisible(moduleVisibility, 'hero_banner') && (
         <section
           className={`relative w-full overflow-hidden border-b border-brand-gold/25 py-6 sm:py-8 lg:py-10 transition-colors duration-500 ${isWhiteDay ? 'text-stone-900' : 'text-white'
             }`}
@@ -984,16 +1017,20 @@ export default function App() {
                 </div>
 
                 {/* Interactive 'Light a Diya' Feature Card in Hero Section */}
-                <InteractiveDiya
-                  lang={lang}
-                  userProfile={userProfile}
-                  onUpdateProfile={handleUpdateProfile}
-                  onAddHistoryLog={(log) => updateHistoryState([log, ...claimsHistory])}
-                  variant="action-card"
-                />
+                {isModuleVisible(moduleVisibility, 'hero_diya') && (
+                  <InteractiveDiya
+                    lang={lang}
+                    userProfile={userProfile}
+                    onUpdateProfile={handleUpdateProfile}
+                    onAddHistoryLog={(log) => updateHistoryState([log, ...claimsHistory])}
+                    variant="action-card"
+                  />
+                )}
 
                 {/* Hero Aarti Web Audio Player */}
-                <HeroAudioPlayer lang={lang} />
+                {isModuleVisible(moduleVisibility, 'hero_aarti_player') && (
+                  <HeroAudioPlayer lang={lang} />
+                )}
 
               </div>
 
@@ -1009,13 +1046,54 @@ export default function App() {
         {activeTab === 'home' && (
           <>
             {/* Live streaming & quick timing schedule dashboards */}
-            <LiveDarshanSection
-              lang={lang}
-              heroImagePath={activeDeviImage.url}
-              onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
-            />
+            {isModuleVisible(moduleVisibility, 'live_darshan') && (
+              <LiveDarshanSection
+                lang={lang}
+                heroImagePath={activeDeviImage.url}
+                onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+              />
+            )}
+
+            {/* Official Ashtami / Aarti Featured Home Page Video with Ambient Blurred Backdrop */}
+            {isModuleVisible(moduleVisibility, 'ashtami_featured_video') && (
+              <AshtamiFeaturedVideoSection lang={lang} />
+            )}
 
             {/* General Highlights about the Temple Origin */}
+            {isModuleVisible(moduleVisibility, 'about_heritage') && (
+              <AboutSection
+                lang={lang}
+                heroImagePath={activeDeviImage.url}
+                onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+                milestones={milestones}
+                logoUrl={brandingConfig.logoUrl}
+              />
+            )}
+
+            {/* Fast Quick Buttons to contact & locations */}
+            {isModuleVisible(moduleVisibility, 'helpline_banner') && (
+              <div className="text-center py-6 sm:py-8 bg-black/45 rounded-2xl border border-brand-gold/25 p-5 sm:p-8 w-full max-w-2xl mx-auto space-y-3 shadow-xl">
+                <span className="text-xs text-brand-saffron uppercase tracking-wider font-mono font-bold">
+                  {lang === 'EN' ? '24/7 Digital Helpline' : '२४/७ डिजिटल साहाय्यता कक्ष'}
+                </span>
+                <h4 className="text-base sm:text-lg font-sans font-bold text-white leading-relaxed">
+                  {lang === 'EN'
+                    ? 'Have questions regarding Abhishek Pooja or Prasad deliveries?'
+                    : 'अभिषेक पूजा, आरती किंवा प्रसाद घरपोच सेवेविषयी काही प्रश्न आहेत का?'}
+                </h4>
+                <button
+                  onClick={() => setActiveTab('contact')}
+                  className="px-5 py-2.5 bg-brand-gold text-brand-maroon font-bold font-sans text-xs sm:text-sm rounded-xl hover:scale-105 transition-all shadow-md cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <span>📞</span> <span>{lang === 'EN' ? 'Contact Devasthan Center' : 'देवस्थान कार्यालयाशी संपर्क साधा'}</span>
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'about' && (
+          isModuleVisible(moduleVisibility, 'about_heritage') ? (
             <AboutSection
               lang={lang}
               heroImagePath={activeDeviImage.url}
@@ -1023,123 +1101,192 @@ export default function App() {
               milestones={milestones}
               logoUrl={brandingConfig.logoUrl}
             />
-
-            {/* Fast Quick Buttons to contact & locations */}
-            <div className="text-center py-6 sm:py-8 bg-black/45 rounded-2xl border border-brand-gold/25 p-5 sm:p-8 w-full max-w-2xl mx-auto space-y-3 shadow-xl">
-              <span className="text-xs text-brand-saffron uppercase tracking-wider font-mono font-bold">
-                {lang === 'EN' ? '24/7 Digital Helpline' : '२४/७ डिजिटल साहाय्यता कक्ष'}
-              </span>
-              <h4 className="text-base sm:text-lg font-sans font-bold text-white leading-relaxed">
-                {lang === 'EN'
-                  ? 'Have questions regarding Abhishek Pooja or Prasad deliveries?'
-                  : 'अभिषेक पूजा, आरती किंवा प्रसाद घरपोच सेवेविषयी काही प्रश्न आहेत का?'}
-              </h4>
-              <button
-                onClick={() => setActiveTab('contact')}
-                className="px-5 py-2.5 bg-brand-gold text-brand-maroon font-bold font-sans text-xs sm:text-sm rounded-xl hover:scale-105 transition-all shadow-md cursor-pointer inline-flex items-center gap-1.5"
-              >
-                <span>📞</span> <span>{lang === 'EN' ? 'Contact Devasthan Center' : 'देवस्थान कार्यालयाशी संपर्क साधा'}</span>
-              </button>
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">🏛️</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'About Section Hidden' : 'इतिहास विभाग अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'This module has been hidden by mandal administrators.' : 'प्रशासकांद्वारे हा विभाग तात्पुरता लपवण्यात आला आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
             </div>
-          </>
-        )}
-
-        {activeTab === 'about' && (
-          <AboutSection
-            lang={lang}
-            heroImagePath={activeDeviImage.url}
-            onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
-            milestones={milestones}
-            logoUrl={brandingConfig.logoUrl}
-          />
+          )
         )}
 
         {activeTab === 'darshan' && (
-          <LiveDarshanSection
-            lang={lang}
-            heroImagePath={activeDeviImage.url}
-            onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
-          />
+          isModuleVisible(moduleVisibility, 'live_darshan') ? (
+            <LiveDarshanSection
+              lang={lang}
+              heroImagePath={activeDeviImage.url}
+              onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+            />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">🎥</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Live Darshan Stream Hidden' : 'थेट दर्शन दालन अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Live stream portal is temporarily turned off by trustees.' : 'प्रशासकांद्वारे थेट दर्शन दालन तात्पुरते लपवण्यात आले आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'seva' && (
-          <DigitalSevaSection
-            lang={lang}
-            onNewBooking={handleNewBooking}
-            userStreakPlus={handleBoostStreakSeva}
-          />
+          isModuleVisible(moduleVisibility, 'digital_seva') ? (
+            <DigitalSevaSection
+              lang={lang}
+              onNewBooking={handleNewBooking}
+              userStreakPlus={handleBoostStreakSeva}
+            />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">🕯️</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Digital Seva Booking Hidden' : 'डिजिटल सेवा नोंदणी अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Pooja booking module is currently closed.' : 'सेवा व पूजा नोंदणी सध्या बंद आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'events' && (
-          <EventsSection
-            lang={lang}
-            events={events.length > 0 ? events : INITIAL_EVENTS}
-            onRsvp={(evtId, name) => {
-              const matchedEvt = (events.length > 0 ? events : INITIAL_EVENTS).find(x => x.id === evtId);
-              handleNewBooking({
-                id: 'RSVP-' + Math.floor(1000 + Math.random() * 9000),
-                type: 'volunteer',
-                subType: `RSVP Presence: ${matchedEvt?.title || 'Temple Event'}`,
-                devoteeName: name,
-                phone: userProfile.phone,
-                email: userProfile.email,
-                date: matchedEvt?.date || new Date().toISOString().split('T')[0],
-                status: 'confirmed'
-              });
-              alert(`Awesome RSVP Registered under name: ${name}. Welcome to the local mandir!`);
-            }}
-          />
+          isModuleVisible(moduleVisibility, 'temple_events') ? (
+            <EventsSection
+              lang={lang}
+              events={events.length > 0 ? events : INITIAL_EVENTS}
+              onRsvp={(evtId, name) => {
+                const matchedEvt = (events.length > 0 ? events : INITIAL_EVENTS).find(x => x.id === evtId);
+                handleNewBooking({
+                  id: 'RSVP-' + Math.floor(1000 + Math.random() * 9000),
+                  type: 'volunteer',
+                  subType: `RSVP Presence: ${matchedEvt?.title || 'Temple Event'}`,
+                  devoteeName: name,
+                  phone: userProfile.phone,
+                  email: userProfile.email,
+                  date: matchedEvt?.date || new Date().toISOString().split('T')[0],
+                  status: 'confirmed'
+                });
+                alert(`Awesome RSVP Registered under name: ${name}. Welcome to the local mandir!`);
+              }}
+            />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">🗓️</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Events Calendar Hidden' : 'उत्सव वेळापत्रक अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Temple events calendar is currently hidden.' : 'कार्यक्रम दिनदर्शिका सध्या अप्रकाशित आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'patrika' && (
-          <NavratriPatrikaSection 
-            lang={lang} 
-            patrikaDays={patrikaDays} 
-            metadata={patrikaMetadata} 
-          />
+          isModuleVisible(moduleVisibility, 'patrika_section') ? (
+            <NavratriPatrikaSection 
+              lang={lang} 
+              patrikaDays={patrikaDays} 
+              metadata={patrikaMetadata} 
+            />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">📜</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Patrika Section Hidden' : 'कार्यक्रम पत्रिका अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Festival patrika schedule is currently hidden.' : 'कार्यक्रम पत्रिका सध्या लपवण्यात आली आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'gallery' && (
-          <MasonryGallery
-            lang={lang}
-            canManageMedia={isAdminUser}
-            signedInEmail={user?.email || null}
-            authMessage={authMessage}
-          />
+          isModuleVisible(moduleVisibility, 'media_gallery') ? (
+            <MasonryGallery
+              lang={lang}
+              canManageMedia={isAdminUser}
+              signedInEmail={user?.email || null}
+              authMessage={authMessage}
+            />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">🖼️</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Media Gallery Hidden' : 'मीडिया गॅलरी अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Photo and video gallery is currently hidden.' : 'छायाचित्रे व व्हिडिओ गॅलरी सध्या लपवण्यात आली आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'testimonials' && (
-          <DevoteeExperiencesSection
-            lang={lang}
-            experiences={experiences}
-            onAddExperience={handleAddExperience}
-          />
+          isModuleVisible(moduleVisibility, 'devotee_testimonials') ? (
+            <DevoteeExperiencesSection
+              lang={lang}
+              experiences={experiences}
+              onAddExperience={handleAddExperience}
+            />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">💬</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Devotee Experiences Hidden' : 'भक्तांचे अनुभव विभाग अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Devotee experiences portal is currently hidden.' : 'अनुभव दालन सध्या लपवण्यात आले आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'donation' && (
-          <DonationSection
-            lang={lang}
-            onNewDonation={handleNewDonation}
-            userDonationPlus={(amt) => setUserProfile(p => ({ ...p, totalDonation: p.totalDonation + amt }))}
-          />
+          isModuleVisible(moduleVisibility, 'donations') ? (
+            <DonationSection
+              lang={lang}
+              onNewDonation={handleNewDonation}
+              userDonationPlus={(amt) => setUserProfile(p => ({ ...p, totalDonation: p.totalDonation + amt }))}
+            />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">💝</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Donations Portal Hidden' : 'देणगी निधी विभाग अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Online donation gateway is temporarily hidden.' : 'देणगी दालन सध्या बंद ठेवण्यात आले आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'social' && (
-          <SocialWorkSection lang={lang} />
+          isModuleVisible(moduleVisibility, 'social_initiatives') ? (
+            <SocialWorkSection lang={lang} />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">🤝</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Social Work Portal Hidden' : 'समाजकार्य विभाग अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Social welfare initiatives section is currently hidden.' : 'समाजकार्य उपक्रम सध्या अप्रकाशित आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'news' && (
-          <NewsSection lang={lang} announcements={announcements} />
+          isModuleVisible(moduleVisibility, 'news_announcements') ? (
+            <NewsSection lang={lang} announcements={announcements} />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">📢</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Announcements Hidden' : 'सूचना परिपत्रके अप्रकाशित आहेत'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Notice board circulars are currently hidden.' : 'सूचना फलक सध्या अप्रकाशित आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'profile' && (
-          <UserProfileDashboard
-            lang={lang}
-            profile={userProfile}
-            onClaimDaily={handleClaimDailyCheckIn}
-            onUpdateProfile={handleUpdateProfile}
-            claimsHistory={claimsHistory}
-          />
+          isModuleVisible(moduleVisibility, 'my_profile') ? (
+            <UserProfileDashboard
+              lang={lang}
+              profile={userProfile}
+              onClaimDaily={handleClaimDailyCheckIn}
+              onUpdateProfile={handleUpdateProfile}
+              claimsHistory={claimsHistory}
+            />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">🕉️</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Profile Portal Hidden' : 'भक्ती प्रोफाईल अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Personal profile dashboard is currently hidden.' : 'वैयक्तिक प्रोफाईल दालन सध्या लपवण्यात आले आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
         {activeTab === 'admin' && (
@@ -1162,147 +1309,168 @@ export default function App() {
         )}
 
         {activeTab === 'contact' && (
-          <ContactSection lang={lang} siteContent={siteContent.contact} />
+          isModuleVisible(moduleVisibility, 'contact_details') ? (
+            <ContactSection lang={lang} siteContent={siteContent.contact} />
+          ) : (
+            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+              <span className="text-4xl">📍</span>
+              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Contact Details Hidden' : 'संपर्क माहिती अप्रकाशित आहे'}</h3>
+              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Contact section is temporarily hidden.' : 'संपर्क कक्ष सध्या अप्रकाशित आहे.'}</p>
+              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+            </div>
+          )
         )}
 
       </main>
 
       {/* MAIN FOOTER */}
-      <footer className="w-full bg-brand-maroon border-t border-brand-gold/25 text-white/95 py-10 pb-28 md:pb-12 select-none relative z-10 font-sans text-xs">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      {isModuleVisible(moduleVisibility, 'footer_section') && (
+        <footer className="w-full bg-brand-maroon border-t border-brand-gold/25 text-white/95 py-10 pb-28 md:pb-12 select-none relative z-10 font-sans text-xs">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <SiteLogo size="md" withGlow className="drop-shadow-md" />
-              <h4 className="font-sans font-extrabold sm:font-black text-brand-gold text-sm tracking-widest">{t.title}</h4>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <SiteLogo size="md" withGlow className="drop-shadow-md" />
+                <h4 className="font-sans font-extrabold sm:font-black text-brand-gold text-sm tracking-widest">{t.title}</h4>
+              </div>
+              <p className="text-gray-300 leading-normal">
+                {lang === 'EN'
+                  ? 'Registered non-profit public organization establishing social unity, moral spirituality, and cultural pride since 1974.'
+                  : '१९७४ पासून कार्यरत अधिकृत धर्मादाय ट्रस्ट. समाजकार्य आणि शुद्ध भक्ती परंपरा जोपासणारे महाराष्ट्रातील अग्रगण्य मंडळ.'}
+              </p>
             </div>
-            <p className="text-gray-300 leading-normal">
-              {lang === 'EN'
-                ? 'Registered non-profit public organization establishing social unity, moral spirituality, and cultural pride since 1974.'
-                : '१९७४ पासून कार्यरत अधिकृत धर्मादाय ट्रस्ट. समाजकार्य आणि शुद्ध भक्ती परंपरा जोपासणारे महाराष्ट्रातील अग्रगण्य मंडळ.'}
-            </p>
-          </div>
 
-          <div className="space-y-2">
-            <h5 className="font-bold text-white font-sans tracking-widest uppercase text-xs">{lang === 'EN' ? 'Spiritual Portals' : 'मुख्य विभाग दुवे'}</h5>
-            <ul className="space-y-1.5 text-gray-300">
-              <li><button onClick={() => setActiveTab('about')} className="hover:text-brand-saffron text-left cursor-pointer">{t.nav_about}</button></li>
-              <li><button onClick={() => setActiveTab('darshan')} className="hover:text-brand-saffron text-left cursor-pointer">{t.nav_darshan}</button></li>
-              <li><button onClick={() => setActiveTab('seva')} className="hover:text-brand-saffron text-left cursor-pointer">{t.nav_seva}</button></li>
-              <li><button onClick={() => setActiveTab('donation')} className="hover:text-brand-saffron text-left cursor-pointer">{t.nav_donation}</button></li>
-            </ul>
-          </div>
-
-          <div className="space-y-2">
-            <h5 className="font-bold text-white font-sans tracking-widest uppercase text-xs">{lang === 'EN' ? 'Holy Calendars' : 'अधिकृत उत्सव'}</h5>
-            <ul className="space-y-1.5 text-gray-300">
-              <li><button onClick={() => setActiveTab('patrika')} className="hover:text-brand-saffron text-left cursor-pointer font-bold text-brand-gold">{lang === 'EN' ? '📜 Navratri Patrika 2026' : '📜 नवरात्र कार्यक्रम पत्रिका २०२६'}</button></li>
-              <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Navratri Mahotsav</button></li>
-              <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Ashadhi Ekadashi</button></li>
-              <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Gudi Padwa Shobha Yatra</button></li>
-              <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Charitable Medical Drive</button></li>
-            </ul>
-          </div>
-
-          <div className="space-y-3">
-            <h5 className="font-bold text-white font-sans tracking-widest uppercase text-xs">{lang === 'EN' ? 'Mandal Head Office' : 'मध्यवर्ती कार्यालय'}</h5>
-            <p className="text-gray-300 leading-normal">
-              {lang === 'EN'
-                ? 'A/004, Shri Ishwati Prasad C.H.S., Dattaram Lad Marg, Kalachowki, Mumbai-400 033'
-                : 'अ/००४, श्री इश्वटी प्रसाद को. ऑप. हौ. सो., दत्ताराम लाड मार्ग, काळाचौकी, मुंबई-४०० ०३३'}
-            </p>
-            <div className="flex gap-2">
-              <button onClick={() => setActiveTab('admin')} className="text-brand-gold underline font-mono tracking-wider font-bold cursor-pointer">
-                [ {lang === 'EN' ? 'Administrator Sign In' : 'प्रशासकीय साइन इन'} ]
-              </button>
+            <div className="space-y-2">
+              <h5 className="font-bold text-white font-sans tracking-widest uppercase text-xs">{lang === 'EN' ? 'Spiritual Portals' : 'मुख्य विभाग दुवे'}</h5>
+              <ul className="space-y-1.5 text-gray-300">
+                <li><button onClick={() => setActiveTab('about')} className="hover:text-brand-saffron text-left cursor-pointer">{t.nav_about}</button></li>
+                <li><button onClick={() => setActiveTab('darshan')} className="hover:text-brand-saffron text-left cursor-pointer">{t.nav_darshan}</button></li>
+                <li><button onClick={() => setActiveTab('seva')} className="hover:text-brand-saffron text-left cursor-pointer">{t.nav_seva}</button></li>
+                <li><button onClick={() => setActiveTab('donation')} className="hover:text-brand-saffron text-left cursor-pointer">{t.nav_donation}</button></li>
+              </ul>
             </div>
+
+            <div className="space-y-2">
+              <h5 className="font-bold text-white font-sans tracking-widest uppercase text-xs">{lang === 'EN' ? 'Holy Calendars' : 'अधिकृत उत्सव'}</h5>
+              <ul className="space-y-1.5 text-gray-300">
+                <li><button onClick={() => setActiveTab('patrika')} className="hover:text-brand-saffron text-left cursor-pointer font-bold text-brand-gold">{lang === 'EN' ? '📜 Navratri Patrika 2026' : '📜 नवरात्र कार्यक्रम पत्रिका २०२६'}</button></li>
+                <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Navratri Mahotsav</button></li>
+                <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Ashadhi Ekadashi</button></li>
+                <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Gudi Padwa Shobha Yatra</button></li>
+                <li><button onClick={() => setActiveTab('events')} className="hover:text-brand-saffron text-left cursor-pointer">Charitable Medical Drive</button></li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <h5 className="font-bold text-white font-sans tracking-widest uppercase text-xs">{lang === 'EN' ? 'Mandal Head Office' : 'मध्यवर्ती कार्यालय'}</h5>
+              <p className="text-gray-300 leading-normal">
+                {lang === 'EN'
+                  ? 'A/004, Shri Ishwati Prasad C.H.S., Dattaram Lad Marg, Kalachowki, Mumbai-400 033'
+                  : 'अ/००४, श्री इश्वटी प्रसाद को. ऑप. हौ. सो., दत्ताराम लाड मार्ग, काळाचौकी, मुंबई-४०० ०३३'}
+              </p>
+              <div className="flex gap-2">
+                <button onClick={() => setActiveTab('admin')} className="text-brand-gold underline font-mono tracking-wider font-bold cursor-pointer">
+                  [ {lang === 'EN' ? 'Administrator Sign In' : 'प्रशासकीय साइन इन'} ]
+                </button>
+              </div>
+            </div>
+
           </div>
 
-        </div>
-
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 mt-8 pt-8 border-t border-white/5 text-center text-gray-400 text-[10px] space-y-1">
-          <p>© २०२६ श्री यंग इश्वटी नवरात्रौत्सव मंडळ चॅरिटेबल ट्रस्ट. सर्व हक्क सुरक्षित. नोंदणी क्र. 2133/10 GBBSD F/42669. मुंबई.</p>
-          <p className="tracking-widest">{lang === 'EN' ? '|| Shree Ishwatichi Mata Devasthan ||' : '|| श्री इश्वटीची माता देवस्थान ||'}</p>
-        </div>
-      </footer>
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 mt-8 pt-8 border-t border-white/5 text-center text-gray-400 text-[10px] space-y-1">
+            <p>© २०२६ श्री यंग इश्वटी नवरात्रौत्सव मंडळ चॅरिटेबल ट्रस्ट. सर्व हक्क सुरक्षित. नोंदणी क्र. 2133/10 GBBSD F/42669. मुंबई.</p>
+            <p className="tracking-widest">{lang === 'EN' ? '|| Shree Ishwatichi Mata Devasthan ||' : '|| श्री इश्वटीची माता देवस्थान ||'}</p>
+          </div>
+        </footer>
+      )}
 
       {/* Persistent Mobile Bottom Navigation Bar (visible only on mobile/tablet < md) */}
       <nav
         aria-label="Mobile Bottom Navigation"
         className="fixed bottom-0 inset-x-0 z-40 bg-[#280101]/95 backdrop-blur-md border-t border-brand-gold/30 md:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.7)] py-1.5 px-2 select-none"
       >
-        <div className="grid grid-cols-5 gap-1 max-w-md mx-auto items-center text-center">
+        <div className="flex items-center justify-around max-w-md mx-auto text-center">
           <button
             onClick={() => {
               setActiveTab('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'home' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-lg transition-colors cursor-pointer ${activeTab === 'home' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
               }`}
           >
             <span className="text-lg">🏠</span>
             <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Home' : 'मुख्य'}</span>
           </button>
 
-          <button
-            onClick={() => {
-              setActiveTab('darshan');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'darshan' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
-              }`}
-          >
-            <span className="text-lg">🎥</span>
-            <span className="absolute top-1 right-3 h-2 w-2 rounded-full bg-green-400 animate-ping" />
-            <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Darshan' : 'दर्शन'}</span>
-          </button>
+          {isModuleVisible(moduleVisibility, 'live_darshan') && (
+            <button
+              onClick={() => {
+                setActiveTab('darshan');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`relative flex flex-col items-center justify-center py-1 px-2 rounded-lg transition-colors cursor-pointer ${activeTab === 'darshan' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+                }`}
+            >
+              <span className="text-lg">🎥</span>
+              <span className="absolute top-1 right-2 h-2 w-2 rounded-full bg-green-400 animate-ping" />
+              <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Darshan' : 'दर्शन'}</span>
+            </button>
+          )}
 
-          <button
-            onClick={() => {
-              setActiveTab('seva');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'seva' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
-              }`}
-          >
-            <span className="text-lg">🕯️</span>
-            <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Seva' : 'सेवा'}</span>
-          </button>
+          {isModuleVisible(moduleVisibility, 'digital_seva') && (
+            <button
+              onClick={() => {
+                setActiveTab('seva');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-2 rounded-lg transition-colors cursor-pointer ${activeTab === 'seva' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+                }`}
+            >
+              <span className="text-lg">🕯️</span>
+              <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Seva' : 'सेवा'}</span>
+            </button>
+          )}
 
-          <button
-            onClick={() => {
-              setActiveTab('donation');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'donation' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
-              }`}
-          >
-            <span className="text-lg">💝</span>
-            <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Donate' : 'देणगी'}</span>
-          </button>
+          {isModuleVisible(moduleVisibility, 'donations') && (
+            <button
+              onClick={() => {
+                setActiveTab('donation');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-2 rounded-lg transition-colors cursor-pointer ${activeTab === 'donation' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+                }`}
+            >
+              <span className="text-lg">💝</span>
+              <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Donate' : 'देणगी'}</span>
+            </button>
+          )}
 
-          <button
-            onClick={() => {
-              setActiveTab('profile');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex flex-col items-center justify-center py-1 rounded-lg transition-colors cursor-pointer ${activeTab === 'profile' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
-              }`}
-          >
-            <span className="text-lg">🕉️</span>
-            <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Streak' : 'भक्ती'}</span>
-          </button>
+          {isModuleVisible(moduleVisibility, 'my_profile') && (
+            <button
+              onClick={() => {
+                setActiveTab('profile');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-2 rounded-lg transition-colors cursor-pointer ${activeTab === 'profile' ? 'text-brand-gold font-bold scale-105' : 'text-gray-400 hover:text-white'
+                }`}
+            >
+              <span className="text-lg">🕉️</span>
+              <span className="text-[10px] tracking-tight">{lang === 'EN' ? 'Streak' : 'भक्ती'}</span>
+            </button>
+          )}
         </div>
       </nav>
 
       {/* GLOBAL HIGH-FIDELITY AUDIO CONTROLLER */}
-      <GlobalAudioController
-        lang={lang}
-        onNavigateToDarshan={() => {
-          setActiveTab('darshan');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-      />
+      {isModuleVisible(moduleVisibility, 'sacred_soundboard') && (
+        <GlobalAudioController
+          lang={lang}
+          onNavigateToDarshan={() => {
+            setActiveTab('darshan');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      )}
 
       {/* FULL-SCREEN IMMERSIVE SACRED DARSHAN MODAL */}
       {isFullDarshanOpen && (
