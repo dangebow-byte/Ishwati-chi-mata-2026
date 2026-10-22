@@ -19,6 +19,7 @@ import {
   setCachedGalleryMedia
 } from '../services/galleryMediaService';
 import { shareToWhatsApp } from '../utils/shareUtils';
+import { getAdminEmailsDisplay } from '../constants/adminConstants';
 import { 
   Instagram, 
   Video, 
@@ -1066,8 +1067,8 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
               </span>
               <span className="text-[10px] text-gray-400">
                 {signedInEmail
-                  ? `Signed in as ${signedInEmail}; verified dangebow@gmail.com access is required.`
-                  : 'Sign in from Admin Console with the verified dangebow@gmail.com account.'}
+                  ? `Signed in as ${signedInEmail}; verified administrator access (${getAdminEmailsDisplay()}) is required.`
+                  : `Sign in from Admin Console with an authorized account (${getAdminEmailsDisplay()}).`}
               </span>
               {authMessage && <span role="alert" className="text-[10px] text-red-300">{authMessage}</span>}
             </div>

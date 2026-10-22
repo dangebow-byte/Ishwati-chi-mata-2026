@@ -14,7 +14,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return isSignedIn() && 
-             request.auth.token.email == 'dangebow@gmail.com' && 
+             (request.auth.token.email == 'dangebow@gmail.com' || request.auth.token.email == 'ishwatichimata10@gmail.com') && 
              request.auth.token.email_verified == true;
     }
 
@@ -263,6 +263,13 @@ service cloud.firestore {
       allow create: if isAdmin() && isValidSoundboardItem(request.resource.data) && isValidId(itemId);
       allow update: if isAdmin() && isValidSoundboardItem(request.resource.data) && isValidId(itemId);
       allow delete: if isAdmin() && isValidId(itemId);
+    }
+
+    // 12. VISARJAN MIRAVNUK BANNER CONFIG
+    match /visarjan_banner_config/{configId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(configId);
+      allow delete: if isAdmin() && isValidId(configId);
     }
   }
 }

@@ -44,6 +44,7 @@ import {
   DEFAULT_DEVI_IMAGE,
   getCachedDeviImages
 } from './services/deviImagesService';
+import { ADMIN_EMAILS, isAdminEmail, getAdminEmailsDisplay } from './constants/adminConstants';
 
 // Official Shree Ishwatichi Mata Mandal branding and Devi darshan assets
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
@@ -321,12 +322,12 @@ export default function App() {
           if (revision !== authRevision) return;
           const tokenEmail = (typeof claims.email === 'string' ? claims.email : authUser.email || '').trim().toLowerCase();
           const emailVerified = claims.email_verified === true;
-          const authorized = tokenEmail === 'dangebow@gmail.com' && emailVerified;
+          const authorized = isAdminEmail(tokenEmail) && emailVerified;
           setIsAdminUser(authorized);
           setAuthMessage(authorized
             ? null
-            : tokenEmail !== 'dangebow@gmail.com'
-              ? `Signed in as ${tokenEmail || authUser.email || 'unknown account'}. Admin access requires dangebow@gmail.com.`
+            : !isAdminEmail(tokenEmail)
+              ? `Signed in as ${tokenEmail || authUser.email || 'unknown account'}. Admin access requires ${getAdminEmailsDisplay()}.`
               : 'The Firebase sign-in token does not report this account as verified. Sign out and sign in again with the verified Google account.');
         }).catch((error: unknown) => {
           if (revision !== authRevision) return;
@@ -470,12 +471,12 @@ export default function App() {
       setUser(credential.user);
       const { claims } = await getIdTokenResult(credential.user);
       const tokenEmail = (typeof claims.email === 'string' ? claims.email : credential.user.email || '').trim().toLowerCase();
-      const authorized = tokenEmail === 'dangebow@gmail.com' && claims.email_verified === true;
+      const authorized = isAdminEmail(tokenEmail) && claims.email_verified === true;
       setIsAdminUser(authorized);
       setAuthMessage(authorized
         ? null
-        : tokenEmail !== 'dangebow@gmail.com'
-          ? `Signed in as ${tokenEmail || 'unknown account'}. Admin access requires dangebow@gmail.com.`
+        : !isAdminEmail(tokenEmail)
+          ? `Signed in as ${tokenEmail || 'unknown account'}. Admin access requires ${getAdminEmailsDisplay()}.`
           : 'The Firebase sign-in token does not report this account as verified. Sign out and sign in again with the verified Google account.');
     } catch (error: unknown) {
       const code = (error as { code?: string })?.code;
@@ -841,6 +842,8 @@ export default function App() {
       {/* HERO SECTION / BANNER CANVAS - FULL DEVI MATA SACRED DARSHAN SHOWCASE */}
       {activeTab === 'home' && isModuleVisible(moduleVisibility, 'hero_banner') && (
         <section
+          id="hero-banner-section"
+          data-section="home"
           className={`relative w-full overflow-hidden border-b border-brand-gold/25 py-6 sm:py-8 lg:py-10 transition-colors duration-500 ${isWhiteDay ? 'text-stone-900' : 'text-white'
             }`}
           style={{
@@ -1054,32 +1057,38 @@ export default function App() {
           <>
             {/* Live streaming & quick timing schedule dashboards */}
             {isModuleVisible(moduleVisibility, 'live_darshan') && (
-              <LiveDarshanSection
-                lang={lang}
-                heroImagePath={activeDeviImage.url}
-                onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
-              />
+              <div id="live-darshan-section" data-section="darshan" className="scroll-mt-24">
+                <LiveDarshanSection
+                  lang={lang}
+                  heroImagePath={activeDeviImage.url}
+                  onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+                />
+              </div>
             )}
 
             {/* Official Ashtami / Aarti Featured Home Page Video with Ambient Blurred Backdrop */}
             {isModuleVisible(moduleVisibility, 'ashtami_featured_video') && (
-              <AshtamiFeaturedVideoSection lang={lang} />
+              <div id="ashtami-featured-video-section" className="scroll-mt-24">
+                <AshtamiFeaturedVideoSection lang={lang} />
+              </div>
             )}
 
             {/* General Highlights about the Temple Origin */}
             {isModuleVisible(moduleVisibility, 'about_heritage') && (
-              <AboutSection
-                lang={lang}
-                heroImagePath={activeDeviImage.url}
-                onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
-                milestones={milestones}
-                logoUrl={brandingConfig.logoUrl}
-              />
+              <div id="about-heritage-section" data-section="about" className="scroll-mt-24">
+                <AboutSection
+                  lang={lang}
+                  heroImagePath={activeDeviImage.url}
+                  onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+                  milestones={milestones}
+                  logoUrl={brandingConfig.logoUrl}
+                />
+              </div>
             )}
 
             {/* Fast Quick Buttons to contact & locations */}
             {isModuleVisible(moduleVisibility, 'helpline_banner') && (
-              <div className="text-center py-6 sm:py-8 bg-black/45 rounded-2xl border border-brand-gold/25 p-5 sm:p-8 w-full max-w-2xl mx-auto space-y-3 shadow-xl">
+              <div id="helpline-banner-section" data-section="contact" className="scroll-mt-24 text-center py-6 sm:py-8 bg-black/45 rounded-2xl border border-brand-gold/25 p-5 sm:p-8 w-full max-w-2xl mx-auto space-y-3 shadow-xl">
                 <span className="text-xs text-brand-saffron uppercase tracking-wider font-mono font-bold">
                   {lang === 'EN' ? '24/7 Digital Helpline' : '२४/७ डिजिटल साहाय्यता कक्ष'}
                 </span>
@@ -1100,232 +1109,258 @@ export default function App() {
         )}
 
         {activeTab === 'about' && (
-          isModuleVisible(moduleVisibility, 'about_heritage') ? (
-            <AboutSection
-              lang={lang}
-              heroImagePath={activeDeviImage.url}
-              onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
-              milestones={milestones}
-              logoUrl={brandingConfig.logoUrl}
-            />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">🏛️</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'About Section Hidden' : 'इतिहास विभाग अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'This module has been hidden by mandal administrators.' : 'प्रशासकांद्वारे हा विभाग तात्पुरता लपवण्यात आला आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="about-heritage-section" data-section="about" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'about_heritage') ? (
+              <AboutSection
+                lang={lang}
+                heroImagePath={activeDeviImage.url}
+                onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+                milestones={milestones}
+                logoUrl={brandingConfig.logoUrl}
+              />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">🏛️</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'About Section Hidden' : 'इतिहास विभाग अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'This module has been hidden by mandal administrators.' : 'प्रशासकांद्वारे हा विभाग तात्पुरता लपवण्यात आला आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'darshan' && (
-          isModuleVisible(moduleVisibility, 'live_darshan') ? (
-            <LiveDarshanSection
-              lang={lang}
-              heroImagePath={activeDeviImage.url}
-              onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
-            />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">🎥</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Live Darshan Stream Hidden' : 'थेट दर्शन दालन अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Live stream portal is temporarily turned off by trustees.' : 'प्रशासकांद्वारे थेट दर्शन दालन तात्पुरते लपवण्यात आले आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="live-darshan-section" data-section="darshan" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'live_darshan') ? (
+              <LiveDarshanSection
+                lang={lang}
+                heroImagePath={activeDeviImage.url}
+                onManageDeviImage={isAdminUser ? () => setIsDeviImageManagerOpen(true) : undefined}
+              />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">🎥</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Live Darshan Stream Hidden' : 'थेट दर्शन दालन अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Live stream portal is temporarily turned off by trustees.' : 'प्रशासकांद्वारे थेट दर्शन दालन तात्पुरते लपवण्यात आले आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'seva' && (
-          isModuleVisible(moduleVisibility, 'digital_seva') ? (
-            <DigitalSevaSection
-              lang={lang}
-              onNewBooking={handleNewBooking}
-              userStreakPlus={handleBoostStreakSeva}
-            />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">🕯️</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Digital Seva Booking Hidden' : 'डिजिटल सेवा नोंदणी अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Pooja booking module is currently closed.' : 'सेवा व पूजा नोंदणी सध्या बंद आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="digital-seva-section" data-section="seva" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'digital_seva') ? (
+              <DigitalSevaSection
+                lang={lang}
+                onNewBooking={handleNewBooking}
+                userStreakPlus={handleBoostStreakSeva}
+              />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">🕯️</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Digital Seva Booking Hidden' : 'डिजिटल सेवा नोंदणी अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Pooja booking module is currently closed.' : 'सेवा व पूजा नोंदणी सध्या बंद आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'events' && (
-          isModuleVisible(moduleVisibility, 'temple_events') ? (
-            <EventsSection
-              lang={lang}
-              events={events.length > 0 ? events : INITIAL_EVENTS}
-              onRsvp={(evtId, name) => {
-                const matchedEvt = (events.length > 0 ? events : INITIAL_EVENTS).find(x => x.id === evtId);
-                handleNewBooking({
-                  id: 'RSVP-' + Math.floor(1000 + Math.random() * 9000),
-                  type: 'volunteer',
-                  subType: `RSVP Presence: ${matchedEvt?.title || 'Temple Event'}`,
-                  devoteeName: name,
-                  phone: userProfile.phone,
-                  email: userProfile.email,
-                  date: matchedEvt?.date || new Date().toISOString().split('T')[0],
-                  status: 'confirmed'
-                });
-                alert(`Awesome RSVP Registered under name: ${name}. Welcome to the local mandir!`);
-              }}
-            />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">🗓️</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Events Calendar Hidden' : 'उत्सव वेळापत्रक अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Temple events calendar is currently hidden.' : 'कार्यक्रम दिनदर्शिका सध्या अप्रकाशित आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="temple-events-section" data-section="events" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'temple_events') ? (
+              <EventsSection
+                lang={lang}
+                events={events.length > 0 ? events : INITIAL_EVENTS}
+                onRsvp={(evtId, name) => {
+                  const matchedEvt = (events.length > 0 ? events : INITIAL_EVENTS).find(x => x.id === evtId);
+                  handleNewBooking({
+                    id: 'RSVP-' + Math.floor(1000 + Math.random() * 9000),
+                    type: 'volunteer',
+                    subType: `RSVP Presence: ${matchedEvt?.title || 'Temple Event'}`,
+                    devoteeName: name,
+                    phone: userProfile.phone,
+                    email: userProfile.email,
+                    date: matchedEvt?.date || new Date().toISOString().split('T')[0],
+                    status: 'confirmed'
+                  });
+                  alert(`Awesome RSVP Registered under name: ${name}. Welcome to the local mandir!`);
+                }}
+              />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">🗓️</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Events Calendar Hidden' : 'उत्सव वेळापत्रक अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Temple events calendar is currently hidden.' : 'कार्यक्रम दिनदर्शिका सध्या अप्रकाशित आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'patrika' && (
-          isModuleVisible(moduleVisibility, 'patrika_section') ? (
-            <NavratriPatrikaSection 
-              lang={lang} 
-              patrikaDays={patrikaDays} 
-              metadata={patrikaMetadata} 
-            />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">📜</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Patrika Section Hidden' : 'कार्यक्रम पत्रिका अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Festival patrika schedule is currently hidden.' : 'कार्यक्रम पत्रिका सध्या लपवण्यात आली आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="patrika-section" data-section="patrika" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'patrika_section') ? (
+              <NavratriPatrikaSection 
+                lang={lang} 
+                patrikaDays={patrikaDays} 
+                metadata={patrikaMetadata} 
+              />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">📜</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Patrika Section Hidden' : 'कार्यक्रम पत्रिका अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Festival patrika schedule is currently hidden.' : 'कार्यक्रम पत्रिका सध्या लपवण्यात आली आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'gallery' && (
-          isModuleVisible(moduleVisibility, 'media_gallery') ? (
-            <MasonryGallery
-              lang={lang}
-              canManageMedia={isAdminUser}
-              signedInEmail={user?.email || null}
-              authMessage={authMessage}
-            />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">🖼️</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Media Gallery Hidden' : 'मीडिया गॅलरी अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Photo and video gallery is currently hidden.' : 'छायाचित्रे व व्हिडिओ गॅलरी सध्या लपवण्यात आली आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="media-gallery-section" data-section="gallery" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'media_gallery') ? (
+              <MasonryGallery
+                lang={lang}
+                canManageMedia={isAdminUser}
+                signedInEmail={user?.email || null}
+                authMessage={authMessage}
+              />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">🖼️</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Media Gallery Hidden' : 'मीडिया गॅलरी अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Photo and video gallery is currently hidden.' : 'छायाचित्रे व व्हिडिओ गॅलरी सध्या लपवण्यात आली आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'testimonials' && (
-          isModuleVisible(moduleVisibility, 'devotee_testimonials') ? (
-            <DevoteeExperiencesSection
-              lang={lang}
-              experiences={experiences}
-              onAddExperience={handleAddExperience}
-            />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">💬</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Devotee Experiences Hidden' : 'भक्तांचे अनुभव विभाग अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Devotee experiences portal is currently hidden.' : 'अनुभव दालन सध्या लपवण्यात आले आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="devotee-testimonials-section" data-section="testimonials" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'devotee_testimonials') ? (
+              <DevoteeExperiencesSection
+                lang={lang}
+                experiences={experiences}
+                onAddExperience={handleAddExperience}
+              />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">💬</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Devotee Experiences Hidden' : 'भक्तांचे अनुभव विभाग अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Devotee experiences portal is currently hidden.' : 'अनुभव दालन सध्या लपवण्यात आले आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'donation' && (
-          isModuleVisible(moduleVisibility, 'donations') ? (
-            <DonationSection
-              lang={lang}
-              onNewDonation={handleNewDonation}
-              userDonationPlus={(amt) => setUserProfile(p => ({ ...p, totalDonation: p.totalDonation + amt }))}
-            />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">💝</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Donations Portal Hidden' : 'देणगी निधी विभाग अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Online donation gateway is temporarily hidden.' : 'देणगी दालन सध्या बंद ठेवण्यात आले आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="donation-section" data-section="donation" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'donations') ? (
+              <DonationSection
+                lang={lang}
+                onNewDonation={handleNewDonation}
+                userDonationPlus={(amt) => setUserProfile(p => ({ ...p, totalDonation: p.totalDonation + amt }))}
+              />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">💝</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Donations Portal Hidden' : 'देणगी निधी विभाग अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Online donation gateway is temporarily hidden.' : 'देणगी दालन सध्या बंद ठेवण्यात आले आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'social' && (
-          isModuleVisible(moduleVisibility, 'social_initiatives') ? (
-            <SocialWorkSection lang={lang} />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">🤝</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Social Work Portal Hidden' : 'समाजकार्य विभाग अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Social welfare initiatives section is currently hidden.' : 'समाजकार्य उपक्रम सध्या अप्रकाशित आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="social-initiatives-section" data-section="social" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'social_initiatives') ? (
+              <SocialWorkSection lang={lang} />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">🤝</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Social Work Portal Hidden' : 'समाजकार्य विभाग अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Social welfare initiatives section is currently hidden.' : 'समाजकार्य उपक्रम सध्या अप्रकाशित आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'news' && (
-          isModuleVisible(moduleVisibility, 'news_announcements') ? (
-            <NewsSection lang={lang} announcements={announcements} />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">📢</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Announcements Hidden' : 'सूचना परिपत्रके अप्रकाशित आहेत'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Notice board circulars are currently hidden.' : 'सूचना फलक सध्या अप्रकाशित आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="news-announcements-section" data-section="news" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'news_announcements') ? (
+              <NewsSection lang={lang} announcements={announcements} />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">📢</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Announcements Hidden' : 'सूचना परिपत्रके अप्रकाशित आहेत'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Notice board circulars are currently hidden.' : 'सूचना फलक सध्या अप्रकाशित आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'profile' && (
-          isModuleVisible(moduleVisibility, 'my_profile') ? (
-            <UserProfileDashboard
-              lang={lang}
-              profile={userProfile}
-              onClaimDaily={handleClaimDailyCheckIn}
-              onUpdateProfile={handleUpdateProfile}
-              claimsHistory={claimsHistory}
-            />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">🕉️</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Profile Portal Hidden' : 'भक्ती प्रोफाईल अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Personal profile dashboard is currently hidden.' : 'वैयक्तिक प्रोफाईल दालन सध्या लपवण्यात आले आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="profile-dashboard-section" data-section="profile" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'my_profile') ? (
+              <UserProfileDashboard
+                lang={lang}
+                profile={userProfile}
+                onClaimDaily={handleClaimDailyCheckIn}
+                onUpdateProfile={handleUpdateProfile}
+                claimsHistory={claimsHistory}
+              />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">🕉️</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Profile Portal Hidden' : 'भक्ती प्रोफाईल अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Personal profile dashboard is currently hidden.' : 'वैयक्तिक प्रोफाईल दालन सध्या लपवण्यात आले आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'admin' && (
-          <AdminPanel
-            lang={lang}
-            isAdminUser={isAdminUser}
-            signedInEmail={user?.email || null}
-            authMessage={authMessage}
-            onAdminLogin={handleLogin}
-            onAdminLogout={handleLogout}
-            experiences={experiences}
-            onApproveExperience={handleApproveExperience}
-            bookings={bookings}
-            onDeleteBooking={handleDeleteBooking}
-            donations={donations}
-            onAddAnnouncement={handleAddAnnouncement}
-            siteContent={siteContent}
-            onSaveSiteContent={handleSaveSiteContent}
-          />
+          <div id="admin-panel-section" data-section="admin" className="scroll-mt-24">
+            <AdminPanel
+              lang={lang}
+              isAdminUser={isAdminUser}
+              signedInEmail={user?.email || null}
+              authMessage={authMessage}
+              onAdminLogin={handleLogin}
+              onAdminLogout={handleLogout}
+              experiences={experiences}
+              onApproveExperience={handleApproveExperience}
+              bookings={bookings}
+              onDeleteBooking={handleDeleteBooking}
+              donations={donations}
+              onAddAnnouncement={handleAddAnnouncement}
+              siteContent={siteContent}
+              onSaveSiteContent={handleSaveSiteContent}
+            />
+          </div>
         )}
 
         {activeTab === 'contact' && (
-          isModuleVisible(moduleVisibility, 'contact_details') ? (
-            <ContactSection lang={lang} siteContent={siteContent.contact} />
-          ) : (
-            <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
-              <span className="text-4xl">📍</span>
-              <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Contact Details Hidden' : 'संपर्क माहिती अप्रकाशित आहे'}</h3>
-              <p className="text-xs text-gray-300">{lang === 'EN' ? 'Contact section is temporarily hidden.' : 'संपर्क कक्ष सध्या अप्रकाशित आहे.'}</p>
-              <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
-            </div>
-          )
+          <div id="contact-details-section" data-section="contact" className="scroll-mt-24">
+            {isModuleVisible(moduleVisibility, 'contact_details') ? (
+              <ContactSection lang={lang} siteContent={siteContent.contact} />
+            ) : (
+              <div className="text-center py-12 px-4 max-w-lg mx-auto bg-black/40 rounded-2xl border border-brand-gold/30 p-8 space-y-4">
+                <span className="text-4xl">📍</span>
+                <h3 className="text-lg font-bold text-brand-gold">{lang === 'EN' ? 'Contact Details Hidden' : 'संपर्क माहिती अप्रकाशित आहे'}</h3>
+                <p className="text-xs text-gray-300">{lang === 'EN' ? 'Contact section is temporarily hidden.' : 'संपर्क कक्ष सध्या अप्रकाशित आहे.'}</p>
+                <button onClick={() => setActiveTab('home')} className="px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl hover:scale-105 transition-all cursor-pointer">{lang === 'EN' ? 'Return to Home' : 'मुख्य पृष्ठावर जा'}</button>
+              </div>
+            )}
+          </div>
         )}
 
       </main>

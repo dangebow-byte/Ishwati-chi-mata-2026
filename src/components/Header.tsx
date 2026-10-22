@@ -12,6 +12,7 @@ import { NavratriColorTheme } from '../utils/navratriColorTheme';
 import { shareToWhatsApp } from '../utils/shareUtils';
 import { SiteBrandingConfig, HeaderTitleConfig } from '../services/brandingService';
 import { NavigationMenuItem } from '../services/navigationMenuService';
+import { isAdminEmail } from '../constants/adminConstants';
 
 interface HeaderProps {
   lang: 'EN' | 'MR';
@@ -193,9 +194,72 @@ export const Header: React.FC<HeaderProps> = ({
     return moduleVisibility[modKey] !== false;
   });
 
+  /**
+   * Smoothly scroll the window to the corresponding component's section on the page,
+   * accounting for the sticky top header bar offset.
+   */
+  const smoothScrollToSection = (tabId: string) => {
+    const sectionIdMap: Record<string, string> = {
+      home: 'hero-banner-section',
+      about: 'about-heritage-section',
+      patrika: 'patrika-section',
+      darshan: 'live-darshan-section',
+      seva: 'digital-seva-section',
+      events: 'temple-events-section',
+      gallery: 'media-gallery-section',
+      testimonials: 'devotee-testimonials-section',
+      donation: 'donation-section',
+      social: 'social-initiatives-section',
+      news: 'news-announcements-section',
+      profile: 'profile-dashboard-section',
+      admin: 'admin-panel-section',
+      contact: 'helpline-banner-section'
+    };
+
+    const targetId = sectionIdMap[tabId] || `${tabId}-section`;
+
+    const executeScroll = () => {
+      const targetEl = document.getElementById(targetId) ||
+                       document.getElementById(`${tabId}-section`) ||
+                       document.querySelector(`[data-section="${tabId}"]`);
+
+      if (targetEl) {
+        const headerEl = document.querySelector('header');
+        const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 80;
+        const elementTop = targetEl.getBoundingClientRect().top + window.pageYOffset;
+        const targetScrollY = Math.max(0, elementTop - headerHeight - 12);
+
+        window.scrollTo({
+          top: targetScrollY,
+          behavior: 'smooth'
+        });
+      } else {
+        const mainEl = document.querySelector('main');
+        if (mainEl && tabId !== 'home') {
+          const headerEl = document.querySelector('header');
+          const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 80;
+          const elementTop = mainEl.getBoundingClientRect().top + window.pageYOffset;
+          const targetScrollY = Math.max(0, elementTop - headerHeight - 12);
+          window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+    };
+
+    // Immediate scroll attempt
+    executeScroll();
+
+    // Secondary attempt in case activeTab causes element to mount in next frame
+    requestAnimationFrame(() => {
+      setTimeout(executeScroll, 60);
+    });
+  };
+
   const handleSelectTab = (id: string) => {
     setActiveTab(id);
     setMobileMenuOpen(false);
+    smoothScrollToSection(id);
   };
 
   const headerTitle = lang === 'EN'
@@ -585,7 +649,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="font-sans font-bold text-xs text-white truncate">
                           {user.displayName || 'Devotee'}
                         </span>
-                        {user.email === 'dangebow@gmail.com' && (
+                        {isAdminEmail(user.email) && (
                           <span className="text-[9px] bg-brand-gold text-brand-maroon px-1.5 py-0.2 rounded font-black">Admin</span>
                         )}
                       </div>

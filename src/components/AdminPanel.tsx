@@ -29,6 +29,8 @@ import { KaryakramPatrikaCrudTab } from './admin/KaryakramPatrikaCrudTab';
 import { HistoricalMilestonesCrudTab } from './admin/HistoricalMilestonesCrudTab';
 import { UtsavEventsCrudTab } from './admin/UtsavEventsCrudTab';
 import { ModuleVisibilityCrudTab } from './admin/ModuleVisibilityCrudTab';
+import { VisarjanBannerCrudTab } from './admin/VisarjanBannerCrudTab';
+import { ADMIN_EMAILS, isAdminEmail, getAdminEmailsDisplay } from '../constants/adminConstants';
 
 interface AdminPanelProps {
   lang: 'EN' | 'MR';
@@ -65,7 +67,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<
     'approvals' | 'bookings' | 'reports' | 'announcements' | 'cms' | 'soundboard' |
-    'branding' | 'menu' | 'patrika' | 'milestones' | 'events' | 'modules'
+    'branding' | 'menu' | 'patrika' | 'milestones' | 'events' | 'modules' | 'visarjan'
   >('approvals');
 
   // Welcome Hero CMS states
@@ -526,8 +528,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           <div className="bg-amber-950/40 p-3 rounded-xl border border-amber-500/30 space-y-2">
             <p className="text-xs text-amber-300">
               {lang === 'EN'
-                ? `Signed in as ${signedInEmail}. Only dangebow@gmail.com has administrator access.`
-                : `साइन इन केलेले खाते: ${signedInEmail}. केवळ dangebow@gmail.com कडे प्रशासकीय अधिकार आहेत.`}
+                ? `Signed in as ${signedInEmail}. Authorized administrator accounts: ${getAdminEmailsDisplay()}.`
+                : `साइन इन केलेले खाते: ${signedInEmail}. अधिकृत प्रशासकीय खाती: ${getAdminEmailsDisplay()}.`}
             </p>
             {onAdminLogout && (
               <button
@@ -550,7 +552,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           Sign in with authorized Google account
         </button>
         <p className="text-[10px] text-gray-500 italic leading-snug">
-          * Access is enforced by Firebase for the verified account dangebow@gmail.com. A local PIN cannot grant database access.
+          * Access is enforced by Firebase for verified administrator accounts: {getAdminEmailsDisplay()}. A local PIN cannot grant database access.
         </p>
       </div>
     );
@@ -671,6 +673,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         >
           <Sliders className="h-3.5 w-3.5" />
           <span>{lang === 'EN' ? '👁️ Module Visibility (Show / Hide)' : '👁️ घटक नियंत्रण (Show / Hide)'}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('visarjan')}
+          className={`px-3 py-1.5 rounded transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${activeTab === 'visarjan' ? 'bg-brand-gold text-brand-maroon font-bold shadow-md' : 'text-amber-300 hover:text-white bg-amber-950/40 border border-amber-500/30'}`}
+        >
+          <Sparkles className="h-3.5 w-3.5 text-brand-saffron animate-pulse" />
+          <span>{lang === 'EN' ? '🎆 Visarjan Banner (CRUD & Show/Hide)' : '🎆 विसर्जन बॅनर (CRUD व Show/Hide)'}</span>
         </button>
       </div>
 
@@ -2008,6 +2017,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* 7. Application Component & Module Visibility (Show / Hide) Tab */}
       {activeTab === 'modules' && <ModuleVisibilityCrudTab lang={lang} />}
+
+      {/* 8. 53rd Year Grand Visarjan Miravnuk Dynamic Banner (CRUD & Show/Hide) Tab */}
+      {activeTab === 'visarjan' && <VisarjanBannerCrudTab lang={lang} userEmail={signedInEmail} />}
 
     </section>
   );

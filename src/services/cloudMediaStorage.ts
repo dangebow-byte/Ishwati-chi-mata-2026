@@ -42,7 +42,7 @@ function sanitizeFileName(name: string): string {
  */
 export async function uploadMediaToCloudStorage(
   file: File,
-  folder: 'gallery_videos' | 'ashtami_videos' | 'gallery_photos' | 'soundboard_audio' | 'site_branding' | 'event_images' = 'gallery_videos',
+  folder: 'gallery_videos' | 'ashtami_videos' | 'gallery_photos' | 'soundboard_audio' | 'site_branding' | 'event_images' | 'visarjan_banners' = 'gallery_videos',
   onProgress?: UploadProgressCallback
 ): Promise<CloudUploadResult> {
   if (!file) {
@@ -59,7 +59,7 @@ export async function uploadMediaToCloudStorage(
   };
   const contentType = file.type || inferredType[extension || ''] || '';
   const isAudio = folder === 'soundboard_audio';
-  const isPhoto = folder === 'gallery_photos' || folder === 'site_branding' || folder === 'event_images';
+  const isPhoto = folder === 'gallery_photos' || folder === 'site_branding' || folder === 'event_images' || folder === 'visarjan_banners';
 
   const allowedTypes = isAudio
     ? ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/ogg', 'audio/aac', 'audio/webm', 'audio/x-m4a']

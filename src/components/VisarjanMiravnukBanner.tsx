@@ -21,6 +21,12 @@ import {
   Zap
 } from 'lucide-react';
 import { shareToWhatsApp } from '../utils/shareUtils';
+import { 
+  VisarjanBannerConfig, 
+  DEFAULT_VISARJAN_BANNER_CONFIG, 
+  subscribeVisarjanBannerConfig, 
+  getCachedVisarjanBannerConfig 
+} from '../services/visarjanBannerService';
 
 interface VisarjanMiravnukBannerProps {
   lang: 'EN' | 'MR';
@@ -63,8 +69,11 @@ interface FountainSpark {
 }
 
 export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ lang, onDismiss, onReopen }) => {
-  // 60-second dynamic flashing countdown
-  const DURATION_SECONDS = 60;
+  // Real-time Visarjan Banner configuration managed via Admin CRUD
+  const [bannerConfig, setBannerConfig] = useState<VisarjanBannerConfig>(() => getCachedVisarjanBannerConfig());
+
+  // Dynamic flashing countdown timer (default 60s or custom configured duration)
+  const DURATION_SECONDS = bannerConfig.durationSeconds || 60;
   const [timeLeft, setTimeLeft] = useState<number>(DURATION_SECONDS);
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [hasEntered, setHasEntered] = useState<boolean>(false);
@@ -73,18 +82,30 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   
   // Real Crackers Sound is enabled by default as preferred
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(bannerConfig.soundEnabledByDefault ?? true);
   const [showReopenFloatingBtn, setShowReopenFloatingBtn] = useState<boolean>(false);
 
   // 3D tilt tracking for card perspective
-  const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const bannerSectionRef = useRef<HTMLElement | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // Extracted clean banner: pure authentic artwork with phone status bar & reply UI completely removed
-  const bannerImgSrc = '/assets/aistudio/visarjan_banner_clean.png';
+  // Banner image source: uses custom configured image URL or authentic extracted artwork
+  const bannerImgSrc = bannerConfig.bannerImageUrl || '/assets/aistudio/visarjan_banner_clean.png';
+
+  // Subscribe to real-time Visarjan banner config
+  useEffect(() => {
+    const unsub = subscribeVisarjanBannerConfig((newCfg) => {
+      setBannerConfig(newCfg);
+      if (typeof newCfg.soundEnabledByDefault === 'boolean') {
+        setSoundEnabled(newCfg.soundEnabledByDefault);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   // Smoothly scroll the window to the Visarjan Banner component
   const scrollToBanner = useCallback(() => {
@@ -119,8 +140,58 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   }, []);
 
   // -------------------------------------------------------------
-  // 2. Reverted & Restored Full Web Audio Firecrackers Synthesizer
+  // 2. High-Fidelity Festive Cracker Sound Effect System (<audio>)
   // -------------------------------------------------------------
+  // Set volume and initiate playback on mount
+  useEffect(() => {
+    if (!audioRef.current) return;
+    audioRef.current.volume = 0.5; // Festive, crisp, clear master volume
+    if (soundEnabled) {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay awaiting user gesture - automatically unlocked by user gesture listeners
+        });
+      }
+    }
+  }, [soundEnabled]);
+
+  // Trigger or resume high-fidelity cracker audio on user interaction
+  const triggerHiFiCrackersAudio = useCallback(() => {
+    if (!soundEnabled || !audioRef.current) return;
+    try {
+      if (audioRef.current.paused) {
+        audioRef.current.volume = 0.5;
+        audioRef.current.play().catch(() => {});
+      }
+    } catch {
+      // Gracefully catch
+    }
+  }, [soundEnabled]);
+
+  // Seamless user gesture unlocker for browser autoplay policies
+  useEffect(() => {
+    const handleGesture = () => {
+      triggerHiFiCrackersAudio();
+      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+        void audioContextRef.current.resume();
+      }
+    };
+
+    window.addEventListener('click', handleGesture, { passive: true });
+    window.addEventListener('touchstart', handleGesture, { passive: true });
+    window.addEventListener('keydown', handleGesture, { passive: true });
+    window.addEventListener('pointerdown', handleGesture, { passive: true });
+
+    return () => {
+      window.removeEventListener('click', handleGesture);
+      window.removeEventListener('touchstart', handleGesture);
+      window.removeEventListener('keydown', handleGesture);
+      window.removeEventListener('pointerdown', handleGesture);
+    };
+  }, [triggerHiFiCrackersAudio]);
+
+  // Optional Web Audio Context helper for synchronized aerial rocket bursts on canvas
   const getAudioContext = useCallback((): AudioContext | null => {
     try {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -138,29 +209,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
     }
   }, []);
 
-  // Unlock AudioContext on first user interaction gesture
-  useEffect(() => {
-    const handleUserGesture = () => {
-      const ctx = getAudioContext();
-      if (ctx && ctx.state === 'suspended') {
-        void ctx.resume();
-      }
-    };
-
-    window.addEventListener('click', handleUserGesture, { passive: true });
-    window.addEventListener('touchstart', handleUserGesture, { passive: true });
-    window.addEventListener('keydown', handleUserGesture, { passive: true });
-    window.addEventListener('pointerdown', handleUserGesture, { passive: true });
-
-    return () => {
-      window.removeEventListener('click', handleUserGesture);
-      window.removeEventListener('touchstart', handleUserGesture);
-      window.removeEventListener('keydown', handleUserGesture);
-      window.removeEventListener('pointerdown', handleUserGesture);
-    };
-  }, [getAudioContext]);
-
-  // Sound 1: Top-shot Rocket Whistle (Ascending frequency sweep)
+  // Top-shot Rocket Whistle Sound (Ascending frequency sweep)
   const playRocketWhistleSound = useCallback(() => {
     if (!soundEnabled) return;
     const ctx = getAudioContext();
@@ -180,8 +229,8 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
       filter.frequency.setValueAtTime(750, now);
       filter.Q.setValueAtTime(3, now);
 
-      gain.gain.setValueAtTime(0.06, now);
-      gain.gain.linearRampToValueAtTime(0.12, now + 0.3);
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.linearRampToValueAtTime(0.08, now + 0.3);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
 
       osc.connect(filter);
@@ -195,7 +244,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
     }
   }, [soundEnabled, getAudioContext]);
 
-  // Sound 2: Aerial Fireworks Burst / Deep Sub-bass Boom + Noise detonation
+  // Aerial Fireworks Burst / Deep Sub-bass Boom + Noise detonation
   const playCrackerBurstSound = useCallback(() => {
     if (!soundEnabled) return;
     const ctx = getAudioContext();
@@ -211,7 +260,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
       osc.frequency.setValueAtTime(130, now);
       osc.frequency.exponentialRampToValueAtTime(32, now + 0.4);
 
-      oscGain.gain.setValueAtTime(0.35, now);
+      oscGain.gain.setValueAtTime(0.18, now);
       oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
 
       osc.connect(oscGain);
@@ -236,7 +285,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
       filter.frequency.exponentialRampToValueAtTime(100, now + 0.38);
 
       const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.3, now);
+      noiseGain.gain.setValueAtTime(0.15, now);
       noiseGain.gain.exponentialRampToValueAtTime(0.005, now + 0.42);
 
       noise.connect(filter);
@@ -248,84 +297,16 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
     }
   }, [soundEnabled, getAudioContext]);
 
-  // Sound 3: Authentic Indian "Ladi" Firecrackers string (Tad-tad-tad-tad burst)
-  const playLadiStringSound = useCallback((count = 6) => {
-    if (!soundEnabled) return;
-    const ctx = getAudioContext();
-    if (!ctx || ctx.state === 'suspended') return;
-
-    for (let i = 0; i < count; i++) {
-      const delayMs = i * (45 + Math.random() * 35);
-      setTimeout(() => {
-        if (!ctx || ctx.state === 'closed') return;
-        try {
-          const now = ctx.currentTime;
-          const popOsc = ctx.createOscillator();
-          const popGain = ctx.createGain();
-
-          popOsc.type = 'triangle';
-          popOsc.frequency.setValueAtTime(280 + Math.random() * 380, now);
-          popOsc.frequency.exponentialRampToValueAtTime(70, now + 0.035);
-
-          popGain.gain.setValueAtTime(0.22, now);
-          popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-
-          popOsc.connect(popGain);
-          popGain.connect(ctx.destination);
-
-          popOsc.start(now);
-          popOsc.stop(now + 0.045);
-        } catch {
-          // Ignore
-        }
-      }, delayMs);
-    }
-  }, [soundEnabled, getAudioContext]);
-
-  // Sound 4: Fountain / Anar Sizzle Crackle
-  const playFountainSizzleSound = useCallback(() => {
-    if (!soundEnabled) return;
-    const ctx = getAudioContext();
-    if (!ctx || ctx.state === 'suspended') return;
-
-    try {
-      const now = ctx.currentTime;
-      const bufferSize = Math.floor(ctx.sampleRate * 0.16);
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.setValueAtTime(2800, now);
-
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.04, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-
-      noise.start(now);
-    } catch {
-      // Ignore
-    }
-  }, [soundEnabled, getAudioContext]);
-
   // Toggle sound with instant feedback and unlocking
   const handleToggleSound = () => {
     const nextState = !soundEnabled;
     setSoundEnabled(nextState);
-    if (nextState) {
-      const ctx = getAudioContext();
-      if (ctx) {
-        playLadiStringSound(5);
+    if (audioRef.current) {
+      if (nextState) {
+        audioRef.current.volume = 0.5;
+        audioRef.current.play().catch(() => {});
+      } else {
+        audioRef.current.pause();
       }
     }
   };
@@ -335,6 +316,19 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   // -------------------------------------------------------------
   const handleAutoClose = useCallback(() => {
     setIsFadingOut(true);
+
+    // Gracefully fade out audio volume over 600ms
+    if (audioRef.current && !audioRef.current.paused) {
+      const fadeInterval = setInterval(() => {
+        if (audioRef.current && audioRef.current.volume > 0.08) {
+          audioRef.current.volume = Math.max(0, audioRef.current.volume - 0.08);
+        } else {
+          clearInterval(fadeInterval);
+          audioRef.current?.pause();
+        }
+      }, 50);
+    }
+
     setTimeout(() => {
       setIsVisible(false);
       setShowReopenFloatingBtn(true);
@@ -344,6 +338,9 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
 
   const handleManualClose = () => {
     setIsFadingOut(true);
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
     setTimeout(() => {
       setIsVisible(false);
       setShowReopenFloatingBtn(true);
@@ -366,7 +363,11 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
     setTimeout(() => {
       scrollToBanner();
       setHasEntered(true);
-      playLadiStringSound(6);
+      if (soundEnabled && audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.volume = 0.5;
+        audioRef.current.play().catch(() => {});
+      }
     }, 50);
 
     // Secondary alignment check once slide-down animation starts
@@ -527,21 +528,11 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
       frameCount++;
 
       // Trigger rockets periodically
-      if (frameCount % 50 === 0) {
+      if (frameCount % 60 === 0) {
         launchRocket();
       }
-      if (frameCount % 85 === 0) {
+      if (frameCount % 95 === 0) {
         launchRocket();
-      }
-
-      // Occasional celebratory ladi firecracker burst
-      if (frameCount % 240 === 0) {
-        playLadiStringSound(5);
-      }
-
-      // Occasional anar sizzle
-      if (frameCount % 110 === 0) {
-        playFountainSizzleSound();
       }
 
       // Emit continuous corner fountains
@@ -622,7 +613,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationId);
     };
-  }, [isVisible, playRocketWhistleSound, playCrackerBurstSound, playLadiStringSound, playFountainSizzleSound]);
+  }, [isVisible, playRocketWhistleSound, playCrackerBurstSound]);
 
   // -------------------------------------------------------------
   // 5. Interactive 3D Perspective Tilt on Mouse Move
@@ -637,6 +628,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
     const rotateX = ((y - centerY) / centerY) * -5; // Max 5deg
     const rotateY = ((x - centerX) / centerX) * 6; // Max 6deg
     setMousePos({ x: rotateY, y: rotateX });
+    triggerHiFiCrackersAudio();
   };
 
   const handleMouseLeave = () => {
@@ -644,13 +636,18 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
   };
 
   const handleShare = () => {
-    playLadiStringSound(3);
+    triggerHiFiCrackersAudio();
+    const eventDate = lang === 'EN' ? (bannerConfig.dateEn || 'Wed 21 Oct 2026') : (bannerConfig.dateMr || 'बुधवार २१ ऑक्टोबर २०२६');
+    const eventTime = lang === 'EN' ? (bannerConfig.timeEn || '6:00 PM') : (bannerConfig.timeMr || 'सायं. ६:०० वाजता');
+    const eventRoute = lang === 'EN' ? (bannerConfig.routeEn || 'Ishwati Prasad Ground to Kalachowki Naka') : (bannerConfig.routeMr || 'इश्वटी प्रसाद पटांगण ते काळाचौकी नाका');
+    const eventAttraction = lang === 'EN' ? (bannerConfig.specialAttractionEn || 'Sai Musical Group Govandi') : (bannerConfig.specialAttractionMr || 'साई म्युझिकल ग्रुप - गोवंडी');
+
     const title = lang === 'EN'
-      ? 'Shree Ishwatichi Mata 53rd Year Grand Visarjan Miravnuk (Wed 21 Oct 2026)'
-      : 'श्री इश्वटीची माता ५३ वे वर्ष भव्य विसर्जन मिरवणूक (बुधवार २१ ऑक्टोबर २०२६)';
+      ? `${bannerConfig.titleEn || 'Shree Ishwatichi Mata 53rd Year Grand Visarjan Miravnuk'} (${eventDate})`
+      : `${bannerConfig.titleMr || 'श्री इश्वटीची माता ५३ वे वर्ष भव्य विसर्जन मिरवणूक'} (${eventDate})`;
     const text = lang === 'EN'
-      ? `Celebrate the Grand Visarjan Sohala of Shree Ishwatichi Mata today at 6:00 PM! Route: Ishwati Prasad Ground to Kalachowki Naka. Special attraction: Sai Musical Group Govandi.`
-      : `श्री इश्वटीची माता ५३ वे वर्ष भव्य विसर्जन मिरवणूक आज सायं. ६:०० वाजता! स्थळ: इश्वटी प्रसाद पटांगण ते काळाचौकी नाका. खास आकर्षण: साई म्युझिकल ग्रुप - गोवंडी. सर्व भाविकांनी उपस्थित राहावे.`;
+      ? `Celebrate the Grand Visarjan Sohala of Shree Ishwatichi Mata today at ${eventTime}! Route: ${eventRoute}. Special attraction: ${eventAttraction}.`
+      : `श्री इश्वटीची माता भव्य विसर्जन मिरवणूक आज ${eventTime}! स्थळ/मार्ग: ${eventRoute}. खास आकर्षण: ${eventAttraction}. सर्व भाविकांनी उपस्थित राहावे.`;
     
     void shareToWhatsApp({
       title,
@@ -659,6 +656,11 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
       lang
     });
   };
+
+  // Master Administrator Show/Hide Gate: If disabled by trustees, suppress rendering
+  if (!bannerConfig.isVisible) {
+    return null;
+  }
 
   // Re-open Floating Badge when auto-closed
   if (!isVisible) {
@@ -682,6 +684,17 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
 
   return (
     <>
+      {/* High-Fidelity Festive Cracker Sound Effect System using <audio> tag */}
+      <audio
+        ref={audioRef}
+        src="/assets/audio/festive_crackers_hifi.mp3"
+        preload="auto"
+        loop
+        playsInline
+        aria-hidden="true"
+        className="hidden"
+      />
+
       <section
         id="visarjan-miravnuk-banner-section"
         ref={bannerSectionRef}
@@ -718,8 +731,8 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
               <span>🎆</span>
               <span>
                 {lang === 'EN' 
-                  ? '53rd Year Grand Visarjan Miravnuk 2026' 
-                  : '५३ वे वर्ष : श्री इश्वटीची माता भव्य विसर्जन सोहळा'}
+                  ? (bannerConfig.titleEn || '53rd Year Grand Visarjan Miravnuk 2026') 
+                  : (bannerConfig.titleMr || '५३ वे वर्ष : श्री इश्वटीची माता भव्य विसर्जन सोहळा')}
               </span>
             </span>
           </div>
@@ -793,26 +806,28 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
           <div className="relative w-full flex items-center justify-center">
 
             {/* Left Decorative Crackers & Anar Flares (Beside Banner) */}
-            <div className="hidden lg:flex flex-col items-center justify-around h-[560px] w-36 py-4 px-2 z-20 pointer-events-none select-none">
-              <div className="flex flex-col items-center gap-1 animate-pulse">
-                <span className="text-2xl drop-shadow-[0_0_12px_rgba(255,200,0,0.9)]">✨</span>
-                <span className="text-xs font-black text-amber-300 tracking-wider">आतिशबाजी</span>
+            {bannerConfig.showDecorations && (
+              <div className="hidden lg:flex flex-col items-center justify-around h-[560px] w-36 py-4 px-2 z-20 pointer-events-none select-none">
+                <div className="flex flex-col items-center gap-1 animate-pulse">
+                  <span className="text-2xl drop-shadow-[0_0_12px_rgba(255,200,0,0.9)]">✨</span>
+                  <span className="text-xs font-black text-amber-300 tracking-wider">आतिशबाजी</span>
+                </div>
+                <div className="p-3 rounded-full bg-amber-500/10 border border-brand-gold/40 shadow-[0_0_20px_rgba(255,180,0,0.3)] animate-spin [animation-duration:12s]">
+                  <Sparkles className="w-8 h-8 text-yellow-300" />
+                </div>
+                <div className="flex flex-col items-center gap-1 text-center">
+                  <Flame className="w-6 h-6 text-brand-saffron animate-bounce" />
+                  <span className="text-[10px] font-bold text-yellow-200">पावन सोहळा</span>
+                </div>
               </div>
-              <div className="p-3 rounded-full bg-amber-500/10 border border-brand-gold/40 shadow-[0_0_20px_rgba(255,180,0,0.3)] animate-spin [animation-duration:12s]">
-                <Sparkles className="w-8 h-8 text-yellow-300" />
-              </div>
-              <div className="flex flex-col items-center gap-1 text-center">
-                <Flame className="w-6 h-6 text-brand-saffron animate-bounce" />
-                <span className="text-[10px] font-bold text-yellow-200">पावन सोहळा</span>
-              </div>
-            </div>
+            )}
 
             {/* Center: The Extracted Pure Banner occupying the Full Central Space with 3D Depth */}
             <div 
               ref={cardRef}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              onClick={() => playLadiStringSound(4)}
+              onClick={triggerHiFiCrackersAudio}
               className="relative rounded-2xl overflow-hidden border-2 sm:border-4 border-brand-gold/85 ring-2 ring-yellow-400/40 transition-transform duration-200 ease-out shadow-[0_25px_65px_rgba(0,0,0,0.95),0_0_45px_rgba(255,153,51,0.5)] group bg-black z-20 max-w-full cursor-pointer"
               style={{
                 transform: `perspective(1200px) rotateX(${mousePos.y}deg) rotateY(${mousePos.x}deg) translateZ(10px)`,
@@ -835,7 +850,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
               <div 
                 onClick={(e) => {
                   e.stopPropagation();
-                  playLadiStringSound(5);
+                  triggerHiFiCrackersAudio();
                   setIsModalOpen(true);
                 }}
                 className="relative w-full flex items-center justify-center p-1.5 sm:p-2 overflow-hidden z-10"
@@ -843,7 +858,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
               >
                 <img 
                   src={bannerImgSrc} 
-                  alt="श्री इश्वटीची माता विसर्जन सोहळा - ५३ वे वर्ष - यंग इश्वटी नवरात्रौत्सव मंडळ"
+                  alt={lang === 'EN' ? (bannerConfig.titleEn || 'Visarjan Sohala') : (bannerConfig.titleMr || 'श्री इश्वटीची माता विसर्जन सोहळा')}
                   className="w-auto h-auto max-h-[500px] sm:max-h-[580px] md:max-h-[640px] lg:max-h-[680px] max-w-full object-contain mx-auto block rounded-xl shadow-2xl transition-transform duration-500 group-hover:scale-[1.015]"
                   loading="eager"
                 />
@@ -863,7 +878,11 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
                 <div className="flex items-center gap-2">
                   <span className="font-black text-brand-gold flex items-center gap-1 text-[11px] sm:text-xs">
                     <Sparkles className="w-3.5 h-3.5 text-brand-saffron" />
-                    <span>{lang === 'EN' ? '53rd Year Visarjan Sohala' : '५३ वे वर्ष विसर्जन सोहळा'}</span>
+                    <span>
+                      {lang === 'EN' 
+                        ? (bannerConfig.subtitleEn || '53rd Year Visarjan Sohala') 
+                        : (bannerConfig.subtitleMr || '५३ वे वर्ष विसर्जन सोहळा')}
+                    </span>
                   </span>
                 </div>
 
@@ -883,7 +902,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      playLadiStringSound(5);
+                      triggerHiFiCrackersAudio();
                       setIsModalOpen(true);
                     }}
                     className="px-2.5 py-1 bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-black rounded-lg text-[11px] transition-all flex items-center gap-1 shadow cursor-pointer hover:scale-105 active:scale-95"
@@ -897,19 +916,21 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
             </div>
 
             {/* Right Decorative Crackers & Anar Flares (Beside Banner) */}
-            <div className="hidden lg:flex flex-col items-center justify-around h-[560px] w-36 py-4 px-2 z-20 pointer-events-none select-none">
-              <div className="flex flex-col items-center gap-1 animate-pulse">
-                <span className="text-2xl drop-shadow-[0_0_12px_rgba(255,200,0,0.9)]">🎆</span>
-                <span className="text-xs font-black text-yellow-300 tracking-wider">टॉप शॉट्स</span>
+            {bannerConfig.showDecorations && (
+              <div className="hidden lg:flex flex-col items-center justify-around h-[560px] w-36 py-4 px-2 z-20 pointer-events-none select-none">
+                <div className="flex flex-col items-center gap-1 animate-pulse">
+                  <span className="text-2xl drop-shadow-[0_0_12px_rgba(255,200,0,0.9)]">🎆</span>
+                  <span className="text-xs font-black text-yellow-300 tracking-wider">टॉप शॉट्स</span>
+                </div>
+                <div className="p-3 rounded-full bg-amber-500/10 border border-brand-gold/40 shadow-[0_0_20px_rgba(255,180,0,0.3)] animate-spin [animation-duration:15s] [animation-direction:reverse]">
+                  <Zap className="w-8 h-8 text-amber-300" />
+                </div>
+                <div className="flex flex-col items-center gap-1 text-center">
+                  <Flame className="w-6 h-6 text-red-500 animate-bounce" />
+                  <span className="text-[10px] font-bold text-amber-200">अनार कारंजे</span>
+                </div>
               </div>
-              <div className="p-3 rounded-full bg-amber-500/10 border border-brand-gold/40 shadow-[0_0_20px_rgba(255,180,0,0.3)] animate-spin [animation-duration:15s] [animation-direction:reverse]">
-                <Zap className="w-8 h-8 text-amber-300" />
-              </div>
-              <div className="flex flex-col items-center gap-1 text-center">
-                <Flame className="w-6 h-6 text-red-500 animate-bounce" />
-                <span className="text-[10px] font-bold text-amber-200">अनार कारंजे</span>
-              </div>
-            </div>
+            )}
 
           </div>
 
@@ -918,22 +939,22 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
             <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
               <span className="font-bold text-yellow-300 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-brand-gold" />
-                <span>{lang === 'EN' ? 'Wed, 21 Oct 2026' : 'बुधवार, २१ ऑक्टोबर २०२६'}</span>
+                <span>{lang === 'EN' ? (bannerConfig.dateEn || 'Wed, 21 Oct 2026') : (bannerConfig.dateMr || 'बुधवार, २१ ऑक्टोबर २०२६')}</span>
               </span>
 
               <span className="text-amber-200 font-semibold flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-brand-saffron" />
-                <span>{lang === 'EN' ? '6:00 PM Onwards' : 'सायंकाळी ६:०० वाजता'}</span>
+                <span>{lang === 'EN' ? (bannerConfig.timeEn || '6:00 PM Onwards') : (bannerConfig.timeMr || 'सायंकाळी ६:०० वाजता')}</span>
               </span>
 
               <span className="text-gray-300 hidden sm:flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-rose-400" />
-                <span>{lang === 'EN' ? 'Ishwati Prasad Ground to Kalachowki Naka' : 'इश्वटी प्रसाद पटांगण ते काळाचौकी नाका'}</span>
+                <span>{lang === 'EN' ? (bannerConfig.routeEn || 'Ishwati Prasad Ground to Kalachowki Naka') : (bannerConfig.routeMr || 'इश्वटी प्रसाद पटांगण ते काळाचौकी नाका')}</span>
               </span>
 
               <span className="text-amber-300 hidden md:flex items-center gap-1.5">
                 <Music className="w-3.5 h-3.5 text-amber-400 animate-bounce" />
-                <span>{lang === 'EN' ? 'Sai Musical Group - Govandi' : 'साई म्युझिकल ग्रुप - गोवंडी'}</span>
+                <span>{lang === 'EN' ? (bannerConfig.specialAttractionEn || 'Sai Musical Group - Govandi') : (bannerConfig.specialAttractionMr || 'साई म्युझिकल ग्रुप - गोवंडी')}</span>
               </span>
             </div>
 
@@ -948,7 +969,7 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
 
               <button
                 onClick={() => {
-                  playLadiStringSound(5);
+                  triggerHiFiCrackersAudio();
                   setIsModalOpen(true);
                 }}
                 className="px-3 py-1 bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-black text-xs rounded-lg flex items-center gap-1 shadow hover:scale-105 transition-all cursor-pointer"
@@ -1021,11 +1042,15 @@ export const VisarjanMiravnukBanner: React.FC<VisarjanMiravnukBannerProps> = ({ 
             <div className="flex items-center gap-3 flex-wrap">
               <span className="font-bold text-yellow-300 flex items-center gap-1">
                 <MapPin className="w-4 h-4 text-rose-400" />
-                {lang === 'EN' ? 'Route: Ishwati Prasad Ground to Kalachowki Naka' : 'मार्ग: इश्वटी प्रसाद पटांगण ते काळाचौकी नाका'}
+                {lang === 'EN' 
+                  ? `Route: ${bannerConfig.routeEn || 'Ishwati Prasad Ground to Kalachowki Naka'}` 
+                  : `मार्ग: ${bannerConfig.routeMr || 'इश्वटी प्रसाद पटांगण ते काळाचौकी नाका'}`}
               </span>
               <span className="text-gray-300 flex items-center gap-1">
                 <Music className="w-4 h-4 text-brand-gold" />
-                {lang === 'EN' ? 'Sai Musical Group - Govandi' : 'साई म्युझिकल ग्रुप - गोवंडी'}
+                {lang === 'EN' 
+                  ? (bannerConfig.specialAttractionEn || 'Sai Musical Group - Govandi') 
+                  : (bannerConfig.specialAttractionMr || 'साई म्युझिकल ग्रुप - गोवंडी')}
               </span>
             </div>
 

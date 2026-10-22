@@ -29,6 +29,7 @@ import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '../firebase';
+import { isAdminEmail } from '../constants/adminConstants';
 import { storage } from '../firebase';
 
 export type AshtamiVideoSourceType = 'official' | 'youtube' | 'instagram' | 'local';
@@ -155,7 +156,7 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
   }, []);
 
   useEffect(() => onAuthStateChanged(auth, (user) => {
-    setCanManageVideo(Boolean(user?.email === 'dangebow@gmail.com' && user.emailVerified));
+    setCanManageVideo(Boolean(isAdminEmail(user?.email) && user.emailVerified));
   }), []);
 
   // Handle local video file upload from device

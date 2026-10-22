@@ -843,4 +843,82 @@ ON CONFLICT (module_key) DO UPDATE SET
 -- 9 sacred days of Navratri conclude.
 -- --------------------------------------------------------------------
 
+-- --------------------------------------------------------------------
+-- 15. Table: visarjan_miravnuk_banner_config
+-- 53rd Year Grand Visarjan Miravnuk 3D Flash Banner Configuration
+-- Full CRUD and Dynamic Show/Hide management by authorized administrators
+-- Authorized Admins: dangebow@gmail.com, ishwatichimata10@gmail.com
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS visarjan_miravnuk_banner_config (
+    id VARCHAR(64) PRIMARY KEY DEFAULT 'primary_visarjan_banner',
+    is_visible BOOLEAN NOT NULL DEFAULT TRUE,
+    banner_image_url TEXT NOT NULL,
+    title_mr VARCHAR(500) NOT NULL,
+    title_en VARCHAR(500) NOT NULL,
+    subtitle_mr VARCHAR(500) NOT NULL,
+    subtitle_en VARCHAR(500) NOT NULL,
+    date_mr VARCHAR(100) NOT NULL,
+    date_en VARCHAR(100) NOT NULL,
+    time_mr VARCHAR(100) NOT NULL,
+    time_en VARCHAR(100) NOT NULL,
+    route_mr VARCHAR(500) NOT NULL,
+    route_en VARCHAR(500) NOT NULL,
+    special_attraction_mr VARCHAR(500) NOT NULL,
+    special_attraction_en VARCHAR(500) NOT NULL,
+    duration_seconds INTEGER NOT NULL DEFAULT 60 CHECK (duration_seconds BETWEEN 10 AND 600),
+    sound_enabled_by_default BOOLEAN NOT NULL DEFAULT TRUE,
+    show_decorations BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255) DEFAULT 'admin'
+);
+
+-- Seed default authentic 53rd Year Visarjan Sohala 2026 record
+INSERT INTO visarjan_miravnuk_banner_config (
+    id, is_visible, banner_image_url,
+    title_mr, title_en, subtitle_mr, subtitle_en,
+    date_mr, date_en, time_mr, time_en,
+    route_mr, route_en, special_attraction_mr, special_attraction_en,
+    duration_seconds, sound_enabled_by_default, show_decorations, updated_by
+)
+VALUES (
+    'primary_visarjan_banner',
+    TRUE,
+    '/assets/aistudio/visarjan_banner_clean.png',
+    '५३ वे वर्ष : श्री इश्वटीची माता भव्य विसर्जन सोहळा',
+    '53rd Year Grand Visarjan Miravnuk 2026',
+    '५३ वे वर्ष विसर्जन सोहळा',
+    '53rd Year Visarjan Sohala',
+    'बुधवार, २१ ऑक्टोबर २०२६',
+    'Wed, 21 Oct 2026',
+    'सायंकाळी ६:०० वाजता',
+    '6:00 PM Onwards',
+    'इश्वटी प्रसाद पटांगण ते काळाचौकी नाका',
+    'Ishwati Prasad Ground to Kalachowki Naka',
+    'साई म्युझिकल ग्रुप - गोवंडी',
+    'Sai Musical Group - Govandi',
+    60,
+    TRUE,
+    TRUE,
+    'ishwatichimata10@gmail.com'
+)
+ON CONFLICT (id) DO UPDATE SET
+    banner_image_url = EXCLUDED.banner_image_url,
+    title_mr = EXCLUDED.title_mr,
+    title_en = EXCLUDED.title_en,
+    subtitle_mr = EXCLUDED.subtitle_mr,
+    subtitle_en = EXCLUDED.subtitle_en,
+    date_mr = EXCLUDED.date_mr,
+    date_en = EXCLUDED.date_en,
+    time_mr = EXCLUDED.time_mr,
+    time_en = EXCLUDED.time_en,
+    route_mr = EXCLUDED.route_mr,
+    route_en = EXCLUDED.route_en,
+    special_attraction_mr = EXCLUDED.special_attraction_mr,
+    special_attraction_en = EXCLUDED.special_attraction_en,
+    duration_seconds = EXCLUDED.duration_seconds,
+    sound_enabled_by_default = EXCLUDED.sound_enabled_by_default,
+    show_decorations = EXCLUDED.show_decorations,
+    updated_at = CURRENT_TIMESTAMP;
+
+
 
