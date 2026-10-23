@@ -922,3 +922,132 @@ ON CONFLICT (id) DO UPDATE SET
 
 
 
+
+-- ============================================================================
+-- 15. HOME LIVE VIDEOS (GOOGLE-STYLE SCROLLABLE LIVE VIDEO GALLERY)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS home_live_videos (
+    id VARCHAR(128) PRIMARY KEY,
+    title_mr VARCHAR(500) NOT NULL,
+    title_en VARCHAR(500) NOT NULL,
+    description_mr TEXT,
+    description_en TEXT,
+    source_type VARCHAR(50) NOT NULL DEFAULT 'cloud',
+    url TEXT NOT NULL,
+    embed_url TEXT,
+    storage_path TEXT,
+    thumbnail_url TEXT,
+    duration VARCHAR(50) DEFAULT '0:30',
+    is_live BOOLEAN DEFAULT FALSE,
+    aspect_ratio VARCHAR(20) DEFAULT 'portrait',
+    category VARCHAR(50) DEFAULT 'aarti',
+    views_count INT DEFAULT 0,
+    likes_count INT DEFAULT 0,
+    order_index INT DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO home_live_videos (
+    id, title_mr, title_en, description_mr, description_en, source_type,
+    url, embed_url, thumbnail_url, duration, is_live, aspect_ratio, category,
+    views_count, likes_count, order_index
+) VALUES
+(
+    'hlv-1-adarsh-shinde-aarti',
+    'अष्टमी - धर्मवीर दुर्गा महाआरती | गायक: आदर्श शिंदे',
+    'Ashtami - Dharmaveer Durga Maha Aarti | Adarsh Shinde',
+    'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ - अधिकृत पावन महाआरती व दुर्गा स्तुती.',
+    'Official Ashtami Maha Aarti and Durga Stuti streaming live.',
+    'youtube',
+    'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
+    'https://www.youtube-nocookie.com/embed/28TJIom9GFw?enablejsapi=1&rel=0&modestbranding=1',
+    'https://img.youtube.com/vi/28TJIom9GFw/maxresdefault.jpg',
+    '04:32',
+    FALSE,
+    'landscape',
+    'aarti',
+    15420,
+    1890,
+    0
+),
+(
+    'hlv-2-visarjan-sohala-reel',
+    'श्री विसर्जन सोहळा २०२४ - ५३ वे वर्ष भव्य मिरवणूक',
+    'Shree Visarjan Sohala 2024 - 53rd Year Grand Procession Reel',
+    'मंडळाचे ५३ वे वर्ष - पारंपरिक वाद्ये, ढोल ताशा व विसर्जन घाट मिरवणूक क्षणचित्रे.',
+    '53rd year festival grand visarjan procession highlights and dhol tasha.',
+    'cloud',
+    '/assets/aistudio/image_c72c833a.png',
+    NULL,
+    '/assets/aistudio/image_c72c833a.png',
+    '00:29',
+    TRUE,
+    'portrait',
+    'visarjan',
+    8940,
+    1240,
+    1
+),
+(
+    'hlv-3-dhol-tasha-pathak',
+    'पारंपरिक ढोल-ताशा पथक व भव्य आतषबाजी',
+    'Traditional Dhol Tasha Pathak & Firework Spectacle',
+    'ईश्वटी चौक व मुख्य बाजारपेठ मार्गावर नेत्रदीपक आतषबाजी व नादब्रह्म वादन.',
+    'Spectacular fireworks and resonant dhol tasha beats through Ishwati Chowk.',
+    'youtube',
+    'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
+    'https://www.youtube-nocookie.com/embed/28TJIom9GFw?enablejsapi=1&rel=0&modestbranding=1',
+    NULL,
+    '03:15',
+    FALSE,
+    'landscape',
+    'miravnuk',
+    11250,
+    1480,
+    2
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================================
+-- 16. NAVRATRI DAILY COLOR THEMES CONFIGURATION MAP (DAYS 1 TO 9 + 10)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS navratri_daily_themes (
+    day_number INT PRIMARY KEY CHECK (day_number BETWEEN 1 AND 10),
+    tithi_mr VARCHAR(100) NOT NULL,
+    tithi_en VARCHAR(100) NOT NULL,
+    goddess_mr VARCHAR(100) NOT NULL,
+    goddess_en VARCHAR(100) NOT NULL,
+    color_name_mr VARCHAR(100) NOT NULL,
+    color_name_en VARCHAR(100) NOT NULL,
+    color_hex VARCHAR(20) NOT NULL,
+    primary_color VARCHAR(20) NOT NULL,
+    secondary_color VARCHAR(20) NOT NULL,
+    maroon_tone VARCHAR(20) NOT NULL,
+    red_tone VARCHAR(20) NOT NULL,
+    glow_color VARCHAR(50) NOT NULL,
+    significance_mr TEXT NOT NULL,
+    significance_en TEXT NOT NULL
+);
+
+INSERT INTO navratri_daily_themes (
+    day_number, tithi_mr, tithi_en, goddess_mr, goddess_en, color_name_mr, color_name_en,
+    color_hex, primary_color, secondary_color, maroon_tone, red_tone, glow_color,
+    significance_mr, significance_en
+) VALUES
+(1, 'पहिली माळ - प्रतिपदा', 'Day 1 - Pratipada', 'मां शैलपुत्री', 'Maa Shailaputri', 'पिवळा (Royal Yellow)', 'Royal Yellow', '#EAB308', '#F59E0B', '#FBBF24', '#361802', '#B45309', 'rgba(234, 179, 8, 0.35)', 'आनंद, उत्साह व सकारात्मक ऊर्जेचे प्रतीक. घटस्थापना दिवस.', 'Symbol of joy, enthusiasm, and divine beginnings on Ghatasthapana.'),
+(2, 'दुसरी माळ - द्वितीया', 'Day 2 - Dwitiya', 'मां ब्रह्मचारिणी', 'Maa Brahmacharini', 'हिरवा (Emerald Green)', 'Emerald Green', '#10B981', '#059669', '#34D399', '#052919', '#047857', 'rgba(16, 185, 129, 0.35)', 'प्रकृती, समृद्धी, शांतता व नव्या संकल्पांचे प्रतीक.', 'Represents nature, prosperity, inner peace, and penance.'),
+(3, 'तिसरी माळ - तृतीया', 'Day 3 - Tritiya', 'मां चंद्रघंटा', 'Maa Chandraghanta', 'राखाडी (Pearl Slate)', 'Pearl Slate', '#94A3B8', '#64748B', '#CBD5E1', '#1A222F', '#475569', 'rgba(148, 163, 184, 0.35)', 'धैर्य, शौर्य व नकारात्मकतेवर विजयाचे प्रतीक.', 'Symbolizes courage, valor, and calm determination.'),
+(4, 'चौथी माळ - चतुर्थी', 'Day 4 - Chaturthi', 'मां कुष्मांडा', 'Maa Kushmanda', 'नारंगी (Sacred Orange)', 'Sacred Orange', '#F97316', '#EA580C', '#FB923C', '#421406', '#C2410C', 'rgba(249, 115, 22, 0.35)', 'दिव्य प्रकाश, ऊर्जा, आरोग्य व विश्वाची निर्मिती.', 'Radiance, cosmic energy, and luminous warmth.'),
+(5, 'पाचवी माळ - पंचमी', 'Day 5 - Panchami', 'मां स्कंदमाता', 'Maa Skandamata', 'पांढरा (Divine White)', 'Divine White', '#F8FAFC', '#E2E8F0', '#D4AF37', '#2A101C', '#FDA4AF', 'rgba(248, 250, 252, 0.35)', 'शुद्धता, वात्सल्य, ज्ञान व निष्कलंक भक्ती.', 'Purity, motherly love, wisdom, and profound devotion.'),
+(6, 'सहावी माळ - षष्ठी', 'Day 6 - Shashthi', 'मां कात्यायनी', 'Maa Katyayani', 'लाल (Kumkum Red)', 'Kumkum Red', '#EF4444', '#DC2626', '#F87171', '#450707', '#991B1B', 'rgba(239, 68, 68, 0.35)', 'पराक्रम, असीम शक्ती, महिषासुरमर्दिनी स्वरूप.', 'Fierce courage, supreme power, and victory over evil.'),
+(7, 'सातवी माळ - सप्तमी', 'Day 7 - Saptami', 'मां कालरात्री', 'Maa Kalaratri', 'शाही निळा (Royal Blue)', 'Royal Blue', '#3B82F6', '#2563EB', '#60A5FA', '#0E172C', '#1D4ED8', 'rgba(59, 130, 246, 0.35)', 'अंधकाराचा नाश करणारी, निर्भयता व संकटनाशक शक्ती.', 'Destruction of darkness, fearlessness, and absolute protection.'),
+(8, 'आठवी माळ - अष्टमी', 'Day 8 - Ashtami', 'मां महागौरी', 'Maa Mahagauri', 'गुलाबी (Lotus Pink)', 'Lotus Pink', '#EC4899', '#DB2777', '#F472B6', '#430623', '#BE185D', 'rgba(236, 72, 153, 0.35)', 'करुणा, सौंदर्य, मोक्ष, धर्मवीर महाआरती व पावन हवन.', 'Compassion, grace, auspiciousness, and the sacred Ashtami Maha Aarti.'),
+(9, 'नववी माळ - नवमी', 'Day 9 - Navami', 'मां सिद्धिदात्री', 'Maa Siddhidatri', 'जांभळा (Imperial Purple)', 'Imperial Purple', '#A855F7', '#9333EA', '#C084FC', '#34055B', '#7E22CE', 'rgba(168, 85, 247, 0.35)', 'सर्व सिद्धी, कार्यपूर्ती, ज्ञान व आशिर्वादांचे सर्वोच्च रूप.', 'Bestower of all spiritual achievements and divine blessings.'),
+(10, 'दसरा - विजयादशमी / विसर्जन', 'Day 10 - Vijayadashami / Visarjan', 'श्री ईश्वटीची माता', 'Shree Ishwati Mata', 'भगवा व सुवर्ण (Saffron Gold)', 'Saffron Gold', '#FF9933', '#FF9933', '#D4AF37', '#4A0404', '#8B0000', 'rgba(255, 153, 51, 0.35)', 'विजयाचा सोहळा, सीमोल्लंघन, आपट्याची पाने व भव्य विसर्जन मिरवणूक.', 'Grand Victory celebration, Vijayadashami, and auspicious Visarjan Miravnuk.')
+ON CONFLICT (day_number) DO UPDATE SET
+    tithi_mr = EXCLUDED.tithi_mr,
+    color_name_mr = EXCLUDED.color_name_mr,
+    primary_color = EXCLUDED.primary_color,
+    secondary_color = EXCLUDED.secondary_color,
+    maroon_tone = EXCLUDED.maroon_tone;

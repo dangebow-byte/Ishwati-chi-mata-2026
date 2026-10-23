@@ -84,6 +84,9 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [tempLocalVideo, setTempLocalVideo] = useState<{ storagePath: string; url: string; name: string; size: number } | null>(null);
+  const [detectedOrientation, setDetectedOrientation] = useState<'portrait' | 'landscape' | 'auto'>('auto');
+  const [fitMode, setFitMode] = useState<'cover' | 'contain'>('cover');
+  const [aspectRatioOverride, setAspectRatioOverride] = useState<'auto' | 'portrait' | 'landscape'>('auto');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Sync config to Firestore so all visitors across all devices see the updated video in real-time
@@ -299,11 +302,22 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
     await persistConfig(DEFAULT_OFFICIAL_CONFIG);
   };
 
+  // Determine if active video is portrait (vertical 9:16 or reel) or landscape (16:9)
+  const isPortrait =
+    aspectRatioOverride === 'portrait' ||
+    (aspectRatioOverride === 'auto' && (
+      config.type === 'instagram' ||
+      Boolean(config.url?.includes('/shorts/')) ||
+      detectedOrientation === 'portrait'
+    ));
+
+  const maxContainerWidth = isPortrait ? 'max-w-md sm:max-w-lg' : 'max-w-4xl';
+
   return (
-    <div className={`space-y-2.5 ${className}`}>
+    <div className={`space-y-2.5 w-full flex flex-col items-center justify-center ${className}`}>
       
-      {/* Video Source Control Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-black/60 p-2 sm:p-2.5 rounded-xl border border-brand-gold/30 text-xs">
+      {/* Video Source Control Toolbar - Centralized */}
+      <div className={`flex flex-wrap items-center justify-between gap-2 bg-black/60 p-2 sm:p-2.5 rounded-xl border border-brand-gold/30 text-xs w-full ${maxContainerWidth} mx-auto`}>
         <div className="flex items-center gap-2 min-w-0">
           <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
             config.type === 'official'
@@ -319,12 +333,32 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
             {config.type === 'instagram' && <span>📱 इन्स्टाग्राम (Instagram)</span>}
             {config.type === 'local' && <span>☁️ क्लाउड व्हिडिओ (Cloud Upload)</span>}
           </span>
-          <span className="text-[11px] text-gray-300 truncate hidden xs:inline max-w-[200px] sm:max-w-xs font-sans">
+          <span className="text-[11px] text-gray-300 truncate hidden xs:inline max-w-[160px] sm:max-w-xs font-sans">
             {lang === 'EN' ? config.title : config.titleMarathi}
           </span>
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+          {/* Fit Mode Toggle: Occupy Full Component Window vs Fit Original Aspect */}
+          <button
+            type="button"
+            onClick={() => setFitMode(prev => (prev === 'cover' ? 'contain' : 'cover'))}
+            className="px-2 py-1 rounded-lg bg-black/50 hover:bg-black/80 text-brand-gold border border-brand-gold/40 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all"
+            title={fitMode === 'cover' ? (lang === 'EN' ? 'Fit Whole Video' : 'मूळ आकार पहा') : (lang === 'EN' ? 'Fill Full Component Window' : 'पूर्ण जागा व्यापून पहा')}
+          >
+            <span>{fitMode === 'cover' ? '⛶ पूर्ण जागा' : '🔲 मूळ आकार'}</span>
+          </button>
+
+          {/* Orientation Toggle: Switch Aspect Ratio */}
+          <button
+            type="button"
+            onClick={() => setAspectRatioOverride(prev => (prev === 'portrait' ? 'landscape' : prev === 'landscape' ? 'auto' : 'portrait'))}
+            className="px-2 py-1 rounded-lg bg-black/50 hover:bg-black/80 text-brand-saffron border border-brand-saffron/40 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all"
+            title={lang === 'EN' ? 'Toggle Aspect Ratio (Reel vs Widescreen)' : 'व्हिडिओ आकार बदला (रील / लँडस्केप)'}
+          >
+            <span>{isPortrait ? '📱 रील' : '📺 वाइड'}</span>
+          </button>
+
           {canManageVideo && config.type !== 'official' && (
             <button
               onClick={handleResetToOfficial}
@@ -336,35 +370,45 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
             </button>
           )}
 
-          {canManageVideo && <button
-            onClick={() => {
-              setSelectedSourceType(config.type);
-              setInputUrl(config.type !== 'official' && config.type !== 'local' ? config.url : '');
-              setInputTitleMR(config.titleMarathi || '');
-              setInputTitleEN(config.title || '');
-              setTempLocalVideo(null);
-              if (fileInputRef.current) fileInputRef.current.value = '';
-              setErrorMsg(null);
-              setIsModalOpen(true);
-            }}
-            className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-sans font-black text-[11px] shadow hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
-          >
-            <Upload className="h-3 w-3" />
-            <span>{lang === 'EN' ? 'Upload / Change Video' : 'व्हिडिओ बदला / अपलोड करा'}</span>
-          </button>}
+          {canManageVideo && (
+            <button
+              onClick={() => {
+                setSelectedSourceType(config.type);
+                setInputUrl(config.type !== 'official' && config.type !== 'local' ? config.url : '');
+                setInputTitleMR(config.titleMarathi || '');
+                setInputTitleEN(config.title || '');
+                setTempLocalVideo(null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+                setErrorMsg(null);
+                setIsModalOpen(true);
+              }}
+              className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-brand-gold to-brand-saffron text-brand-maroon font-sans font-black text-[11px] shadow hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+            >
+              <Upload className="h-3 w-3" />
+              <span>{lang === 'EN' ? 'Upload / Change' : 'व्हिडिओ बदला / अपलोड करा'}</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Main Video Viewport */}
-      <div className="relative w-full aspect-video rounded-xl overflow-hidden border-2 border-brand-gold/60 shadow-[0_4px_25px_rgba(0,0,0,0.8)] bg-black">
+      {/* Main Video Viewport - Centralized and Occupies Full Component Window */}
+      <div className={`relative w-full ${maxContainerWidth} ${
+        isPortrait
+          ? 'aspect-[9/16] min-h-[500px] sm:min-h-[620px] max-h-[760px]'
+          : 'aspect-video min-h-[300px] sm:min-h-[440px]'
+      } mx-auto rounded-xl overflow-hidden border-2 border-brand-gold/60 shadow-[0_4px_30px_rgba(0,0,0,0.85)] bg-black flex items-center justify-center`}>
         {config.type === 'local' ? (
-          /* 1. Local Device Uploaded Video Player */
+          /* 1. Local Device / Cloud Uploaded Video Player */
           resolvedLocalBlobUrl ? (
             <AmbientVideoPlayer
               src={resolvedLocalBlobUrl}
               title={lang === 'EN' ? config.title : config.titleMarathi}
               controls
               playsInline
+              fitMode={fitMode}
+              onVideoRatioChange={(info) => {
+                setDetectedOrientation(info.isPortrait ? 'portrait' : 'landscape');
+              }}
               containerClassName="w-full h-full"
               aspectRatioClass="h-full w-full"
             />
@@ -406,15 +450,15 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
         )}
       </div>
 
-      {/* Sub-status Strip */}
-      <div className="flex items-center justify-between text-[11px] text-gray-400 font-sans px-1">
+      {/* Sub-status Strip - Centralized with Video */}
+      <div className={`flex items-center justify-between text-[11px] text-gray-400 font-sans px-1 w-full ${maxContainerWidth} mx-auto`}>
         <span className="flex items-center gap-1.5 text-brand-gold font-bold">
           <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
           <span>
             {config.type === 'official'
               ? (lang === 'EN' ? 'Direct Official YouTube Stream' : 'अधिकृत यूट्यूब पावन महाआरती')
               : config.type === 'local'
-              ? (lang === 'EN' ? 'Local Device Video Player' : 'डिव्हाइसवरून अपलोड केलेला व्हिडिओ')
+              ? (lang === 'EN' ? 'Centralized Full-Window Video Player' : 'केंद्रीकृत पूर्ण-जागा व्हिडिओ प्लेअर')
               : config.type === 'instagram'
               ? (lang === 'EN' ? 'Devotional Instagram Reel' : 'इन्स्टाग्राम पावन रील')
               : (lang === 'EN' ? 'Custom YouTube Stream' : 'सानुकूल यूट्यूब पावन व्हिडिओ')}

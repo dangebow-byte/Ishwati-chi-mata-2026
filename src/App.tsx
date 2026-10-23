@@ -38,6 +38,8 @@ import { AshtamiFeaturedVideoSection } from './components/AshtamiFeaturedVideoSe
 import { VisarjanMiravnukBanner } from './components/VisarjanMiravnukBanner';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
 import { DeviMataImageManagerModal } from './components/DeviMataImageManagerModal';
+import { NavratriDailyThemeBar } from './components/NavratriDailyThemeBar';
+import { HomeLiveVideoGallery } from './components/HomeLiveVideoGallery';
 import {
   DeviMataImageItem,
   subscribeDeviMataImages,
@@ -805,6 +807,9 @@ export default function App() {
         moduleVisibility={moduleVisibility}
       />
 
+      {/* Automated Daily Theme Rotation Bar based on Navratri Day (1st - 9th) */}
+      <NavratriDailyThemeBar lang={lang} />
+
       {/* Resilient Quota Notification Banner */}
       {quotaWarning && (
         <div className="w-full bg-amber-950/90 border-b border-amber-500/40 text-amber-200 text-xs py-2 z-40 backdrop-blur-md">
@@ -1066,12 +1071,19 @@ export default function App() {
               </div>
             )}
 
-            {/* Official Ashtami / Aarti Featured Home Page Video with Ambient Blurred Backdrop */}
+            {/* Official Ashtami / Aarti Featured Home Page Video with Ambient Blurred Backdrop - Centralized */}
             {isModuleVisible(moduleVisibility, 'ashtami_featured_video') && (
-              <div id="ashtami-featured-video-section" className="scroll-mt-24">
-                <AshtamiFeaturedVideoSection lang={lang} />
+              <div id="ashtami-featured-video-section" className="scroll-mt-24 w-full flex flex-col items-center justify-center py-2">
+                <div className="w-full max-w-5xl mx-auto flex flex-col items-center justify-center">
+                  <AshtamiFeaturedVideoSection lang={lang} />
+                </div>
               </div>
             )}
+
+            {/* Google-Style Scrollable Live Video Gallery with Multiple Upload */}
+            <div id="home-live-video-gallery-section" className="scroll-mt-24 w-full">
+              <HomeLiveVideoGallery lang={lang} />
+            </div>
 
             {/* General Highlights about the Temple Origin */}
             {isModuleVisible(moduleVisibility, 'about_heritage') && (

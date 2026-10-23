@@ -1238,7 +1238,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({
           role="dialog"
           aria-modal="true"
         >
-          <div className="relative w-full max-w-3xl bg-gradient-to-b from-[#2a0101] via-black to-[#200101] border-2 border-brand-gold/70 rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto">
+          <div className="relative w-full max-w-4xl bg-gradient-to-b from-[#2a0101] via-black to-[#200101] border-2 border-brand-gold/70 rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4 my-auto mx-auto flex flex-col items-center">
             {/* Close button */}
             <button
               onClick={() => setShowAshtamiAartiModal(false)}
@@ -1249,7 +1249,7 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({
             </button>
 
             {/* Modal Header */}
-            <div className="flex items-center gap-3 border-b border-brand-gold/30 pb-3 pr-10">
+            <div className="flex items-center gap-3 border-b border-brand-gold/30 pb-3 pr-10 w-full">
               <span className="text-2xl">🪔</span>
               <div>
                 <h3 className="font-sans font-black text-base sm:text-xl text-brand-gold">
@@ -1263,11 +1263,13 @@ export const LiveDarshanSection: React.FC<LiveDarshanSectionProps> = ({
               </div>
             </div>
 
-            {/* Dynamic Player with Local Upload, YouTube & Instagram Options */}
-            <AshtamiFeaturedVideoSection
-              lang={lang}
-              className="w-full"
-            />
+            {/* Dynamic Player with Local Upload, YouTube & Instagram Options - Centralized & Occupies Full Component Window */}
+            <div className="w-full flex justify-center">
+              <AshtamiFeaturedVideoSection
+                lang={lang}
+                className="w-full"
+              />
+            </div>
 
             {/* Devotional Shloka and Actions */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-white/10 text-xs text-gray-300">

@@ -1693,6 +1693,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                         title={lang === 'EN' ? (item.titleEN || item.titleMR) : item.titleMR}
                         controls={!isReorderMode}
                         playsInline
+                        fitMode="cover"
                         containerClassName="w-full h-full"
                         aspectRatioClass="h-full w-full"
                       />
@@ -2095,6 +2096,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                                 src={addForm.url}
                                 controls
                                 playsInline
+                                fitMode="cover"
                                 containerClassName="w-full h-full"
                                 aspectRatioClass="h-full w-full"
                               />
@@ -2411,6 +2413,7 @@ export const MasonryGallery: React.FC<MasonryGalleryProps> = ({ lang, canManageM
                                 src={editForm.url}
                                 controls
                                 playsInline
+                                fitMode="cover"
                                 containerClassName="w-full h-full"
                                 aspectRatioClass="h-full w-full"
                               />

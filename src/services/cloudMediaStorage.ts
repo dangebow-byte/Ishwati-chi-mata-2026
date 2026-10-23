@@ -42,7 +42,7 @@ function sanitizeFileName(name: string): string {
  */
 export async function uploadMediaToCloudStorage(
   file: File,
-  folder: 'gallery_videos' | 'ashtami_videos' | 'gallery_photos' | 'soundboard_audio' | 'site_branding' | 'event_images' | 'visarjan_banners' = 'gallery_videos',
+  folder: 'gallery_videos' | 'ashtami_videos' | 'home_videos' | 'gallery_photos' | 'soundboard_audio' | 'site_branding' | 'event_images' | 'visarjan_banners' = 'gallery_videos',
   onProgress?: UploadProgressCallback
 ): Promise<CloudUploadResult> {
   if (!file) {

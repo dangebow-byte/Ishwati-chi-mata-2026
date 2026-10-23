@@ -20,6 +20,8 @@ export interface AmbientVideoPlayerProps {
   videoClassName?: string;
   containerClassName?: string;
   aspectRatioClass?: string;
+  fitMode?: 'cover' | 'contain' | 'fill';
+  onVideoRatioChange?: (info: { isPortrait: boolean; ratio: number; width: number; height: number }) => void;
   onPlay?: () => void;
   onPause?: () => void;
   onEnded?: () => void;
@@ -61,10 +63,9 @@ if (typeof window !== 'undefined') {
 
 /**
  * AmbientVideoPlayer:
- * Solves the desktop pillarbox / black bars issue for portrait/vertical reels and square videos.
- * Keeps the entire original foreground video 100% visible and uncropped (object-contain),
- * and fills the remaining container space on left/right/top/bottom with a synchronized,
- * smoothly blurred, atmospheric ambient version of the video (object-cover + blur-2xl).
+ * Centralized, responsive video player that solves pillarbox / black bars issue.
+ * Supports 'cover' (fills full component window edge-to-edge) and 'contain' (fit uncropped)
+ * with synchronized atmospheric ambient glow filling surrounding space.
  */
 export const AmbientVideoPlayer: React.FC<AmbientVideoPlayerProps> = ({
   src,
@@ -80,6 +81,8 @@ export const AmbientVideoPlayer: React.FC<AmbientVideoPlayerProps> = ({
   aspectRatioClass = 'aspect-video',
   playsInline = true,
   preload = 'metadata',
+  fitMode = 'cover',
+  onVideoRatioChange,
   onPlay,
   onPause,
   onEnded
@@ -90,6 +93,12 @@ export const AmbientVideoPlayer: React.FC<AmbientVideoPlayerProps> = ({
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [activeFitMode, setActiveFitMode] = useState<'cover' | 'contain' | 'fill'>(fitMode);
+
+  // Keep activeFitMode synced if external prop changes
+  useEffect(() => {
+    setActiveFitMode(fitMode);
+  }, [fitMode]);
 
   // Synchronize playback between main video and ambient blurred backdrop video
   const handlePlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -149,6 +158,21 @@ export const AmbientVideoPlayer: React.FC<AmbientVideoPlayerProps> = ({
     onEnded?.();
   };
 
+  // Inspect video natural resolution and orientation
+  const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    if (video.videoWidth && video.videoHeight) {
+      const isPortrait = video.videoHeight > video.videoWidth;
+      const ratio = video.videoWidth / video.videoHeight;
+      onVideoRatioChange?.({
+        isPortrait,
+        ratio,
+        width: video.videoWidth,
+        height: video.videoHeight
+      });
+    }
+  };
+
   // Toggle container fullscreen so the blurred ambient backdrop expands with it
   const handleToggleFullscreen = async () => {
     const container = containerRef.current;
@@ -173,6 +197,12 @@ export const AmbientVideoPlayer: React.FC<AmbientVideoPlayerProps> = ({
     }
   };
 
+  // Toggle between filling the entire component window vs fitting original aspect ratio
+  const handleToggleFitMode = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveFitMode(prev => (prev === 'cover' ? 'contain' : 'cover'));
+  };
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(Boolean(document.fullscreenElement === containerRef.current));
@@ -188,12 +218,12 @@ export const AmbientVideoPlayer: React.FC<AmbientVideoPlayerProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full overflow-hidden bg-black flex items-center justify-center select-none ${
+      className={`relative w-full h-full overflow-hidden bg-black flex items-center justify-center select-none ${
         isFullscreen ? 'fixed inset-0 z-50 h-screen w-screen' : aspectRatioClass
       } ${containerClassName} ${className}`}
       title={title}
     >
-      {/* 1. Synchronized Ambient Blurred Backdrop (Fills Left/Right/Top/Bottom Space with no black bars) */}
+      {/* 1. Synchronized Ambient Blurred Backdrop (Fills Left/Right/Top/Bottom Space seamlessly) */}
       <video
         ref={bgVideoRef}
         src={src}
@@ -207,10 +237,10 @@ export const AmbientVideoPlayer: React.FC<AmbientVideoPlayerProps> = ({
       />
 
       {/* 2. Soft Dark Vignette Overlay for High-Contrast Viewing */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-black/60 pointer-events-none z-[1]" />
-      <div className="absolute inset-0 bg-radial from-transparent via-black/20 to-black/60 pointer-events-none z-[1]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/60 pointer-events-none z-[1]" />
+      <div className="absolute inset-0 bg-radial from-transparent via-black/15 to-black/50 pointer-events-none z-[1]" />
 
-      {/* 3. Original Uncropped Foreground Video (Guaranteed 100% visible from top to bottom) */}
+      {/* 3. Centralized Foreground Video (Occupies Full Component Window when activeFitMode === 'cover') */}
       <video
         ref={mainVideoRef}
         src={src}
@@ -221,27 +251,46 @@ export const AmbientVideoPlayer: React.FC<AmbientVideoPlayerProps> = ({
         muted={muted}
         playsInline={playsInline}
         preload={preload}
+        onLoadedMetadata={handleLoadedMetadata}
         onPlay={handlePlay}
         onPause={handlePause}
         onSeeked={handleSeeked}
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleEnded}
-        className={`relative z-10 max-h-full max-w-full w-auto h-auto object-contain mx-auto shadow-2xl drop-shadow-[0_8px_30px_rgba(0,0,0,0.9)] ${videoClassName}`}
+        className={`relative z-10 mx-auto transition-all duration-300 ${
+          activeFitMode === 'cover'
+            ? 'w-full h-full object-cover object-center'
+            : 'max-h-full max-w-full w-auto h-auto object-contain object-center shadow-2xl drop-shadow-[0_8px_30px_rgba(0,0,0,0.9)]'
+        } ${videoClassName}`}
       >
         Your browser does not support HTML5 video playback.
       </video>
 
-      {/* 4. Ambient Fullscreen Toggle Overlay Button */}
+      {/* 4. Action Overlay: Fit Mode Toggle & Ambient Fullscreen Controls */}
       {controls && (
-        <button
-          type="button"
-          onClick={handleToggleFullscreen}
-          className="absolute top-3 right-3 z-20 p-2 rounded-xl bg-black/70 hover:bg-black/90 text-brand-gold hover:text-white border border-brand-gold/40 shadow-lg backdrop-blur-md cursor-pointer transition-all hover:scale-105 active:scale-95"
-          title={isFullscreen ? 'Exit Fullscreen' : 'Ambient Fullscreen'}
-        >
-          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-        </button>
+        <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 pointer-events-auto">
+          {/* Fit Mode Toggle Button: Occupy Full Component Window vs Fit Original Aspect */}
+          <button
+            type="button"
+            onClick={handleToggleFitMode}
+            className="px-2.5 py-1 rounded-xl bg-black/75 hover:bg-black/95 text-brand-gold hover:text-white border border-brand-gold/40 shadow-lg backdrop-blur-md cursor-pointer transition-all hover:scale-105 active:scale-95 text-[11px] font-bold flex items-center gap-1"
+            title={activeFitMode === 'cover' ? 'Switch to Fit Original Aspect (मूळ आकार)' : 'Occupy Full Component Window (पूर्ण जागा भरा)'}
+          >
+            <span>{activeFitMode === 'cover' ? '⛶ पूर्ण जागा (Fill)' : '🔲 मूळ आकार (Fit)'}</span>
+          </button>
+
+          {/* Fullscreen Toggle Button */}
+          <button
+            type="button"
+            onClick={handleToggleFullscreen}
+            className="p-2 rounded-xl bg-black/75 hover:bg-black/95 text-brand-gold hover:text-white border border-brand-gold/40 shadow-lg backdrop-blur-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+            title={isFullscreen ? 'Exit Fullscreen' : 'Ambient Fullscreen'}
+          >
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </button>
+        </div>
       )}
     </div>
   );
 };
+
