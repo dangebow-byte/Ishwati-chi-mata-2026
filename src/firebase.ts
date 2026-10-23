@@ -40,11 +40,18 @@ export interface FirestoreErrorInfo {
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
   const errorMessage = error instanceof Error ? error.message : String(error);
-  const isQuotaError = 
+  const isOfflineOrQuota = 
     errorMessage.includes('Quota exceeded') || 
     errorMessage.includes('resource-exhausted') ||
     errorMessage.includes('Free daily read units per project') ||
-    errorMessage.includes('the client is offline');
+    errorMessage.includes('the client is offline') ||
+    errorMessage.includes('unavailable') ||
+    errorMessage.includes('failed-precondition') ||
+    errorMessage.includes('network-request-failed') ||
+    errorMessage.includes('ERR_NETWORK_IO_SUSPENDED') ||
+    errorMessage.includes('ERR_INTERNET_DISCONNECTED') ||
+    errorMessage.includes('ERR_NAME_NOT_RESOLVED') ||
+    (typeof navigator !== 'undefined' && !navigator.onLine);
 
   const errInfo: FirestoreErrorInfo = {
     error: errorMessage,
@@ -63,11 +70,9 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     path
   };
 
-  if (isQuotaError) {
+  if (isOfflineOrQuota) {
     console.warn(
-      `Firestore Quota / Connectivity limit reached for path "${path}". ` +
-      `Quota resets daily next day at 00:00 UTC. ` +
-      `Upgrade or monitor quota at: https://console.firebase.google.com/project/${firebaseConfig.projectId}/firestore/databases/${firebaseConfig.firestoreDatabaseId}/data?openUpgradeDialog=true`
+      `Firestore offline / connectivity status on path "${path}": ${errorMessage}. Safe fallback active.`
     );
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('firestore-quota-exceeded', { 

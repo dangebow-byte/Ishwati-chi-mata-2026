@@ -40,6 +40,7 @@ import { aartiAudioEngine } from './utils/aartiAudioEngine';
 import { DeviMataImageManagerModal } from './components/DeviMataImageManagerModal';
 import { NavratriDailyThemeBar } from './components/NavratriDailyThemeBar';
 import { HomeLiveVideoGallery } from './components/HomeLiveVideoGallery';
+import { VideoGallerySection } from './components/VideoGallerySection';
 import {
   DeviMataImageItem,
   subscribeDeviMataImages,
@@ -1083,6 +1084,11 @@ export default function App() {
             {/* Google-Style Scrollable Live Video Gallery with Multiple Upload */}
             <div id="home-live-video-gallery-section" className="scroll-mt-24 w-full">
               <HomeLiveVideoGallery lang={lang} />
+            </div>
+
+            {/* Dedicated Temple Festival Video Gallery Section (Responsive Grid with Firebase Storage) */}
+            <div id="temple-festival-video-gallery-section" className="scroll-mt-24 w-full">
+              <VideoGallerySection lang={lang} />
             </div>
 
             {/* General Highlights about the Temple Origin */}
