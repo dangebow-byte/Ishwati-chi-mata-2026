@@ -954,6 +954,24 @@ INSERT INTO home_live_videos (
     views_count, likes_count, order_index
 ) VALUES
 (
+    'hlv-lakh-lakh-chanderi',
+    'लख लख चंदेरी तेजाची न्यारी दुनिया | प्रभात चित्रपट (मास्टर कृष्णराव)',
+    'Lakh Lakh Chanderi Tejachi Nyari Duniya | Prabhat Classic (Master Krishnarao)',
+    'प्रसिद्ध मराठी गाणे - लख लख चंदेरी तेजाची न्यारी दुनिया, प्रभात चित्रपट "शेजारी" (१९४१) व पावन उत्सव संगीत.',
+    'Legendary Marathi celebration song - Lakh Lakh Chanderi Tejachi Nyari Duniya, Master Krishnarao & Shantaram Athavale.',
+    'youtube',
+    'https://www.youtube.com/watch?v=sTVvMFyTVGk',
+    'https://www.youtube-nocookie.com/embed/sTVvMFyTVGk?enablejsapi=1&rel=0&modestbranding=1',
+    'https://img.youtube.com/vi/sTVvMFyTVGk/hqdefault.jpg',
+    '03:40',
+    FALSE,
+    'landscape',
+    'aarti',
+    28400,
+    3950,
+    0
+),
+(
     'hlv-1-adarsh-shinde-aarti',
     'अष्टमी - धर्मवीर दुर्गा महाआरती | गायक: आदर्श शिंदे',
     'Ashtami - Dharmaveer Durga Maha Aarti | Adarsh Shinde',

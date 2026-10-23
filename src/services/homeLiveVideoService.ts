@@ -31,6 +31,25 @@ export interface HomeLiveVideo {
 
 export const DEFAULT_HOME_LIVE_VIDEOS: HomeLiveVideo[] = [
   {
+    id: 'hlv-lakh-lakh-chanderi',
+    titleMR: 'लख लख चंदेरी तेजाची न्यारी दुनिया | प्रभात चित्रपट (मास्टर कृष्णराव)',
+    titleEN: 'Lakh Lakh Chanderi Tejachi Nyari Duniya | Prabhat Classic (Master Krishnarao)',
+    descriptionMR: 'प्रसिद्ध मराठी गाणे - लख लख चंदेरी तेजाची न्यारी दुनिया, प्रभात चित्रपट "शेजारी" (१९४१) व पावन उत्सव संगीत.',
+    descriptionEN: 'Legendary Marathi celebration song - Lakh Lakh Chanderi Tejachi Nyari Duniya, Master Krishnarao & Shantaram Athavale.',
+    sourceType: 'youtube',
+    url: 'https://www.youtube.com/watch?v=sTVvMFyTVGk',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/sTVvMFyTVGk?enablejsapi=1&rel=0&modestbranding=1',
+    thumbnailUrl: 'https://img.youtube.com/vi/sTVvMFyTVGk/hqdefault.jpg',
+    duration: '03:40',
+    isLive: false,
+    aspectRatio: 'landscape',
+    category: 'aarti',
+    createdAt: '2024-10-15T10:00:00.000Z',
+    viewsCount: 28400,
+    likesCount: 3950,
+    orderIndex: 0
+  },
+  {
     id: 'hlv-1-adarsh-shinde-aarti',
     titleMR: 'अष्टमी - धर्मवीर दुर्गा महाआरती | गायक: आदर्श शिंदे',
     titleEN: 'Ashtami - Dharmaveer Durga Maha Aarti | Adarsh Shinde',
@@ -47,7 +66,7 @@ export const DEFAULT_HOME_LIVE_VIDEOS: HomeLiveVideo[] = [
     createdAt: '2024-10-10T12:00:00.000Z',
     viewsCount: 15420,
     likesCount: 1890,
-    orderIndex: 0
+    orderIndex: 1
   },
   {
     id: 'hlv-2-visarjan-sohala-reel',
@@ -117,6 +136,12 @@ export function getCachedHomeLiveVideos(): HomeLiveVideo[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        const hasLakh = parsed.some((v: any) => v.id === 'hlv-lakh-lakh-chanderi' || v.url?.includes('sTVvMFyTVGk'));
+        if (!hasLakh) {
+          const merged = [DEFAULT_HOME_LIVE_VIDEOS[0], ...parsed];
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
+          return merged;
+        }
         return parsed;
       }
     }

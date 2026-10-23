@@ -719,6 +719,33 @@ export const AshtamiFeaturedVideoSection: React.FC<AshtamiFeaturedVideoSectionPr
                   className="w-full bg-zinc-900 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold font-mono text-xs"
                   required
                 />
+                {selectedSourceType === 'youtube' && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[10px] text-gray-400 font-semibold">{lang === 'EN' ? 'Quick Presets:' : 'जलद पर्याय:'}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInputUrl('https://www.youtube.com/watch?v=sTVvMFyTVGk');
+                        setInputTitleMR('लख लख चंदेरी तेजाची न्यारी दुनिया');
+                        setInputTitleEN('Lakh Lakh Chanderi Tejachi Nyari Duniya');
+                      }}
+                      className="px-2 py-0.5 rounded-full bg-brand-gold/15 hover:bg-brand-gold/30 text-brand-gold border border-brand-gold/30 text-[10px] font-bold transition-all cursor-pointer"
+                    >
+                      ✨ लख लख चंदेरी (Lakh Lakh Chanderi)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInputUrl('https://www.youtube.com/watch?v=28TJIom9GFw');
+                        setInputTitleMR('अष्टमी - धर्मवीर दुर्गा महाआरती | गायक: आदर्श शिंदे');
+                        setInputTitleEN('Ashtami - Dharmaveer Durga Maha Aarti | Adarsh Shinde');
+                      }}
+                      className="px-2 py-0.5 rounded-full bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 text-[10px] font-bold transition-all cursor-pointer"
+                    >
+                      🪔 धर्मवीर महाआरती
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
