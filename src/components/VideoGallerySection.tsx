@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Play, 
   Film, 
@@ -13,19 +13,23 @@ import {
   X, 
   Share2, 
   Trash2, 
-  Calendar, 
   Check, 
   AlertCircle, 
   Video, 
   ExternalLink,
   Maximize2,
-  Tv
+  Tv,
+  Tag,
+  Flame,
+  Music,
+  CalendarDays
 } from 'lucide-react';
 import { 
   GalleryMediaItem, 
   subscribeGalleryMedia, 
   addGalleryMedia, 
-  deleteGalleryMedia 
+  deleteGalleryMedia,
+  updateGalleryMedia
 } from '../services/galleryMediaService';
 import { shareToWhatsApp } from '../utils/shareUtils';
 import { isAdminEmail } from '../constants/adminConstants';
@@ -36,6 +40,8 @@ interface VideoGallerySectionProps {
   lang: 'EN' | 'MR';
   className?: string;
 }
+
+export type FestivalCategoryKey = 'all' | 'Aarti' | 'Procession' | 'Special Events';
 
 /**
  * Parses video URL to detect YouTube, Instagram, or direct video streams
@@ -80,12 +86,73 @@ function parseVideoSource(rawUrl: string, existingEmbed?: string) {
   };
 }
 
+/**
+ * Robust Category matching helper supporting 'Aarti', 'Procession', and 'Special Events'
+ */
+function matchesCategory(item: GalleryMediaItem, selectedCategory: string): boolean {
+  if (selectedCategory === 'all') return true;
+
+  const itemCat = (item.category || '').toLowerCase().trim();
+  const itemTitle = `${item.titleMR} ${item.titleEN} ${item.descriptionMR || ''} ${item.descriptionEN || ''}`.toLowerCase();
+
+  if (selectedCategory === 'Aarti') {
+    return (
+      itemCat === 'aarti' ||
+      itemCat.includes('aarti') ||
+      itemCat.includes('आरती') ||
+      itemTitle.includes('aarti') ||
+      itemTitle.includes('आरती') ||
+      itemTitle.includes('chanderi') ||
+      itemTitle.includes('चंदेरी')
+    );
+  }
+
+  if (selectedCategory === 'Procession') {
+    return (
+      itemCat === 'procession' ||
+      itemCat.includes('procession') ||
+      itemCat.includes('miravnuk') ||
+      itemCat.includes('मिरवणूक') ||
+      itemCat.includes('शोभायात्रा') ||
+      itemCat.includes('visarjan') ||
+      itemCat.includes('विसर्जन') ||
+      itemCat.includes('dhol') ||
+      itemCat.includes('ताशा') ||
+      itemTitle.includes('मिरवणूक') ||
+      itemTitle.includes('विसर्जन') ||
+      itemTitle.includes('procession')
+    );
+  }
+
+  if (selectedCategory === 'Special Events') {
+    return (
+      itemCat === 'special events' ||
+      itemCat.includes('special') ||
+      itemCat.includes('विशेष') ||
+      itemCat.includes('event') ||
+      itemCat.includes('उत्सव') ||
+      itemCat.includes('sohala') ||
+      itemCat.includes('सोहळा') ||
+      itemCat.includes('darshan') ||
+      itemCat.includes('दर्शन') ||
+      itemCat.includes('navratri') ||
+      itemCat.includes('नवरात्र') ||
+      itemTitle.includes('विशेष') ||
+      itemTitle.includes('कार्यक्रम') ||
+      itemTitle.includes('navratri') ||
+      itemTitle.includes('दर्शन')
+    );
+  }
+
+  return itemCat.includes(selectedCategory.toLowerCase());
+}
+
 export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
   lang,
   className = ''
 }) => {
   const [mediaItems, setMediaItems] = useState<GalleryMediaItem[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [activeCategory, setActiveCategory] = useState<FestivalCategoryKey>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAdminUser, setIsAdminUser] = useState(false);
 
@@ -97,13 +164,18 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
   const [inputUrl, setInputUrl] = useState('');
   const [inputTitleMR, setInputTitleMR] = useState('');
   const [inputTitleEN, setInputTitleEN] = useState('');
-  const [inputCategory, setInputCategory] = useState('Maha Aarti');
+  const [inputCategory, setInputCategory] = useState<'Aarti' | 'Procession' | 'Special Events'>('Aarti');
   const [inputYear, setInputYear] = useState('2026');
   const [inputDescMR, setInputDescMR] = useState('');
   const [inputDescEN, setInputDescEN] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Quick Category Reorganization Modal for Admins
+  const [editingCategoryVideo, setEditingCategoryVideo] = useState<GalleryMediaItem | null>(null);
+  const [reorganizedCategory, setReorganizedCategory] = useState<'Aarti' | 'Procession' | 'Special Events'>('Aarti');
+  const [isUpdatingCategory, setIsUpdatingCategory] = useState(false);
 
   // Subscribe to real-time gallery media from Firebase
   useEffect(() => {
@@ -126,28 +198,62 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
     return () => unsubAuth();
   }, []);
 
-  // Filter categories
+  // Filter Categories Specification
   const categories = useMemo(() => [
-    { id: 'all', nameMR: 'सर्व व्हिडिओ', nameEN: 'All Videos' },
-    { id: 'aarti', nameMR: 'महाआरती व स्तुती', nameEN: 'Maha Aarti' },
-    { id: 'visarjan', nameMR: 'विसर्जन सोहळा', nameEN: 'Visarjan Sohala' },
-    { id: 'miravnuk', nameMR: 'मिरवणूक सोहळा', nameEN: 'Grand Procession' },
-    { id: 'darshan', nameMR: 'थेट गर्भगृह दर्शन', nameEN: 'Sanctum Darshan' },
-    { id: 'reels', nameMR: 'भक्तिमय रील्स', nameEN: 'Devotional Reels' },
+    { 
+      id: 'all' as FestivalCategoryKey, 
+      nameMR: 'सर्व व्हिडिओ', 
+      nameEN: 'All Videos', 
+      icon: Tv,
+      color: 'from-amber-500 to-yellow-600'
+    },
+    { 
+      id: 'Aarti' as FestivalCategoryKey, 
+      nameMR: 'महाआरती', 
+      nameEN: 'Aarti', 
+      icon: Flame,
+      color: 'from-amber-600 to-orange-600'
+    },
+    { 
+      id: 'Procession' as FestivalCategoryKey, 
+      nameMR: 'मिरवणूक सोहळा', 
+      nameEN: 'Procession', 
+      icon: Music,
+      color: 'from-red-600 to-rose-700'
+    },
+    { 
+      id: 'Special Events' as FestivalCategoryKey, 
+      nameMR: 'विशेष कार्यक्रम', 
+      nameEN: 'Special Events', 
+      icon: CalendarDays,
+      color: 'from-purple-600 to-indigo-700'
+    },
   ], []);
+
+  // Calculate dynamic category item counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<FestivalCategoryKey, number> = {
+      all: mediaItems.length,
+      Aarti: 0,
+      Procession: 0,
+      'Special Events': 0
+    };
+
+    mediaItems.forEach(item => {
+      if (matchesCategory(item, 'Aarti')) counts.Aarti += 1;
+      if (matchesCategory(item, 'Procession')) counts.Procession += 1;
+      if (matchesCategory(item, 'Special Events')) counts['Special Events'] += 1;
+    });
+
+    return counts;
+  }, [mediaItems]);
 
   // Filtered and searched video items
   const filteredVideos = useMemo(() => {
     return mediaItems.filter(item => {
       // Category filter
-      if (activeCategory !== 'all') {
-        const catLower = (item.category || '').toLowerCase();
-        const titleLower = `${item.titleMR} ${item.titleEN}`.toLowerCase();
-        if (activeCategory === 'aarti' && !catLower.includes('aarti') && !titleLower.includes('आरती') && !titleLower.includes('aarti')) return false;
-        if (activeCategory === 'visarjan' && !catLower.includes('visarjan') && !titleLower.includes('विसर्जन')) return false;
-        if (activeCategory === 'miravnuk' && !catLower.includes('miravnuk') && !titleLower.includes('मिरवणूक') && !titleLower.includes('procession')) return false;
-        if (activeCategory === 'darshan' && !catLower.includes('darshan') && !titleLower.includes('दर्शन') && !titleLower.includes('sanctum')) return false;
-        if (activeCategory === 'reels' && item.type !== 'instagram' && !catLower.includes('reels') && !titleLower.includes('reel')) return false;
+      if (!matchesCategory(item, activeCategory)) {
+        return false;
       }
 
       // Search query filter
@@ -163,7 +269,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
     });
   }, [mediaItems, activeCategory, searchQuery]);
 
-  // Handle storing video URL into Firebase Backend
+  // Handle storing new video URL into Firebase Backend
   const handleSaveVideoUrl = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputUrl.trim()) {
@@ -213,6 +319,24 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
     }
   };
 
+  // Handle organizing / reassigning an existing video's category in Firebase
+  const handleUpdateVideoCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategoryVideo) return;
+
+    try {
+      setIsUpdatingCategory(true);
+      await updateGalleryMedia(editingCategoryVideo.id, {
+        category: reorganizedCategory
+      });
+      setEditingCategoryVideo(null);
+    } catch (err: any) {
+      alert(err?.message || 'Could not update category in Firebase');
+    } finally {
+      setIsUpdatingCategory(false);
+    }
+  };
+
   // Handle deleting video from Firebase
   const handleDeleteVideo = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -231,6 +355,33 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
     } catch (err: any) {
       alert(err?.message || 'Could not delete video');
     }
+  };
+
+  // Helper to get stylized category badge display
+  const renderCategoryBadge = (categoryStr: string) => {
+    const cat = categoryStr || '';
+    if (matchesCategory({ category: cat, titleMR: '', titleEN: '' } as any, 'Aarti')) {
+      return (
+        <span className="px-2.5 py-1 rounded-md bg-amber-950/90 border border-amber-500/50 text-[11px] font-bold text-amber-300 backdrop-blur-sm flex items-center gap-1">
+          <Flame className="w-3 h-3 text-amber-400" />
+          <span>{lang === 'EN' ? 'Aarti' : 'आरती'}</span>
+        </span>
+      );
+    }
+    if (matchesCategory({ category: cat, titleMR: '', titleEN: '' } as any, 'Procession')) {
+      return (
+        <span className="px-2.5 py-1 rounded-md bg-red-950/90 border border-red-500/50 text-[11px] font-bold text-red-200 backdrop-blur-sm flex items-center gap-1">
+          <Music className="w-3 h-3 text-red-400" />
+          <span>{lang === 'EN' ? 'Procession' : 'मिरवणूक'}</span>
+        </span>
+      );
+    }
+    return (
+      <span className="px-2.5 py-1 rounded-md bg-purple-950/90 border border-purple-500/50 text-[11px] font-bold text-purple-200 backdrop-blur-sm flex items-center gap-1">
+        <Sparkles className="w-3 h-3 text-purple-300" />
+        <span>{lang === 'EN' ? 'Special Events' : 'विशेष कार्यक्रम'}</span>
+      </span>
+    );
   };
 
   return (
@@ -252,7 +403,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-gold/15 border border-brand-gold/35 text-brand-gold text-xs font-bold tracking-wider uppercase">
               <Film className="w-3.5 h-3.5 text-brand-saffron animate-pulse" />
-              <span>{lang === 'EN' ? 'Official Video Archive' : 'अधिकृत उत्सव व्हिडिओ दालन'}</span>
+              <span>{lang === 'EN' ? 'Organized Festival Video Archive' : 'वर्गीकृत उत्सव व्हिडिओ दालन'}</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-2.5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
@@ -261,8 +412,8 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
 
             <p className="text-xs sm:text-sm text-gray-300 max-w-3xl leading-relaxed">
               {lang === 'EN'
-                ? 'Immerse in the 53rd year festival memories, divine Maha Aartis, grand visarjan processions, and devotional beats preserved in real-time.'
-                : 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव, भव्य विसर्जन मिरवणूक, पावन महाआरती व नादब्रह्म ढोल-ताशा वादनाचे संस्मरण दालन.'}
+                ? 'Explore organized video collections for Maha Aarti, Grand Processions, and Navratri Special Events with live streaming and archive access.'
+                : 'महाआरती, भव्य मिरवणूक सोहळा आणि नवरात्रौत्सवातील विशेष कार्यक्रमांचे वर्गवारीनुसार संकलित व्हिडिओ दालन.'}
             </p>
           </div>
 
@@ -287,22 +438,36 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
         </div>
 
         {/* Filter and Search Controls Bar */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-3.5">
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full lg:w-auto pb-1 scrollbar-none">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+          
+          {/* Enhanced Filterable UI: Primary Categories Pills ('All', 'Aarti', 'Procession', 'Special Events') */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {categories.map((cat) => {
               const isActive = activeCategory === cat.id;
+              const count = categoryCounts[cat.id] ?? 0;
+              const IconComp = cat.icon;
+
               return (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                  className={`group relative px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-2 ${
                     isActive
-                      ? 'bg-gradient-to-r from-brand-maroon to-brand-red text-brand-gold border border-brand-gold/80 shadow-[0_0_15px_rgba(255,153,51,0.35)]'
-                      : 'bg-black/40 hover:bg-black/60 text-gray-300 hover:text-white border border-brand-gold/20'
+                      ? 'bg-gradient-to-r from-brand-maroon to-brand-red text-brand-gold border-2 border-brand-gold shadow-[0_0_18px_rgba(255,153,51,0.45)] scale-[1.02]'
+                      : 'bg-black/50 hover:bg-black/80 text-gray-300 hover:text-white border border-brand-gold/25'
                   }`}
                 >
-                  {lang === 'EN' ? cat.nameEN : cat.nameMR}
+                  <IconComp className={`w-3.5 h-3.5 transition-transform group-hover:scale-110 ${isActive ? 'text-brand-saffron' : 'text-gray-400'}`} />
+                  <span>{lang === 'EN' ? cat.nameEN : cat.nameMR}</span>
+                  
+                  {/* Category count pill */}
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold transition-colors ${
+                    isActive
+                      ? 'bg-brand-gold text-brand-maroon'
+                      : 'bg-white/10 text-gray-400 group-hover:text-white'
+                  }`}>
+                    {count}
+                  </span>
                 </button>
               );
             })}
@@ -316,12 +481,12 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={lang === 'EN' ? 'Search festival videos...' : 'व्हिडिओ शोधा...'}
-              className="w-full pl-9 pr-3 py-1.5 sm:py-2 bg-black/50 border border-brand-gold/30 rounded-xl text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/50 transition-all"
+              className="w-full pl-9 pr-3 py-2 bg-black/50 border border-brand-gold/30 rounded-xl text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold/50 transition-all shadow-inner"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs cursor-pointer"
               >
                 ✕
               </button>
@@ -338,18 +503,18 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
             </h3>
             <p className="text-xs sm:text-sm text-gray-400 max-w-md mx-auto">
               {lang === 'EN'
-                ? 'Try selecting a different category or search term, or click "Add Video URL" to add a new video.'
-                : 'कृपया दुसरा प्रकार निवडा किंवा प्रशासक असाल तर नवीन व्हिडिओची लिंक जोडा.'}
+                ? 'Try switching categories or clearing search keywords.'
+                : 'कृपया दुसरी श्रेणी निवडा किंवा शोध शब्द काढून पुन्हा प्रयत्न करा.'}
             </p>
-            {isAdminUser && (
-              <button
-                type="button"
-                onClick={() => setIsAddModalOpen(true)}
-                className="mt-2 px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl shadow hover:opacity-90 cursor-pointer"
-              >
-                {lang === 'EN' ? 'Add Video URL Now' : 'व्हिडिओ लिंक आता जोडा'}
-              </button>
-            )}
+            <button
+              onClick={() => {
+                setActiveCategory('all');
+                setSearchQuery('');
+              }}
+              className="mt-2 px-4 py-2 bg-brand-gold text-brand-maroon font-bold text-xs rounded-xl shadow hover:opacity-90 cursor-pointer"
+            >
+              {lang === 'EN' ? 'View All Videos' : 'सर्व व्हिडिओ पहा'}
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
@@ -376,7 +541,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
                       <div className="w-full h-full bg-gradient-to-tr from-brand-maroon to-black flex flex-col items-center justify-center p-4 text-center">
                         <Film className="w-10 h-10 text-brand-gold/60 mb-2" />
                         <span className="text-xs font-bold text-brand-gold">
-                          {video.type === 'instagram' ? 'Instagram Reel' : 'Temple Video'}
+                          {video.type === 'instagram' ? 'Instagram Reel' : 'Festival Video'}
                         </span>
                       </div>
                     )}
@@ -393,10 +558,11 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
 
                     {/* Top Badges: Category & Year */}
                     <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2 z-10">
-                      <span className="px-2.5 py-1 rounded-md bg-black/80 border border-brand-gold/40 text-[10px] sm:text-xs font-bold text-brand-gold backdrop-blur-sm">
-                        {video.category || 'Festival'}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-brand-maroon/90 border border-brand-gold/40 text-[10px] font-mono font-bold text-amber-200 backdrop-blur-sm">
+                      <div>
+                        {renderCategoryBadge(video.category || '')}
+                      </div>
+
+                      <span className="px-2 py-0.5 rounded-md bg-black/80 border border-brand-gold/40 text-[10px] font-mono font-bold text-amber-200 backdrop-blur-sm">
                         {video.year || '2026'}
                       </span>
                     </div>
@@ -425,7 +591,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
                       )}
                     </div>
 
-                    {/* Bottom Card Actions: Share & Admin Delete */}
+                    {/* Bottom Card Actions: Share, Organize Category & Delete */}
                     <div className="pt-2 border-t border-brand-gold/20 flex items-center justify-between gap-2 text-xs">
                       <button
                         type="button"
@@ -445,15 +611,34 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
                       </button>
 
                       {isAdminUser && (
-                        <button
-                          type="button"
-                          onClick={(e) => handleDeleteVideo(video.id, e)}
-                          className="px-2 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 border border-red-500/40 text-red-300 hover:text-white font-bold flex items-center gap-1 transition-colors cursor-pointer"
-                          title={lang === 'EN' ? 'Delete video from database' : 'डेटाबेसमधून व्हिडिओ हटवा'}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                          <span>{lang === 'EN' ? 'Delete' : 'हटवा'}</span>
-                        </button>
+                        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                          {/* Reorganize Category button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCategoryVideo(video);
+                              if (matchesCategory(video, 'Aarti')) setReorganizedCategory('Aarti');
+                              else if (matchesCategory(video, 'Procession')) setReorganizedCategory('Procession');
+                              else setReorganizedCategory('Special Events');
+                            }}
+                            className="px-2 py-1 rounded-lg bg-brand-gold/20 hover:bg-brand-gold text-brand-gold hover:text-brand-maroon border border-brand-gold/40 font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                            title={lang === 'EN' ? 'Organize / Change Category' : 'व्हिडिओ श्रेणी बदला'}
+                          >
+                            <Tag className="w-3 h-3" />
+                            <span>{lang === 'EN' ? 'Category' : 'श्रेणी'}</span>
+                          </button>
+
+                          {/* Delete Video Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteVideo(video.id, e)}
+                            className="px-2 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 border border-red-500/40 text-red-300 hover:text-white font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                            title={lang === 'EN' ? 'Delete video from database' : 'डेटाबेसमधून व्हिडिओ हटवा'}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>{lang === 'EN' ? 'Delete' : 'हटवा'}</span>
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -464,7 +649,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
         )}
       </div>
 
-      {/* FULL CENTRALIZED THEATER PLAYBACK MODAL (Occupies full space of modal gracefully) */}
+      {/* FULL CENTRALIZED THEATER PLAYBACK MODAL */}
       {activeVideo && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-200"
@@ -539,9 +724,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
             <div className="p-4 sm:p-5 bg-black/75 border-t border-brand-gold/25 space-y-3 overflow-y-auto max-h-[30vh]">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-md bg-brand-maroon border border-brand-gold/50 text-xs font-bold text-brand-gold">
-                    {activeVideo.category || 'Festival'}
-                  </span>
+                  {renderCategoryBadge(activeVideo.category || '')}
                   <span className="px-2 py-0.5 rounded-md bg-black/60 border border-brand-gold/30 text-xs font-mono font-bold text-gray-300">
                     {activeVideo.year || '2026'}
                   </span>
@@ -581,6 +764,113 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
                 </p>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* QUICK CATEGORY REORGANIZATION MODAL FOR ADMINS */}
+      {editingCategoryVideo && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in"
+          onClick={() => !isUpdatingCategory && setEditingCategoryVideo(null)}
+        >
+          <div 
+            className="relative w-full max-w-md bg-gradient-to-b from-[#350404] via-black to-[#200202] border-2 border-brand-gold rounded-2xl p-5 shadow-2xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-brand-gold/30 pb-3">
+              <div className="flex items-center gap-2">
+                <Tag className="w-5 h-5 text-brand-gold" />
+                <h3 className="text-base font-bold text-white">
+                  {lang === 'EN' ? 'Organize Video Category' : 'व्हिडिओ श्रेणी बदला'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => !isUpdatingCategory && setEditingCategoryVideo(null)}
+                className="text-gray-400 hover:text-white cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-300">
+              <span className="font-bold text-white">{editingCategoryVideo.titleMR}</span>
+            </p>
+
+            <form onSubmit={handleUpdateVideoCategory} className="space-y-4">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-brand-gold">
+                  {lang === 'EN' ? 'Choose Category:' : 'नवीन श्रेणी निवडा:'}
+                </label>
+                
+                <div className="grid grid-cols-1 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setReorganizedCategory('Aarti')}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold text-left border flex items-center gap-2 transition-all cursor-pointer ${
+                      reorganizedCategory === 'Aarti'
+                        ? 'bg-amber-950/80 border-amber-400 text-amber-200 shadow-md ring-1 ring-amber-400'
+                        : 'bg-black/60 border-brand-gold/30 text-gray-300 hover:text-white'
+                    }`}
+                  >
+                    <Flame className="w-4 h-4 text-amber-400" />
+                    <span>🪔 {lang === 'EN' ? 'Aarti (महाआरती व स्तुती)' : 'आरती (महाआरती व स्तुती)'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setReorganizedCategory('Procession')}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold text-left border flex items-center gap-2 transition-all cursor-pointer ${
+                      reorganizedCategory === 'Procession'
+                        ? 'bg-red-950/80 border-red-400 text-red-200 shadow-md ring-1 ring-red-400'
+                        : 'bg-black/60 border-brand-gold/30 text-gray-300 hover:text-white'
+                    }`}
+                  >
+                    <Music className="w-4 h-4 text-red-400" />
+                    <span>🥁 {lang === 'EN' ? 'Procession (मिरवणूक सोहळा)' : 'मिरवणूक (मिरवणूक व विसर्जन)'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setReorganizedCategory('Special Events')}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold text-left border flex items-center gap-2 transition-all cursor-pointer ${
+                      reorganizedCategory === 'Special Events'
+                        ? 'bg-purple-950/80 border-purple-400 text-purple-200 shadow-md ring-1 ring-purple-400'
+                        : 'bg-black/60 border-brand-gold/30 text-gray-300 hover:text-white'
+                    }`}
+                  >
+                    <CalendarDays className="w-4 h-4 text-purple-400" />
+                    <span>✨ {lang === 'EN' ? 'Special Events (विशेष कार्यक्रम)' : 'विशेष कार्यक्रम (विशेष उत्सव)'}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-brand-gold/20">
+                <button
+                  type="button"
+                  disabled={isUpdatingCategory}
+                  onClick={() => setEditingCategoryVideo(null)}
+                  className="px-3 py-1.5 rounded-xl bg-black/60 text-gray-300 text-xs font-bold cursor-pointer"
+                >
+                  {lang === 'EN' ? 'Cancel' : 'रद्द करा'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingCategory}
+                  className="px-4 py-1.5 rounded-xl bg-brand-gold text-brand-maroon text-xs font-bold shadow hover:opacity-95 cursor-pointer flex items-center gap-1.5"
+                >
+                  {isUpdatingCategory ? (
+                    <span>{lang === 'EN' ? 'Saving...' : 'जतन होत आहे...'}</span>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>{lang === 'EN' ? 'Save Category' : 'श्रेणी जतन करा'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -674,19 +964,16 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-gray-300 font-bold mb-1">
-                    {lang === 'EN' ? 'Category' : 'विभाग'}
+                    {lang === 'EN' ? 'Festival Category *' : 'उत्सव श्रेणी / विभाग *'}
                   </label>
                   <select
                     value={inputCategory}
-                    onChange={(e) => setInputCategory(e.target.value)}
+                    onChange={(e) => setInputCategory(e.target.value as any)}
                     className="w-full px-3 py-2 bg-black/60 border border-brand-gold/40 rounded-xl text-white focus:outline-none focus:border-brand-gold"
                   >
-                    <option value="Maha Aarti">Maha Aarti (महाआरती)</option>
-                    <option value="Visarjan Sohala">Visarjan Sohala (विसर्जन सोहळा)</option>
-                    <option value="Miravnuk">Miravnuk Procession (मिरवणूक)</option>
-                    <option value="Live Darshan">Live Sanctum Darshan (थेट दर्शन)</option>
-                    <option value="Navratri Mahotsav">Navratri Mahotsav (नवरात्रौत्सव)</option>
-                    <option value="Videos & Reels">Devotional Reels (रील्स)</option>
+                    <option value="Aarti">🪔 Aarti (महाआरती व स्तुती)</option>
+                    <option value="Procession">🥁 Procession (मिरवणूक व शोभायात्रा)</option>
+                    <option value="Special Events">✨ Special Events (विशेष उत्सव व सोहळे)</option>
                   </select>
                 </div>
 
