@@ -34,7 +34,6 @@ import { UpcomingFestivalCountdown } from './components/UpcomingFestivalCountdow
 import { NavratriPatrikaSection } from './components/NavratriPatrikaSection';
 import { InteractiveDiya } from './components/InteractiveDiya';
 import { GlobalAudioController } from './components/GlobalAudioController';
-import { AshtamiFeaturedVideoSection } from './components/AshtamiFeaturedVideoSection';
 import { VisarjanMiravnukBanner } from './components/VisarjanMiravnukBanner';
 import { KojagiriPournimaBanner } from './components/KojagiriPournimaBanner';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
@@ -1083,14 +1082,6 @@ export default function App() {
               </div>
             )}
 
-            {/* Official Ashtami / Aarti Featured Home Page Video with Ambient Blurred Backdrop - Centralized */}
-            {isModuleVisible(moduleVisibility, 'ashtami_featured_video') && (
-              <div id="ashtami-featured-video-section" className="scroll-mt-24 w-full flex flex-col items-center justify-center py-2">
-                <div className="w-full max-w-5xl mx-auto flex flex-col items-center justify-center">
-                  <AshtamiFeaturedVideoSection lang={lang} />
-                </div>
-              </div>
-            )}
 
             {/* Elegant Rotating Festival Video Slider (Auto-rotating Image/Video Slider) */}
             {isModuleVisible(moduleVisibility, 'media_gallery') && (

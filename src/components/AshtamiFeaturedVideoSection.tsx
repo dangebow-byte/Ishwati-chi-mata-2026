@@ -48,10 +48,10 @@ export interface AshtamiVideoConfig {
 
 const DEFAULT_OFFICIAL_CONFIG: AshtamiVideoConfig = {
   type: 'official',
-  url: 'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
-  embedUrl: 'https://www.youtube-nocookie.com/embed/28TJIom9GFw?enablejsapi=1&rel=0&modestbranding=1',
-  title: 'Ashtami - Dharmaveer Durga Maha Aarti | Adarsh Shinde',
-  titleMarathi: 'अष्टमी - धर्मवीर दुर्गा महाआरती | गायक: आदर्श शिंदे (झी म्युझिक मराठी)'
+  url: 'https://www.youtube.com/watch?v=sTVvMFyTVGk',
+  embedUrl: 'https://www.youtube-nocookie.com/embed/sTVvMFyTVGk?enablejsapi=1&rel=0&modestbranding=1',
+  title: 'Lakh Lakh Chanderi Tejachi Nyari Duniya | Prabhat Classic Devotional',
+  titleMarathi: 'लख लख चंदेरी तेजाची न्यारी दुनिया | प्रभात चित्रपट (मास्टर कृष्णराव)'
 };
 
 interface AshtamiFeaturedVideoSectionProps {

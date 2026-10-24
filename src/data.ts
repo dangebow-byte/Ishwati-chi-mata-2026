@@ -5,8 +5,10 @@
 
 import { DevoteeExperience, TempleEvent, Announcement } from './types';
 import logoImg from './assets/branding/Mandal logo Maroon Transparent BG.png';
+import deviMainJpg from './assets/devotional/devi-mata-main.jpeg';
+import agamanBannerImg from './assets/images/agaman_banner_initial_with_real_devi_1791626201136.jpg';
 
-export { logoImg };
+export { logoImg, deviMainJpg, agamanBannerImg };
 
 export const INITIAL_EVENTS: TempleEvent[] = [
   {
@@ -172,25 +174,25 @@ export const TIMELINE_MILESTONES = [
 
 export const GALLERY_ITEMS = [
   {
+    id: 'gal-devi-mata-sanctum',
+    category: 'Mata Darshan',
+    title: 'श्री इश्वटीची माता अधिकृत स्वयंभू दर्शन मूर्ती (स्थापना १९७४)',
+    titleMarathi: 'श्री इश्वटीची माता अधिकृत स्वयंभू दर्शन मूर्ती (स्थापना १९७४)',
+    url: deviMainJpg
+  },
+  {
+    id: 'gal-agaman-sohala-53',
+    category: 'Procession',
+    title: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव फलक',
+    titleMarathi: 'श्री इश्वटीची माता ५३ वे वर्ष आगमन सोहळा अधिकृत उत्सव फलक',
+    url: agamanBannerImg
+  },
+  {
     id: 'gal-official-logo',
     category: 'Decorations',
     title: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ अधिकृत राजमुद्रा बोधचिन्ह',
     titleMarathi: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ अधिकृत राजमुद्रा बोधचिन्ह',
     url: logoImg
-  },
-  {
-    id: 'gal-community-health',
-    category: 'Community Service',
-    title: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ: मोफत आरोग्य व नेत्र तपासणी शिबीर',
-    titleMarathi: 'श्री यंग इश्वटी नवरात्रौत्सव मंडळ: मोफत आरोग्य व नेत्र तपासणी शिबीर',
-    url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'gal-community-annadaan',
-    category: 'Community Service',
-    title: 'श्री इश्वटीची महाप्रसाद वाटप व अन्नदान सेवा उपक्रम',
-    titleMarathi: 'श्री इश्वटीची महाप्रसाद वाटप व अन्नदान सेवा उपक्रम',
-    url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=800'
   }
 ];
 
@@ -247,15 +249,15 @@ export const OFFICIAL_FESTIVAL_VIDEOS: FestivalVideoItem[] = [
     date: '2024-10-15'
   },
   {
-    id: 'vid-adarsh-shinde-aarti',
-    url: 'https://www.youtube.com/watch?v=28TJIom9GFw',
-    titleMR: 'अष्टमी - धर्मवीर दुर्गा महाआरती | गायक: आदर्श शिंदे',
-    titleEN: 'Ashtami - Dharmaveer Durga Maha Aarti | Adarsh Shinde',
+    id: 'vid-sanctum-live-darshan',
+    url: 'https://www.youtube.com/watch?v=q6F3TH3bS88',
+    titleMR: 'श्री ईश्वटीची माता गर्भगृह थेट दर्शन व दीप प्रज्वलन',
+    titleEN: 'Sanctum Live Sanctum Darshan & Sacred Diya Aarti',
     category: 'Aarti',
     year: '2026',
-    descriptionMR: 'श्री यंग ईश्वटी नवरात्रौत्सव मंडळ - अधिकृत पावन महाआरती, दुर्गा स्तुती व नित्य महाप्रसाद सोहळा.',
-    descriptionEN: 'Official Ashtami Durga Maha Aarti sung by Adarsh Shinde and temple devotees.',
-    date: '2024-10-10'
+    descriptionMR: 'सकल भाविकांसाठी २४x७ पावन लाइव्ह दर्शन, अलंकार पूजा व संध्या महाआरती.',
+    descriptionEN: '24/7 Sanctum live darshan, adorned alankar puja, and evening maha aarti.',
+    date: '2024-10-11'
   },
   {
     id: 'vid-visarjan-procession',
