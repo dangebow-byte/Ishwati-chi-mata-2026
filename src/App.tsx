@@ -36,11 +36,11 @@ import { InteractiveDiya } from './components/InteractiveDiya';
 import { GlobalAudioController } from './components/GlobalAudioController';
 import { AshtamiFeaturedVideoSection } from './components/AshtamiFeaturedVideoSection';
 import { VisarjanMiravnukBanner } from './components/VisarjanMiravnukBanner';
+import { KojagiriPournimaBanner } from './components/KojagiriPournimaBanner';
 import { aartiAudioEngine } from './utils/aartiAudioEngine';
 import { DeviMataImageManagerModal } from './components/DeviMataImageManagerModal';
 import { NavratriDailyThemeBar } from './components/NavratriDailyThemeBar';
-import { HomeLiveVideoGallery } from './components/HomeLiveVideoGallery';
-import { VideoGallerySection } from './components/VideoGallerySection';
+import { HomeRotatingVideoSlider } from './components/HomeRotatingVideoSlider';
 import {
   DeviMataImageItem,
   subscribeDeviMataImages,
@@ -262,17 +262,18 @@ export default function App() {
 
     seedDatabaseIfNeeded();
 
-    const unsubContent = onSnapshot(collection(db, 'site_content'), (snapshot) => {
-      const contentMap: any = { ...DEFAULT_SITE_CONTENT };
-      snapshot.forEach(docSnap => {
+    const unsubContent = onSnapshot(doc(db, 'site_content', 'welcome'), (docSnap) => {
+      if (docSnap.exists()) {
         const val = docSnap.data();
-        if (val.contentKey && val.data) {
-          contentMap[val.contentKey] = cleanDevanagariSpelling(val.data);
+        if (val?.data) {
+          setSiteContent(prev => ({
+            ...prev,
+            welcome: cleanDevanagariSpelling(val.data)
+          }));
         }
-      });
-      setSiteContent(cleanDevanagariSpelling(contentMap));
+      }
     }, (err) => {
-      handleFirestoreError(err, OperationType.GET, 'site_content');
+      handleFirestoreError(err, OperationType.GET, 'site_content/welcome');
     });
 
     const unsubAnn = onSnapshot(collection(db, 'announcements'), (snapshot) => {
@@ -833,6 +834,16 @@ export default function App() {
         </div>
       )}
 
+      {/* Sacred Kojagiri Pournima Flashing Festive Banner with Original Devi Mata Sacred Idol */}
+      {activeTab === 'home' && (
+        <KojagiriPournimaBanner
+          lang={lang}
+          deviImageUrl={activeDeviImage.url}
+          onNavigateToSeva={() => setActiveTab('seva')}
+          onNavigateToDarshan={() => setActiveTab('darshan')}
+        />
+      )}
+
       {/* 53rd Year Grand Visarjan Miravnuk 1-Minute Dynamic Flash Banner with 3D & Real Crackers */}
       {activeTab === 'home' && (
         <VisarjanMiravnukBanner 
@@ -1081,15 +1092,15 @@ export default function App() {
               </div>
             )}
 
-            {/* Google-Style Scrollable Live Video Gallery with Multiple Upload */}
-            <div id="home-live-video-gallery-section" className="scroll-mt-24 w-full">
-              <HomeLiveVideoGallery lang={lang} />
-            </div>
-
-            {/* Dedicated Temple Festival Video Gallery Section (Responsive Grid with Firebase Storage) */}
-            <div id="temple-festival-video-gallery-section" className="scroll-mt-24 w-full">
-              <VideoGallerySection lang={lang} />
-            </div>
+            {/* Elegant Rotating Festival Video Slider (Auto-rotating Image/Video Slider) */}
+            {isModuleVisible(moduleVisibility, 'media_gallery') && (
+              <div id="temple-festival-video-slider-section" className="scroll-mt-24 w-full">
+                <HomeRotatingVideoSlider 
+                  lang={lang} 
+                  onNavigateToGallery={() => setActiveTab('gallery')} 
+                />
+              </div>
+            )}
 
             {/* General Highlights about the Temple Origin */}
             {isModuleVisible(moduleVisibility, 'about_heritage') && (

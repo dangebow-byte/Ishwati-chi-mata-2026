@@ -129,6 +129,22 @@ export function setCachedGalleryMedia(items: GalleryMediaItem[]): void {
   inMemoryGalleryCache = sortGalleryMediaItems(items);
 }
 
+export function normalizeMediaKey(url: string, id: string): string {
+  if (!url) return id;
+  const clean = url.trim().toLowerCase();
+  // Extract YouTube video ID
+  const ytMatch = clean.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  if (ytMatch && ytMatch[1]) {
+    return `yt:${ytMatch[1]}`;
+  }
+  // Extract Instagram shortcode
+  const instaMatch = clean.match(/instagram\.com\/(?:reel|p)\/([a-z0-9_-]+)/);
+  if (instaMatch && instaMatch[1]) {
+    return `insta:${instaMatch[1]}`;
+  }
+  return clean;
+}
+
 /**
  * Subscribes to real-time updates for all gallery media (photos, videos, reels)
  */
@@ -152,12 +168,16 @@ export function subscribeGalleryMedia(
 
         const items: GalleryMediaItem[] = [];
         const seenIds = new Set<string>();
+        const seenKeys = new Set<string>();
 
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
           const docId = docSnap.id;
-          if (!seenIds.has(docId)) {
+          const mediaKey = normalizeMediaKey(data.url || '', docId);
+
+          if (!seenIds.has(docId) && !seenKeys.has(mediaKey)) {
             seenIds.add(docId);
+            seenKeys.add(mediaKey);
             if (data.isDeleted === true) return;
             items.push({
               id: docId,
@@ -181,11 +201,13 @@ export function subscribeGalleryMedia(
           }
         });
 
-        // Merge any bundled items not in firestore so nothing is lost
+        // Merge bundled initial items only if not already present by ID or by unique Media URL/Key
         INITIAL_GALLERY_MEDIA.forEach(initItem => {
-          if (!seenIds.has(initItem.id)) {
+          const mediaKey = normalizeMediaKey(initItem.url || '', initItem.id);
+          if (!seenIds.has(initItem.id) && !seenKeys.has(mediaKey)) {
             items.push(initItem);
             seenIds.add(initItem.id);
+            seenKeys.add(mediaKey);
           }
         });
 

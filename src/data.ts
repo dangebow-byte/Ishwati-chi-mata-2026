@@ -248,7 +248,7 @@ export const OFFICIAL_FESTIVAL_VIDEOS: FestivalVideoItem[] = [
   },
   {
     id: 'vid-adarsh-shinde-aarti',
-    url: 'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
+    url: 'https://www.youtube.com/watch?v=28TJIom9GFw',
     titleMR: 'अष्टमी - धर्मवीर दुर्गा महाआरती | गायक: आदर्श शिंदे',
     titleEN: 'Ashtami - Dharmaveer Durga Maha Aarti | Adarsh Shinde',
     category: 'Aarti',
@@ -259,7 +259,7 @@ export const OFFICIAL_FESTIVAL_VIDEOS: FestivalVideoItem[] = [
   },
   {
     id: 'vid-visarjan-procession',
-    url: 'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
+    url: 'https://www.instagram.com/reel/Cx0sn8AoN7l/',
     titleMR: 'श्री विसर्जन सोहळा २०२४ - ५३ वे वर्ष भव्य मिरवणूक',
     titleEN: 'Shree Visarjan Sohala 2024 - 53rd Year Grand Procession Reel',
     category: 'Procession',
@@ -270,7 +270,7 @@ export const OFFICIAL_FESTIVAL_VIDEOS: FestivalVideoItem[] = [
   },
   {
     id: 'vid-dhol-tasha-pathak',
-    url: 'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
+    url: 'https://www.youtube.com/watch?v=vV2aM_1Z31k',
     titleMR: 'पारंपरिक ढोल-ताशा पथक व भव्य मिरवणूक नादब्रह्म वादन',
     titleEN: 'Traditional Dhol Tasha Pathak & Grand Festival Procession',
     category: 'Procession',
@@ -281,7 +281,7 @@ export const OFFICIAL_FESTIVAL_VIDEOS: FestivalVideoItem[] = [
   },
   {
     id: 'vid-navratri-special-event',
-    url: 'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
+    url: 'https://www.youtube.com/watch?v=J_jKjM2Y8oA',
     titleMR: 'श्री इश्वटी मातेचा ५३ वा शारदीय नवरात्रौत्सव सोहळा - विशेष कार्यक्रम',
     titleEN: 'Shree Ishwati Mata 53rd Year Sharadiya Navratrotsav - Special Event',
     category: 'Special Events',
@@ -292,7 +292,7 @@ export const OFFICIAL_FESTIVAL_VIDEOS: FestivalVideoItem[] = [
   },
   {
     id: 'vid-sanctum-live-darshan',
-    url: 'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
+    url: 'https://www.youtube.com/watch?v=q6F3TH3bS88',
     titleMR: 'श्री ईश्वटीची माता गर्भगृह थेट दर्शन व दीप प्रज्वलन',
     titleEN: 'Sanctum Live Sanctum Darshan & Sacred Diya Aarti',
     category: 'Special Events',

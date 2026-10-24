@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Play, 
   Film, 
@@ -16,20 +16,25 @@ import {
   Check, 
   AlertCircle, 
   Video, 
-  ExternalLink,
-  Maximize2,
-  Tv,
-  Tag,
-  Flame,
-  Music,
-  CalendarDays
+  ExternalLink, 
+  Maximize2, 
+  Tv, 
+  Tag, 
+  Flame, 
+  Music, 
+  CalendarDays,
+  LayoutGrid,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  Eye
 } from 'lucide-react';
 import { 
   GalleryMediaItem, 
   subscribeGalleryMedia, 
   addGalleryMedia, 
-  deleteGalleryMedia,
-  updateGalleryMedia
+  deleteGalleryMedia, 
+  updateGalleryMedia 
 } from '../services/galleryMediaService';
 import { shareToWhatsApp } from '../utils/shareUtils';
 import { isAdminEmail } from '../constants/adminConstants';
@@ -39,6 +44,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 interface VideoGallerySectionProps {
   lang: 'EN' | 'MR';
   className?: string;
+  onNavigateToGallery?: () => void;
 }
 
 export type FestivalCategoryKey = 'all' | 'Aarti' | 'Procession' | 'Special Events';
@@ -149,12 +155,17 @@ function matchesCategory(item: GalleryMediaItem, selectedCategory: string): bool
 
 export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
   lang,
-  className = ''
+  className = '',
+  onNavigateToGallery
 }) => {
   const [mediaItems, setMediaItems] = useState<GalleryMediaItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<FestivalCategoryKey>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAdminUser, setIsAdminUser] = useState(false);
+
+  // View Mode: 'grid' (Responsive Grid) vs 'carousel' (Google-style horizontal scroll)
+  const [viewMode, setViewMode] = useState<'grid' | 'carousel'>('grid');
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Playback Modal State (Centralized and occupying full space)
   const [activeVideo, setActiveVideo] = useState<GalleryMediaItem | null>(null);
@@ -177,7 +188,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
   const [reorganizedCategory, setReorganizedCategory] = useState<'Aarti' | 'Procession' | 'Special Events'>('Aarti');
   const [isUpdatingCategory, setIsUpdatingCategory] = useState(false);
 
-  // Subscribe to real-time gallery media from Firebase
+  // Subscribe to real-time gallery media from Firebase with local cache first
   useEffect(() => {
     const unsub = subscribeGalleryMedia((items) => {
       // Filter only video or instagram items
@@ -205,52 +216,66 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
       nameMR: 'सर्व व्हिडिओ', 
       nameEN: 'All Videos', 
       icon: Tv,
-      color: 'from-amber-500 to-yellow-600'
     },
     { 
       id: 'Aarti' as FestivalCategoryKey, 
       nameMR: 'महाआरती', 
       nameEN: 'Aarti', 
       icon: Flame,
-      color: 'from-amber-600 to-orange-600'
     },
     { 
       id: 'Procession' as FestivalCategoryKey, 
       nameMR: 'मिरवणूक सोहळा', 
       nameEN: 'Procession', 
       icon: Music,
-      color: 'from-red-600 to-rose-700'
     },
     { 
       id: 'Special Events' as FestivalCategoryKey, 
       nameMR: 'विशेष कार्यक्रम', 
       nameEN: 'Special Events', 
       icon: CalendarDays,
-      color: 'from-purple-600 to-indigo-700'
     },
   ], []);
 
-  // Calculate dynamic category item counts
+  // STRICT VIDEO DEDUPLICATION: Ensures no video repeats by normalized URL / videoId
+  const uniqueVideos = useMemo(() => {
+    const seen = new Set<string>();
+    const result: GalleryMediaItem[] = [];
+
+    mediaItems.forEach(item => {
+      const parsed = parseVideoSource(item.url, item.embedUrl);
+      const uniqueKey = parsed.videoId ? `yt:${parsed.videoId}` : (item.url || item.id).trim().toLowerCase();
+
+      if (!seen.has(uniqueKey)) {
+        seen.add(uniqueKey);
+        result.push(item);
+      }
+    });
+
+    return result;
+  }, [mediaItems]);
+
+  // Calculate dynamic category item counts on unique videos
   const categoryCounts = useMemo(() => {
     const counts: Record<FestivalCategoryKey, number> = {
-      all: mediaItems.length,
+      all: uniqueVideos.length,
       Aarti: 0,
       Procession: 0,
       'Special Events': 0
     };
 
-    mediaItems.forEach(item => {
+    uniqueVideos.forEach(item => {
       if (matchesCategory(item, 'Aarti')) counts.Aarti += 1;
       if (matchesCategory(item, 'Procession')) counts.Procession += 1;
       if (matchesCategory(item, 'Special Events')) counts['Special Events'] += 1;
     });
 
     return counts;
-  }, [mediaItems]);
+  }, [uniqueVideos]);
 
   // Filtered and searched video items
   const filteredVideos = useMemo(() => {
-    return mediaItems.filter(item => {
+    return uniqueVideos.filter(item => {
       // Category filter
       if (!matchesCategory(item, activeCategory)) {
         return false;
@@ -267,7 +292,20 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
 
       return true;
     });
-  }, [mediaItems, activeCategory, searchQuery]);
+  }, [uniqueVideos, activeCategory, searchQuery]);
+
+  // Google-style carousel smooth scrolling controls
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -360, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 360, behavior: 'smooth' });
+    }
+  };
 
   // Handle storing new video URL into Firebase Backend
   const handleSaveVideoUrl = async (e: React.FormEvent) => {
@@ -398,12 +436,12 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
         
-        {/* Header Block with Title, Subtitle, and Admin Action */}
+        {/* Header Block with Title, Subtitle, View Toggle, and Gallery Link */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-brand-gold/25 pb-5">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-gold/15 border border-brand-gold/35 text-brand-gold text-xs font-bold tracking-wider uppercase">
               <Film className="w-3.5 h-3.5 text-brand-saffron animate-pulse" />
-              <span>{lang === 'EN' ? 'Organized Festival Video Archive' : 'वर्गीकृत उत्सव व्हिडिओ दालन'}</span>
+              <span>{lang === 'EN' ? 'Official Video Archive' : 'अधिकृत उत्सव व्हिडिओ दालन'}</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-2.5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
@@ -412,26 +450,70 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
 
             <p className="text-xs sm:text-sm text-gray-300 max-w-3xl leading-relaxed">
               {lang === 'EN'
-                ? 'Explore organized video collections for Maha Aarti, Grand Processions, and Navratri Special Events with live streaming and archive access.'
-                : 'महाआरती, भव्य मिरवणूक सोहळा आणि नवरात्रौत्सवातील विशेष कार्यक्रमांचे वर्गवारीनुसार संकलित व्हिडिओ दालन.'}
+                ? 'Watch distinct festival highlights, Maha Aarti, and grand processions organized by category without duplicates.'
+                : 'महाआरती, भव्य मिरवणूक सोहळा आणि नवरात्रौत्सवातील विशेष कार्यक्रमांचे वर्गवारीनुसार संकलित व सुव्यवस्थित व्हिडिओ दालन.'}
             </p>
           </div>
 
-          {/* Action Row: Admin "Add Video URL" & Total Count */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* Action Row: View Switcher, Admin Add, and Full Gallery Button */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {/* View Mode Toggle: Grid vs Google Carousel */}
+            <div className="flex items-center p-1 rounded-xl bg-black/60 border border-brand-gold/30">
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === 'grid'
+                    ? 'bg-brand-gold text-brand-maroon shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                title={lang === 'EN' ? 'Grid View' : 'ग्रिड दृश्य'}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{lang === 'EN' ? 'Grid' : 'ग्रिड'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setViewMode('carousel')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === 'carousel'
+                    ? 'bg-brand-gold text-brand-maroon shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                title={lang === 'EN' ? 'Scrollable Live View (Google style)' : 'स्क्रोल दृश्य (गुगल स्टाईल)'}
+              >
+                <Tv className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{lang === 'EN' ? 'Scrollable' : 'स्क्रोल'}</span>
+              </button>
+            </div>
+
+            {/* Admin Add Video URL button */}
             {isAdminUser && (
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(true)}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-gold via-amber-400 to-brand-gold text-brand-maroon font-bold text-xs sm:text-sm shadow-lg hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-98 transition-all flex items-center gap-2 cursor-pointer border border-amber-300"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-brand-gold via-amber-400 to-brand-gold text-brand-maroon font-bold text-xs sm:text-sm shadow-lg hover:scale-[1.02] active:scale-98 transition-all flex items-center gap-1.5 cursor-pointer border border-amber-300"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>{lang === 'EN' ? 'Add Video URL' : 'नवीन व्हिडिओ जोडा'}</span>
               </button>
             )}
 
-            <div className="px-3.5 py-2 rounded-xl bg-black/60 border border-brand-gold/30 text-xs font-mono font-bold text-brand-gold flex items-center gap-1.5 shadow-inner">
-              <Tv className="w-3.5 h-3.5 text-brand-saffron" />
+            {/* Link to Full Photo/Video Gallery Tab */}
+            {onNavigateToGallery && (
+              <button
+                type="button"
+                onClick={onNavigateToGallery}
+                className="px-3.5 py-2 rounded-xl bg-brand-maroon/90 hover:bg-brand-red text-brand-gold hover:text-white border border-brand-gold/50 font-bold text-xs sm:text-sm shadow transition-all flex items-center gap-1.5 cursor-pointer"
+                title={lang === 'EN' ? 'Go to full Gallery page' : 'संपूर्ण गॅलरी दालनात जा'}
+              >
+                <span>{lang === 'EN' ? 'All Gallery Media' : 'संपूर्ण गॅलरी'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            <div className="px-3 py-2 rounded-xl bg-black/60 border border-brand-gold/30 text-xs font-mono font-bold text-brand-gold flex items-center gap-1.5 shadow-inner">
               <span>{filteredVideos.length} {lang === 'EN' ? 'Videos' : 'व्हिडिओ'}</span>
             </div>
           </div>
@@ -494,7 +576,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
           </div>
         </div>
 
-        {/* Responsive Grid of Temple Festival Videos */}
+        {/* Video Cards Presentation: Grid View vs Scrollable Carousel View */}
         {filteredVideos.length === 0 ? (
           <div className="text-center py-16 px-4 bg-black/35 rounded-2xl border border-dashed border-brand-gold/30 space-y-3">
             <Film className="w-12 h-12 text-brand-gold/40 mx-auto" />
@@ -516,7 +598,119 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
               {lang === 'EN' ? 'View All Videos' : 'सर्व व्हिडिओ पहा'}
             </button>
           </div>
+        ) : viewMode === 'carousel' ? (
+          /* Google-Style Horizontal Smooth Scrollable Live Video Gallery */
+          <div className="relative group">
+            {/* Left Scroll Arrow */}
+            <button
+              type="button"
+              onClick={scrollLeft}
+              className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/90 hover:bg-brand-maroon text-brand-gold border-2 border-brand-gold shadow-[0_0_20px_rgba(255,153,51,0.6)] flex items-center justify-center transition-all cursor-pointer opacity-90 hover:opacity-100 hover:scale-110 active:scale-95"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            {/* Right Scroll Arrow */}
+            <button
+              type="button"
+              onClick={scrollRight}
+              className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/90 hover:bg-brand-maroon text-brand-gold border-2 border-brand-gold shadow-[0_0_20px_rgba(255,153,51,0.6)] flex items-center justify-center transition-all cursor-pointer opacity-90 hover:opacity-100 hover:scale-110 active:scale-95"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            {/* Horizontal Scroll Track */}
+            <div
+              ref={scrollContainerRef}
+              className="flex items-stretch gap-5 overflow-x-auto pb-4 pt-1 px-1 scroll-smooth scrollbar-none snap-x snap-mandatory"
+            >
+              {filteredVideos.map((video) => {
+                const parsed = parseVideoSource(video.url, video.embedUrl);
+                const thumbUrl = parsed.thumbnailUrl || (video.type === 'instagram' ? '/assets/branding/Mandal logo Maroon Transparent BG.png' : '');
+
+                return (
+                  <div
+                    key={video.id}
+                    onClick={() => setActiveVideo(video)}
+                    className="snap-start shrink-0 w-[290px] xs:w-[320px] sm:w-[360px] flex flex-col bg-gradient-to-b from-[#2a0404]/85 via-black/80 to-[#180202]/90 border border-brand-gold/40 hover:border-brand-gold rounded-2xl overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(255,153,51,0.35)] transition-all duration-300 hover:-translate-y-1 cursor-pointer group/card"
+                  >
+                    {/* Thumbnail */}
+                    <div className="relative w-full aspect-video bg-black overflow-hidden flex items-center justify-center">
+                      {thumbUrl ? (
+                        <img
+                          src={thumbUrl}
+                          alt={lang === 'EN' ? video.titleEN : video.titleMR}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-tr from-brand-maroon to-black flex flex-col items-center justify-center p-4 text-center">
+                          <Film className="w-10 h-10 text-brand-gold/60 mb-2" />
+                          <span className="text-xs font-bold text-brand-gold">Festival Video</span>
+                        </div>
+                      )}
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30" />
+
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-brand-gold/90 text-brand-maroon group-hover/card:bg-brand-saffron group-hover/card:text-white flex items-center justify-center shadow-[0_0_20px_rgba(212,175,55,0.8)] transform group-hover/card:scale-110 transition-all duration-300">
+                          <Play className="w-5 h-5 fill-current ml-0.5" />
+                        </div>
+                      </div>
+
+                      <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2 z-10">
+                        <div>{renderCategoryBadge(video.category || '')}</div>
+                        <span className="px-2 py-0.5 rounded-md bg-black/80 border border-brand-gold/40 text-[10px] font-mono font-bold text-amber-200">
+                          {video.year || '2026'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                      <div>
+                        <h3 className="font-sans font-bold text-sm sm:text-base text-white group-hover/card:text-brand-gold transition-colors line-clamp-2 leading-snug">
+                          {lang === 'EN' ? (video.titleEN || video.titleMR) : video.titleMR}
+                        </h3>
+                      </div>
+
+                      <div className="pt-2 border-t border-brand-gold/20 flex items-center justify-between gap-2 text-xs">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            shareToWhatsApp({
+                              title: lang === 'EN' ? (video.titleEN || video.titleMR) : video.titleMR,
+                              text: `${lang === 'EN' ? video.titleEN : video.titleMR} - Shree Ishwati Chi Mata Festival Video`,
+                              url: video.url
+                            });
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 hover:text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Share2 className="w-3 h-3" />
+                          <span>{lang === 'EN' ? 'Share' : 'शेअर'}</span>
+                        </button>
+
+                        {isAdminUser && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteVideo(video.id, e)}
+                            className="px-2 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 border border-red-500/40 text-red-300 hover:text-white font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         ) : (
+          /* Responsive 3-Column Grid View */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {filteredVideos.map((video) => {
               const parsed = parseVideoSource(video.url, video.embedUrl);

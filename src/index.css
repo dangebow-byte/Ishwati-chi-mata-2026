@@ -135,6 +135,30 @@ h1, h2, h3 {
   animation: bannerFadeOut 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+@keyframes progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes bannerGlowFlash {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.45), inset 0 0 15px rgba(255, 153, 51, 0.2);
+    border-color: rgba(212, 175, 55, 0.85);
+  }
+  50% {
+    box-shadow: 0 0 55px rgba(255, 215, 0, 0.95), inset 0 0 35px rgba(255, 153, 51, 0.45);
+    border-color: #FFD700;
+  }
+}
+
+.animate-banner-flash {
+  animation: bannerGlowFlash 2.2s infinite ease-in-out;
+}
+
 /* Rich gold scrollbars */
 ::-webkit-scrollbar {
   width: 8px;

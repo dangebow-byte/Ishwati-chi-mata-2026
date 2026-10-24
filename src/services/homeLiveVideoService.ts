@@ -93,8 +93,9 @@ export const DEFAULT_HOME_LIVE_VIDEOS: HomeLiveVideo[] = [
     descriptionMR: 'ईश्वटी चौक व मुख्य बाजारपेठ मार्गावर नेत्रदीपक आतषबाजी व नादब्रह्म वादन.',
     descriptionEN: 'Spectacular fireworks and resonant dhol tasha beats through Ishwati Chowk.',
     sourceType: 'youtube',
-    url: 'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/28TJIom9GFw?enablejsapi=1&rel=0&modestbranding=1',
+    url: 'https://www.youtube.com/watch?v=vV2aM_1Z31k',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/vV2aM_1Z31k?enablejsapi=1&rel=0&modestbranding=1',
+    thumbnailUrl: 'https://img.youtube.com/vi/vV2aM_1Z31k/hqdefault.jpg',
     duration: '03:15',
     isLive: false,
     aspectRatio: 'landscape',
@@ -111,8 +112,9 @@ export const DEFAULT_HOME_LIVE_VIDEOS: HomeLiveVideo[] = [
     descriptionMR: 'सकल भाविकांसाठी २४x७ पावन लाइव्ह दर्शन, अलंकार पूजा व महाआरती.',
     descriptionEN: '24/7 Sanctum live darshan, adorned alankar puja, and evening aarti.',
     sourceType: 'youtube',
-    url: 'https://youtu.be/28TJIom9GFw?si=rTrYi7hPJleZzsEG',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/28TJIom9GFw?enablejsapi=1&rel=0&modestbranding=1',
+    url: 'https://www.youtube.com/watch?v=q6F3TH3bS88',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/q6F3TH3bS88?enablejsapi=1&rel=0&modestbranding=1',
+    thumbnailUrl: 'https://img.youtube.com/vi/q6F3TH3bS88/hqdefault.jpg',
     duration: 'Live',
     isLive: true,
     aspectRatio: 'landscape',
@@ -127,6 +129,29 @@ export const DEFAULT_HOME_LIVE_VIDEOS: HomeLiveVideo[] = [
 const LOCAL_STORAGE_KEY = 'ishwatichi_home_live_videos';
 
 /**
+ * Deduplicates list of home live videos by normalized URL
+ */
+function deduplicateHomeLiveVideos(list: HomeLiveVideo[]): HomeLiveVideo[] {
+  const seenUrls = new Set<string>();
+  const seenIds = new Set<string>();
+  const result: HomeLiveVideo[] = [];
+
+  list.forEach(v => {
+    const rawUrl = (v.url || '').trim().toLowerCase();
+    const ytMatch = rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+    const key = ytMatch ? ytMatch[1] : rawUrl;
+
+    if (!seenIds.has(v.id) && !seenUrls.has(key)) {
+      seenIds.add(v.id);
+      if (key) seenUrls.add(key);
+      result.push(v);
+    }
+  });
+
+  return result;
+}
+
+/**
  * Retrieves the cached list of home live videos from local storage
  */
 export function getCachedHomeLiveVideos(): HomeLiveVideo[] {
@@ -136,13 +161,14 @@ export function getCachedHomeLiveVideos(): HomeLiveVideo[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        const hasLakh = parsed.some((v: any) => v.id === 'hlv-lakh-lakh-chanderi' || v.url?.includes('sTVvMFyTVGk'));
+        const deduped = deduplicateHomeLiveVideos(parsed);
+        const hasLakh = deduped.some((v: any) => v.id === 'hlv-lakh-lakh-chanderi' || v.url?.includes('sTVvMFyTVGk'));
         if (!hasLakh) {
-          const merged = [DEFAULT_HOME_LIVE_VIDEOS[0], ...parsed];
+          const merged = deduplicateHomeLiveVideos([DEFAULT_HOME_LIVE_VIDEOS[0], ...deduped]);
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
           return merged;
         }
-        return parsed;
+        return deduped;
       }
     }
   } catch (err) {
@@ -157,7 +183,8 @@ export function getCachedHomeLiveVideos(): HomeLiveVideo[] {
 function setCachedHomeLiveVideos(videos: HomeLiveVideo[]): void {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(videos));
+    const deduped = deduplicateHomeLiveVideos(videos);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(deduped));
   } catch (err) {
     console.warn('Error saving home live videos to cache:', err);
   }
